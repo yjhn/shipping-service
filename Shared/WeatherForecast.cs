@@ -1,4 +1,4 @@
-namespace shipping_service_exp.Shared;
+namespace shipping_service.Shared;
 
 public class WeatherForecast
 {

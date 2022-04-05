@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>shipping-service-exp.Server</RootNamespace>
+    <RootNamespace>shipping-service.Server</RootNamespace>
     <AssemblyName>$(AssemblyName.Replace(' ', '_'))</AssemblyName>
   </PropertyGroup>
 
@@ -13,8 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Client\shipping-service-exp.Client.csproj" />
-    <ProjectReference Include="..\Shared\shipping-service-exp.Shared.csproj" />
+    <ProjectReference Include="..\Client\shipping-service.Client.csproj" />
+    <ProjectReference Include="..\Shared\shipping-service.Shared.csproj" />
   </ItemGroup>
 
 

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using shipping_service_exp.Shared;
+using shipping_service.Shared;
 
-namespace shipping_service_exp.Server.Controllers;
+namespace shipping_service.Server.Controllers;
 
 [ApiController]
 [Route("[controller]")]
