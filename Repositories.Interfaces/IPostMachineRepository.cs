@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Repositories.Entities;
+﻿using Repositories.Entities;
 
 namespace Repositories.Interfaces
 {
@@ -16,7 +10,7 @@ namespace Repositories.Interfaces
 
         Task<PostMachine> CreateAsync(PostMachine postMachine);
 
-        Task<PostMachine> UpdateAsync(string id, PostMachine postMachineIn); 
+        Task<PostMachine> UpdateAsync(string id, PostMachine postMachineIn);
 
         Task<string> DeleteAsync(string id);
 

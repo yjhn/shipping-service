@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
 using Repositories.Entities;
 using Repositories.Interfaces;
 
@@ -21,9 +20,9 @@ public class ShippingServiceController : ControllerBase
         IPackageRepository packageRepository,
         IPostMachineRepository postMachineRepository)
     {
-        _courierRepository = courierRepository; 
-        _senderRepository = senderRepository;   
-        _packageRepository = packageRepository; 
+        _courierRepository = courierRepository;
+        _senderRepository = senderRepository;
+        _packageRepository = packageRepository;
         _postMachineRepository = postMachineRepository;
     }
 
@@ -33,7 +32,7 @@ public class ShippingServiceController : ControllerBase
         var courier = await _courierRepository.GetAsync(courierId);
 
         if (courier == null) return NotFound();
-        
+
         return courier;
     }
 

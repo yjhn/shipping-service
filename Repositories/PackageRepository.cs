@@ -1,19 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Microsoft.Extensions.Options;
-
+﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-
 using Repositories.Entities;
 using Repositories.Interfaces;
 
 namespace Repositories
 {
-    public class PackageRepository : IPackageRepository 
+    public class PackageRepository : IPackageRepository
     {
         private readonly DBConnectionOptions _dbConnection;
         public readonly IMongoCollection<Package> _packages;
