@@ -10,10 +10,15 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Client\shipping-service.Client.csproj" />
+    <ProjectReference Include="..\Repositories.Entities\Repositories.Entities.csproj" />
+    <ProjectReference Include="..\Repositories.Interfaces\Repositories.Interfaces.csproj" />
+    <ProjectReference Include="..\Repositories\Repositories.csproj" />
     <ProjectReference Include="..\Shared\shipping-service.Shared.csproj" />
   </ItemGroup>
 
