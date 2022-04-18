@@ -23,9 +23,9 @@
         PostMachines = await PostMachineRepository.GetAsync();
     }
 
-    public void CreateShipment()
+    public async void CreateShipment()
     {
-        PackageRepository.CreateAsync(Package);
+        await PackageRepository.CreateAsync(Package);
     }
 
 }
