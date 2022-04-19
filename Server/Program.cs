@@ -2,6 +2,7 @@ using Repositories;
 using Repositories.Entities;
 using Repositories.Interfaces;
 
+using Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -21,6 +22,7 @@ builder.Services.AddScoped<ICourierRepository, CourierRepository>();
 builder.Services.AddScoped<IPackageRepository, PackageRepository>();
 builder.Services.AddScoped<IPostMachineRepository, PostMachineRepository>();
 builder.Services.AddScoped<ISenderRepository, SenderRepository>();
+builder.Services.AddScoped<IPackageService, PackageService>();
 
 var app = builder.Build();
 

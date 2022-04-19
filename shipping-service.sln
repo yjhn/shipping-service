@@ -8,11 +8,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "shipping-service.Client", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "shipping-service.Shared", "Shared\shipping-service.Shared.csproj", "{C4571BFC-7236-47AF-9597-392F54687A8F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repositories.Entities", "Repositories.Entities\Repositories.Entities.csproj", "{53D72430-3423-45BB-9A1F-0802EB9CEA30}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repositories.Entities", "Repositories.Entities\Repositories.Entities.csproj", "{53D72430-3423-45BB-9A1F-0802EB9CEA30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repositories", "Repositories\Repositories.csproj", "{769D0600-33D7-4BFD-ACEB-8E1A0FAB6081}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repositories", "Repositories\Repositories.csproj", "{769D0600-33D7-4BFD-ACEB-8E1A0FAB6081}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repositories.Interfaces", "Repositories.Interfaces\Repositories.Interfaces.csproj", "{FF88F4C5-BDDA-4BDE-A3D4-A7BEE4924336}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repositories.Interfaces", "Repositories.Interfaces\Repositories.Interfaces.csproj", "{FF88F4C5-BDDA-4BDE-A3D4-A7BEE4924336}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Services.csproj", "{07F3B571-A4A6-44D9-B814-F06EB76BCFAE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -96,6 +98,18 @@ Global
 		{FF88F4C5-BDDA-4BDE-A3D4-A7BEE4924336}.Release|x64.Build.0 = Release|Any CPU
 		{FF88F4C5-BDDA-4BDE-A3D4-A7BEE4924336}.Release|x86.ActiveCfg = Release|Any CPU
 		{FF88F4C5-BDDA-4BDE-A3D4-A7BEE4924336}.Release|x86.Build.0 = Release|Any CPU
+		{07F3B571-A4A6-44D9-B814-F06EB76BCFAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07F3B571-A4A6-44D9-B814-F06EB76BCFAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07F3B571-A4A6-44D9-B814-F06EB76BCFAE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{07F3B571-A4A6-44D9-B814-F06EB76BCFAE}.Debug|x64.Build.0 = Debug|Any CPU
+		{07F3B571-A4A6-44D9-B814-F06EB76BCFAE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{07F3B571-A4A6-44D9-B814-F06EB76BCFAE}.Debug|x86.Build.0 = Debug|Any CPU
+		{07F3B571-A4A6-44D9-B814-F06EB76BCFAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07F3B571-A4A6-44D9-B814-F06EB76BCFAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07F3B571-A4A6-44D9-B814-F06EB76BCFAE}.Release|x64.ActiveCfg = Release|Any CPU
+		{07F3B571-A4A6-44D9-B814-F06EB76BCFAE}.Release|x64.Build.0 = Release|Any CPU
+		{07F3B571-A4A6-44D9-B814-F06EB76BCFAE}.Release|x86.ActiveCfg = Release|Any CPU
+		{07F3B571-A4A6-44D9-B814-F06EB76BCFAE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
