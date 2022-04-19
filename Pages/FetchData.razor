@@ -1,12 +1,13 @@
 ﻿@page "/fetchdata"
-@using shipping_service.Shared
-@inject HttpClient Http
 
 <PageTitle>Weather forecast</PageTitle>
 
+@using shipping_service.Data
+@inject WeatherForecastService ForecastService
+
 <h1>Weather forecast</h1>
 
-<p>This component demonstrates fetching data from the server.</p>
+<p>This component demonstrates fetching data from a service.</p>
 
 @if (forecasts == null)
 {
@@ -42,6 +43,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
+        forecasts = await ForecastService.GetForecastAsync(DateTime.Now);
     }
 }
