@@ -1,0 +1,32 @@
+@page "/shipment/registration"
+
+<h3>Shipment registration</h3>
+
+@code {
+
+    [Inject]
+    public ISenderRepository SenderRepository { get; set; }
+    [Inject]
+    public IPackageRepository PackageRepository { get; set; }
+    [Inject]
+    public IPostMachineRepository PostMachineRepository { get; set; }
+    public Package Package { get; set; }
+    public IEnumerable<PostMachine> PostMachines { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Package = new Package();
+        await RetrievePostMachines();
+    }
+
+    public async Task RetrievePostMachines()
+    {
+        PostMachines = await PostMachineRepository.GetAsync();
+    }
+
+    public async void CreateShipment()
+    {
+        await PackageRepository.CreateAsync(Package);
+    }
+
+}

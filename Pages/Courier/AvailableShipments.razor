@@ -1,0 +1,47 @@
+﻿@page "/courier/available-shipments"
+
+<h3>Search for available shipments to deliver</h3>
+
+@code {
+
+    [Inject]
+    public ISenderRepository SenderRepository { get; set; }
+    [Inject]
+    public IPackageRepository PackageRepository { get; set; }
+    [Inject]
+    public IPostMachineRepository PostMachineRepository { get; set; }
+    [Inject]
+    public ICourierRepository CourierRepository { get; set; }
+    [Inject]
+    public IPackageService PackageService { get; set; }
+    public IEnumerable<Package> UnassignedPackages { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetUnassignedPackages();
+    }
+
+    public async Task GetUnassignedPackages()
+    {
+        UnassignedPackages = await PackageService.GetUnassignedAsync();
+    }
+
+    public async Task AssignPackageToCourier(String CourierId, String PackageId)
+    {
+        List<Package> packages = await PackageService.GetUnassignedAsync();
+        var courier = await CourierRepository.GetAsync(CourierId);
+        var package = await PackageRepository.GetAsync(PackageId);
+        if (package == null || courier == null)
+        {
+            return; // Better handling could be implemented in the future.
+        }
+        if (packages.Contains(package))
+        {
+            packages.Add(package);
+            courier.Packages.Add(package);
+            await CourierRepository.UpdateAsync(courier._id, courier);
+        }
+        // No handling if false, yet.
+    }
+
+}

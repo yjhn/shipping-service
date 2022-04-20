@@ -1,7 +1,7 @@
-using Repositories.Entities;
-using Repositories.Interfaces;
+using shipping_service.Entities;
+using shipping_service.Repositories;
 
-namespace Services
+namespace shipping_service.Services
 {
     public class PackageService : IPackageService
     {

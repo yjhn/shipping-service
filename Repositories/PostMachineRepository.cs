@@ -1,56 +1,35 @@
 ﻿using Microsoft.Extensions.Options;
-using MongoDB.Driver;
-using Repositories.Entities;
-using Repositories.Interfaces;
 
-namespace Repositories
+using shipping_service.Entities;
+
+namespace shipping_service.Repositories
 {
     public class PostMachineRepository : IPostMachineRepository
     {
-        private readonly DBConnectionOptions _dbConnection;
-        public readonly IMongoCollection<PostMachine> _postMachines;
-
-        public PostMachineRepository(IOptions<DBConnectionOptions> settings)
-        {
-            _dbConnection = settings.Value;
-            var client = new MongoClient(_dbConnection.ConnectionString);
-            var database = client.GetDatabase(_dbConnection.DatabaseName);
-            _postMachines = database.GetCollection<PostMachine>("PostMachineCollection");
-        }
 
         public async Task<List<PostMachine>> GetAsync()
         {
-            var task = await _postMachines.FindAsync(postMachine => true);
-
-            return await task.ToListAsync();
+            return new List<PostMachine>();
         }
 
         public async Task<PostMachine> GetAsync(string id)
         {
-            var task = await _postMachines.FindAsync<PostMachine>(postMachine => postMachine._id == id);
-
-            return await task.FirstOrDefaultAsync();
+            return new PostMachine();
         }
 
         public async Task<PostMachine> CreateAsync(PostMachine postMachine)
         {
-            await _postMachines.InsertOneAsync(postMachine);
-
-            return postMachine;
+            return new PostMachine();
         }
 
         public async Task<PostMachine> UpdateAsync(string id, PostMachine postMachineIn)
         {
-            await _postMachines.ReplaceOneAsync(postMachine => postMachine._id == id, postMachineIn);
-
-            return postMachineIn;
+            return new PostMachine();
         }
 
         public async Task<string> DeleteAsync(string id)
         {
-            await _postMachines.DeleteOneAsync(postMachine => postMachine._id == id);
-
-            return id;
+            return "PlaceHolder";
         }
 
     }

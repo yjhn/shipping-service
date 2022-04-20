@@ -1,10 +1,9 @@
-using Repositories.Entities;
-using Repositories.Interfaces;
+using shipping_service.Entities;
 
-namespace Services
+namespace shipping_service.Services
 {
     public interface IPackageService
     {
-Task<List<Package>> GetUnassignedAsync();
-}
+        Task<List<Package>> GetUnassignedAsync();
+    }
 }
