@@ -1,0 +1,12 @@
+﻿@page "/courier"
+
+<PageTitle> Courier main page</PageTitle>
+<h4> Courier main page</h4>
+
+<NavLink class="btn btn-primary" href="@SearchAvailableShipmentsUrl">
+    Available shipments
+</NavLink>
+
+@code {
+    public string SearchAvailableShipmentsUrl = "/courier/available-shipments";
+}

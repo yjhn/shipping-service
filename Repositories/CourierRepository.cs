@@ -1,58 +1,37 @@
-﻿
-using Microsoft.Extensions.Options;
+﻿using shipping_service.Entities;
 
-using MongoDB.Driver;
-using Repositories.Entities;
-using Repositories.Interfaces;
-
-namespace Repositories
+namespace shipping_service.Repositories
 {
     public class CourierRepository : ICourierRepository
     {
-        private readonly DBConnectionOptions _dbConnection;
-        public readonly IMongoCollection<Courier> _couriers;
 
-        public CourierRepository(IOptions<DBConnectionOptions> settings)
+        public CourierRepository()
         {
-            _dbConnection = settings.Value;
-            var client = new MongoClient(_dbConnection.ConnectionString);
-            var database = client.GetDatabase(_dbConnection.DatabaseName);
-            _couriers = database.GetCollection<Courier>("CourierCollection");
         }
 
         public async Task<List<Courier>> GetAsync()
         {
-            var task = await _couriers.FindAsync(courier => true);
-
-            return await task.ToListAsync();
+            return new List<Courier>();
         }
 
         public async Task<Courier> GetAsync(string id)
         {
-            var task = await _couriers.FindAsync<Courier>(courier => courier._id == id);
-
-            return await task.FirstOrDefaultAsync();
+            return new Courier();
         }
 
         public async Task<Courier> CreateAsync(Courier courier)
         {
-            await _couriers.InsertOneAsync(courier);
-
-            return courier;
+            return new Courier();
         }
 
         public async Task<Courier> UpdateAsync(string id, Courier courierIn)
         {
-            await _couriers.ReplaceOneAsync(courier => courier._id == id, courierIn);
-
-            return courierIn;
+            return new Courier();
         }
 
         public async Task<string> DeleteAsync(string id)
         {
-            await _couriers.DeleteOneAsync(courier => courier._id == id);
-
-            return id;
+            return "PlaceHolder";
         }
     }
 }
