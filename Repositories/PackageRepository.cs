@@ -1,4 +1,5 @@
-﻿using shipping_service.Entities;
+﻿
+using shipping_service.Persistence.Entities;
 
 namespace shipping_service.Repositories
 {
@@ -10,7 +11,7 @@ namespace shipping_service.Repositories
             return new List<Package>();
         }
 
-        public async Task<Package> GetAsync(string id)
+        public async Task<Package> GetAsync(ulong id)
         {
             return new Package();
         }
@@ -20,14 +21,14 @@ namespace shipping_service.Repositories
             return new Package();
         }
 
-        public async Task<Package> UpdateAsync(string id, Package packageIn)
+        public async Task<Package> UpdateAsync(ulong id, Package packageIn)
         {
             return new Package();
         }
 
-        public async Task<string> DeleteAsync(string id)
+        public async Task<ulong> DeleteAsync(ulong id)
         {
-            return "PlaceHolder";
+            return 0;
         }
     }
 }
