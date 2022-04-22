@@ -12,7 +12,7 @@ using shipping_service.Persistence.Database;
 namespace shipping_service.Persistence.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20220422091818_make Package -> Sender a required relationship")]
+    [Migration("20220422091818_make Shipment -> Sender a required relationship")]
     partial class makePackageSenderarequiredrelationship
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -58,7 +58,7 @@ namespace shipping_service.Persistence.Migrations
                     b.ToTable("Couriers");
                 });
 
-            modelBuilder.Entity("shipping_service.Persistence.Entities.Package", b =>
+            modelBuilder.Entity("shipping_service.Persistence.Entities.Shipment", b =>
                 {
                     b.Property<decimal>("Id")
                         .ValueGeneratedOnAdd()
@@ -167,7 +167,7 @@ namespace shipping_service.Persistence.Migrations
                     b.ToTable("Senders");
                 });
 
-            modelBuilder.Entity("shipping_service.Persistence.Entities.Package", b =>
+            modelBuilder.Entity("shipping_service.Persistence.Entities.Shipment", b =>
                 {
                     b.HasOne("shipping_service.Persistence.Entities.Courier", "Courier")
                         .WithMany("CurrentPackages")

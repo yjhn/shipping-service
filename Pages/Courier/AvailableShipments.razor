@@ -19,7 +19,7 @@
     [Inject]
     public IPackageService PackageService { get; set; }
 
-    public IEnumerable<Package> UnassignedPackages { get; set; }
+    public IEnumerable<Shipment> UnassignedPackages { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -33,7 +33,7 @@
 
     public async Task AssignPackageToCourier(ulong courierId, ulong packageId)
     {
-        var packages = (List<Package>)await PackageService.GetUnassignedAsync();
+        var packages = (List<Shipment>)await PackageService.GetUnassignedAsync();
         var courier = await CourierRepository.GetAsync(courierId);
         var package = await PackageRepository.GetAsync(packageId);
         if (package == null || courier == null)

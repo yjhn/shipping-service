@@ -4,6 +4,6 @@ namespace shipping_service.Services
 {
     public interface IPackageService
     {
-        Task<ICollection<Package>> GetUnassignedAsync();
+        Task<ICollection<Shipment>> GetUnassignedAsync();
     }
 }

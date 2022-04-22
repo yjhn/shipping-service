@@ -12,7 +12,7 @@ namespace shipping_service.Persistence.Database
         }
 
         public DbSet<Courier> Couriers { get; set; }
-        public DbSet<Package> Packages { get; set; }
+        public DbSet<Shipment> Packages { get; set; }
         public DbSet<PostMachine> PostMachines { get; set; }
         public DbSet<Sender> Senders { get; set; }
 
@@ -68,7 +68,7 @@ namespace shipping_service.Persistence.Database
             // keys
             modelBuilder.Entity<Courier>()
                 .HasKey(c => c.Id);
-            modelBuilder.Entity<Package>()
+            modelBuilder.Entity<Shipment>()
                 .HasKey(p => p.Id);
             modelBuilder.Entity<PostMachine>()
                 .HasKey(p => p.Id);
@@ -79,7 +79,7 @@ namespace shipping_service.Persistence.Database
             modelBuilder.Entity<Courier>()
                 .Property(c => c.Created)
                 .HasDefaultValueSql("now()");
-            modelBuilder.Entity<Package>()
+            modelBuilder.Entity<Shipment>()
                 .Property(p => p.Created)
                 .HasDefaultValueSql("now()");
             modelBuilder.Entity<PostMachine>()
@@ -95,7 +95,7 @@ namespace shipping_service.Persistence.Database
             modelBuilder.Entity<Courier>()
                 .Property(c => c.Modified)
                 .HasComputedColumnSql("now()", stored: true);
-            modelBuilder.Entity<Package>()
+            modelBuilder.Entity<Shipment>()
                 .Property(p => p.Modified)
                 .HasComputedColumnSql("now()", stored: true);
             modelBuilder.Entity<PostMachine>()
@@ -118,25 +118,25 @@ namespace shipping_service.Persistence.Database
                 .IsUnique();
 
             // relationships
-            modelBuilder.Entity<Package>()
+            modelBuilder.Entity<Shipment>()
                 .HasOne(p => p.Sender)
                 .WithMany(s => s.Packages)
                 .HasForeignKey(p => p.SenderId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<Package>()
+            modelBuilder.Entity<Shipment>()
                 .HasOne(p => p.Courier)
                 .WithMany(c => c.CurrentPackages)
                 .HasForeignKey(p => p.CourierId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.ClientSetNull);
-            modelBuilder.Entity<Package>()
+            modelBuilder.Entity<Shipment>()
                 .HasOne(p => p.SourceMachine)
                 .WithMany(p => p.PackagesWithThisSource)
                 .HasForeignKey(p => p.SourceMachineId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<Package>()
+            modelBuilder.Entity<Shipment>()
                 .HasOne(p => p.DestinationMachine)
                 .WithMany(p => p.PackagesWithThisDestination)
                 .HasForeignKey(p => p.DestinationMachineId)
@@ -175,15 +175,15 @@ namespace shipping_service.Persistence.Database
                 .HasColumnType("bytea")
                 .IsRequired();
 
-            modelBuilder.Entity<Package>()
+            modelBuilder.Entity<Shipment>()
                 .Property(p => p.Title)
                 .HasColumnType("varchar(50)")
                 .IsRequired();
-            modelBuilder.Entity<Package>()
+            modelBuilder.Entity<Shipment>()
                 .Property(p => p.Description)
                 .HasColumnType("varchar(100)")
                 .IsRequired(false);
-            modelBuilder.Entity<Package>()
+            modelBuilder.Entity<Shipment>()
                 .Property(p => p.Status)
                 .IsRequired();
 

@@ -4,13 +4,13 @@ namespace shipping_service.Repositories
 {
     public interface IPackageRepository
     {
-        Task<List<Package>> GetAsync();
+        Task<List<Shipment>> GetAsync();
 
-        Task<Package> GetAsync(ulong id);
+        Task<Shipment> GetAsync(ulong id);
 
-        Task<Package> CreateAsync(Package package);
+        Task<Shipment> CreateAsync(Shipment shipment);
 
-        Task<Package> UpdateAsync(ulong id, Package packageIn);
+        Task<Shipment> UpdateAsync(ulong id, Shipment shipmentIn);
 
         Task<ulong> DeleteAsync(ulong id);
     }

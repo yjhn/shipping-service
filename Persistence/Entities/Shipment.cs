@@ -1,6 +1,6 @@
 ﻿namespace shipping_service.Persistence.Entities
 {
-    public class Package : IBaseEntity
+    public class Shipment : IBaseEntity
     {
         public string Title { get; set; }
         public string? Description { get; set; }
@@ -20,19 +20,19 @@
 
     public enum PackageStatus
     {
-        // when sender registers package to be sent
+        // when sender registers shipment to be sent
         RegisteredForSending,
 
-        // when sender places the package in post machine
+        // when sender places the shipment in post machine
         InSourcePostMachine,
 
-        // when courier picks up package from source machine
+        // when courier picks up shipment from source machine
         Shipping,
 
-        // when courier delivers package to destination machine
+        // when courier delivers shipment to destination machine
         InDestinationPostMachine,
 
-        // when receiver picks up package from post machine
+        // when receiver picks up shipment from post machine
         Delivered
     }
 }

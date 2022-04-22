@@ -56,55 +56,6 @@ namespace shipping_service.Persistence.Migrations
                     b.ToTable("Couriers");
                 });
 
-            modelBuilder.Entity("shipping_service.Persistence.Entities.Package", b =>
-                {
-                    b.Property<decimal>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("numeric(20,0)");
-
-                    b.Property<decimal?>("CourierId")
-                        .HasColumnType("numeric(20,0)");
-
-                    b.Property<DateTime>("Created")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<decimal>("DestinationMachineId")
-                        .HasColumnType("numeric(20,0)");
-
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal>("SenderId")
-                        .HasColumnType("numeric(20,0)");
-
-                    b.Property<decimal>("SourceMachineId")
-                        .HasColumnType("numeric(20,0)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourierId");
-
-                    b.HasIndex("DestinationMachineId");
-
-                    b.HasIndex("SenderId");
-
-                    b.HasIndex("SourceMachineId");
-
-                    b.ToTable("Packages");
-                });
-
             modelBuilder.Entity("shipping_service.Persistence.Entities.PostMachine", b =>
                 {
                     b.Property<decimal>("Id")
@@ -165,7 +116,56 @@ namespace shipping_service.Persistence.Migrations
                     b.ToTable("Senders");
                 });
 
-            modelBuilder.Entity("shipping_service.Persistence.Entities.Package", b =>
+            modelBuilder.Entity("shipping_service.Persistence.Entities.Shipment", b =>
+                {
+                    b.Property<decimal>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<decimal?>("CourierId")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<DateTime>("Created")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<decimal>("DestinationMachineId")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("SenderId")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<decimal>("SourceMachineId")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourierId");
+
+                    b.HasIndex("DestinationMachineId");
+
+                    b.HasIndex("SenderId");
+
+                    b.HasIndex("SourceMachineId");
+
+                    b.ToTable("Packages");
+                });
+
+            modelBuilder.Entity("shipping_service.Persistence.Entities.Shipment", b =>
                 {
                     b.HasOne("shipping_service.Persistence.Entities.Courier", "Courier")
                         .WithMany("CurrentPackages")

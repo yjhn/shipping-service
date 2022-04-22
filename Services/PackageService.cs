@@ -14,16 +14,16 @@ namespace shipping_service.Services
             _courierRepository = courierRepository;
         }
 
-        public async Task<ICollection<Package>> GetUnassignedAsync()
+        public async Task<ICollection<Shipment>> GetUnassignedAsync()
         {
-            List<Package>? packages = await _packageRepository.GetAsync();
+            List<Shipment>? packages = await _packageRepository.GetAsync();
             List<Courier> couriers = await _courierRepository.GetAsync();
             foreach (Courier courier in couriers)
             {
-                ICollection<Package> courierPackages = courier.CurrentPackages;
+                ICollection<Shipment> courierPackages = courier.CurrentPackages;
                 if (packages != null)
                 {
-                    foreach (Package package in courierPackages)
+                    foreach (Shipment package in courierPackages)
                     {
                         packages.Remove(package);
                     }
