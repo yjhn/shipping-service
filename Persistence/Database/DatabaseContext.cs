@@ -23,13 +23,11 @@ namespace shipping_service.Persistence.Database
         }
 
         public override async Task<int> SaveChangesAsync(
-            // bool acceptAllChangesOnSuccess, 
             CancellationToken cancellationToken = default
         )
         {
             OnBeforeSaving();
-            return await base.SaveChangesAsync( //acceptAllChangesOnSuccess,
-                cancellationToken);
+            return await base.SaveChangesAsync(cancellationToken);
         }
 
         private void OnBeforeSaving()
@@ -39,8 +37,10 @@ namespace shipping_service.Persistence.Database
 
             foreach (EntityEntry entry in entries)
             {
-                // for entities that inherit from BaseEntity,
-                // set UpdatedOn / CreatedOn appropriately
+                // generate modified time (cannot call "now()" as it is
+                // not an immutable function, so do this on save manually)
+                // for entities that implement IBaseEntity,
+                // set Modified on create or update
                 if (entry.Entity is IBaseEntity trackable)
                 {
                     switch (entry.State)
@@ -88,23 +88,6 @@ namespace shipping_service.Persistence.Database
             modelBuilder.Entity<Sender>()
                 .Property(s => s.Created)
                 .HasDefaultValueSql("now()");
-
-            // generate modified time (cannot call "now()" as it is
-            // not an immutable function, so do this on save manually)
-            /*
-            modelBuilder.Entity<Courier>()
-                .Property(c => c.Modified)
-                .HasComputedColumnSql("now()", stored: true);
-            modelBuilder.Entity<Shipment>()
-                .Property(p => p.Modified)
-                .HasComputedColumnSql("now()", stored: true);
-            modelBuilder.Entity<PostMachine>()
-                .Property(p => p.Modified)
-                .HasComputedColumnSql("now()", stored: true);
-            modelBuilder.Entity<Sender>()
-                .Property(s => s.Modified)
-                .HasComputedColumnSql("now()", stored: true);
-                */
 
             // unique indexes
             modelBuilder.Entity<Courier>()
