@@ -1,12 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 
-using shipping_service.Persistence;
-using shipping_service.Persistence.DatabaseContext;
-using shipping_service.Persistence.Entities;
+using shipping_service.Persistence.Database;
 using shipping_service.Repositories;
 using shipping_service.Services;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 // Configure services
 builder.Configuration.AddJsonFile("appsettings.json");
 builder.Services.AddDbContext<DatabaseContext>(option =>
@@ -15,7 +13,7 @@ builder.Services.AddDbContext<DatabaseContext>(option =>
         .EnableSensitiveDataLogging()
         .EnableDetailedErrors()
         .LogTo(Console.WriteLine));
-    // option.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+// option.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<ICourierRepository, CourierRepository>();
 builder.Services.AddScoped<IPackageRepository, PackageRepository>();
 builder.Services.AddScoped<IPostMachineRepository, PostMachineRepository>();
@@ -26,12 +24,12 @@ builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 builder.Services.AddServerSideBlazor();
 
 //Build
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 // create DB with all migrations applied on startup
-using (var serviceScope = app.Services.CreateScope())
+using (IServiceScope serviceScope = app.Services.CreateScope())
 {
-    var context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
+    DatabaseContext context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
     context.Database.Migrate();
 }
 
@@ -42,6 +40,7 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();

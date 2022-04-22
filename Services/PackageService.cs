@@ -5,8 +5,8 @@ namespace shipping_service.Services
 {
     public class PackageService : IPackageService
     {
-        private readonly IPackageRepository _packageRepository;
         private readonly ICourierRepository _courierRepository;
+        private readonly IPackageRepository _packageRepository;
 
         public PackageService(IPackageRepository packageRepository, ICourierRepository courierRepository)
         {
@@ -16,11 +16,11 @@ namespace shipping_service.Services
 
         public async Task<ICollection<Package>> GetUnassignedAsync()
         {
-            var packages = await _packageRepository.GetAsync();
-            var couriers = await _courierRepository.GetAsync();
+            List<Package>? packages = await _packageRepository.GetAsync();
+            List<Courier> couriers = await _courierRepository.GetAsync();
             foreach (Courier courier in couriers)
             {
-                var courierPackages = courier.CurrentPackages;
+                ICollection<Package> courierPackages = courier.CurrentPackages;
                 if (packages != null)
                 {
                     foreach (Package package in courierPackages)
@@ -29,6 +29,7 @@ namespace shipping_service.Services
                     }
                 }
             }
+
             return packages;
         }
     }

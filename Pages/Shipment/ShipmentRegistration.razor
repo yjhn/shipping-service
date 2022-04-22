@@ -6,10 +6,13 @@
 
     [Inject]
     public ISenderRepository SenderRepository { get; set; }
+
     [Inject]
     public IPackageRepository PackageRepository { get; set; }
+
     [Inject]
     public IPostMachineRepository PostMachineRepository { get; set; }
+
     public Package Package { get; set; }
     public IEnumerable<PostMachine> PostMachines { get; set; }
 

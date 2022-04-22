@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace shipping_service.Migrations
+namespace shipping_service.Persistence.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class create_db : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -14,9 +14,9 @@ namespace shipping_service.Migrations
                 columns: table => new
                 {
                     Id = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
-                    Username = table.Column<string>(type: "varchar(50)", nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
-                    Modified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, computedColumnSql: "now()"),
+                    Modified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Username = table.Column<string>(type: "varchar(50)", nullable: false),
                     HashedPassword = table.Column<byte[]>(type: "bytea", nullable: false),
                     Name = table.Column<string>(type: "varchar(100)", nullable: false)
                 },
@@ -30,9 +30,9 @@ namespace shipping_service.Migrations
                 columns: table => new
                 {
                     Id = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
-                    Name = table.Column<string>(type: "varchar(50)", nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
-                    Modified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, computedColumnSql: "now()"),
+                    Modified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Name = table.Column<string>(type: "varchar(50)", nullable: false),
                     Address = table.Column<string>(type: "varchar(100)", nullable: false)
                 },
                 constraints: table =>
@@ -45,9 +45,9 @@ namespace shipping_service.Migrations
                 columns: table => new
                 {
                     Id = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
-                    HashedPassword = table.Column<byte[]>(type: "bytea", nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
-                    Modified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, computedColumnSql: "now()"),
+                    Modified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    HashedPassword = table.Column<byte[]>(type: "bytea", nullable: false),
                     Username = table.Column<string>(type: "varchar(50)", nullable: false)
                 },
                 constraints: table =>
@@ -61,8 +61,8 @@ namespace shipping_service.Migrations
                 {
                     Id = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
-                    Modified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, computedColumnSql: "now()"),
-                    Name = table.Column<string>(type: "varchar(50)", nullable: false),
+                    Modified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Title = table.Column<string>(type: "varchar(50)", nullable: false),
                     Description = table.Column<string>(type: "varchar(100)", nullable: true),
                     SenderId = table.Column<decimal>(type: "numeric(20,0)", nullable: true),
                     CourierId = table.Column<decimal>(type: "numeric(20,0)", nullable: true),

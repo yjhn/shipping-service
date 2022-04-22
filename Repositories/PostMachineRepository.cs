@@ -1,11 +1,9 @@
-﻿
-using shipping_service.Persistence.Entities;
+﻿using shipping_service.Persistence.Entities;
 
 namespace shipping_service.Repositories
 {
     public class PostMachineRepository : IPostMachineRepository
     {
-
         public async Task<List<PostMachine>> GetAsync()
         {
             return new List<PostMachine>();
@@ -30,6 +28,5 @@ namespace shipping_service.Repositories
         {
             return 0;
         }
-
     }
 }

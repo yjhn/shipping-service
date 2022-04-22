@@ -1,5 +1,4 @@
-﻿
-using shipping_service.Persistence.Entities;
+﻿using shipping_service.Persistence.Entities;
 
 namespace shipping_service.Repositories
 {

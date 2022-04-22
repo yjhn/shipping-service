@@ -1,11 +1,9 @@
-﻿
-using shipping_service.Persistence.Entities;
+﻿using shipping_service.Persistence.Entities;
 
 namespace shipping_service.Repositories
 {
     public class PackageRepository : IPackageRepository
     {
-
         public async Task<List<Package>> GetAsync()
         {
             return new List<Package>();

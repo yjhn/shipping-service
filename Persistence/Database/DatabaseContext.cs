@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 using shipping_service.Persistence.Entities;
 
-namespace shipping_service.Persistence.DatabaseContext
+namespace shipping_service.Persistence.Database
 {
     public class DatabaseContext : DbContext
     {
@@ -15,8 +16,65 @@ namespace shipping_service.Persistence.DatabaseContext
         public DbSet<PostMachine> PostMachines { get; set; }
         public DbSet<Sender> Senders { get; set; }
 
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            OnBeforeSaving();
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+
+        public override async Task<int> SaveChangesAsync(
+            // bool acceptAllChangesOnSuccess, 
+            CancellationToken cancellationToken = default
+        )
+        {
+            OnBeforeSaving();
+            return await base.SaveChangesAsync( //acceptAllChangesOnSuccess,
+                cancellationToken);
+        }
+
+        private void OnBeforeSaving()
+        {
+            IEnumerable<EntityEntry> entries = ChangeTracker.Entries();
+            DateTime utcNow = DateTime.UtcNow;
+
+            foreach (EntityEntry entry in entries)
+            {
+                // for entities that inherit from BaseEntity,
+                // set UpdatedOn / CreatedOn appropriately
+                if (entry.Entity is IBaseEntity trackable)
+                {
+                    switch (entry.State)
+                    {
+                        case EntityState.Modified:
+                            // set the updated date to "now"
+                            trackable.Modified = utcNow;
+
+                            // mark property as "don't touch"
+                            // we don't want to update on a Modify operation
+                            // entry.Property("CreatedOn").IsModified = false;
+                            break;
+
+                        case EntityState.Added:
+                            // set updated date to "now" (created will be set automatically)
+                            trackable.Modified = utcNow;
+                            break;
+                    }
+                }
+            }
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // keys
+            modelBuilder.Entity<Courier>()
+                .HasKey(c => c.Id);
+            modelBuilder.Entity<Package>()
+                .HasKey(p => p.Id);
+            modelBuilder.Entity<PostMachine>()
+                .HasKey(p => p.Id);
+            modelBuilder.Entity<Sender>()
+                .HasKey(s => s.Id);
+
             // generate created time
             modelBuilder.Entity<Courier>()
                 .Property(c => c.Created)
@@ -31,19 +89,22 @@ namespace shipping_service.Persistence.DatabaseContext
                 .Property(s => s.Created)
                 .HasDefaultValueSql("now()");
 
-            // generate modified time
+            // generate modified time (cannot call "now()" as it is
+            // not an immutable function, so do this on save manually)
+            /*
             modelBuilder.Entity<Courier>()
                 .Property(c => c.Modified)
-                .HasComputedColumnSql("now()");
+                .HasComputedColumnSql("now()", stored: true);
             modelBuilder.Entity<Package>()
                 .Property(p => p.Modified)
-                .HasComputedColumnSql("now()");
+                .HasComputedColumnSql("now()", stored: true);
             modelBuilder.Entity<PostMachine>()
                 .Property(p => p.Modified)
-                .HasComputedColumnSql("now()");
+                .HasComputedColumnSql("now()", stored: true);
             modelBuilder.Entity<Sender>()
                 .Property(s => s.Modified)
-                .HasComputedColumnSql("now()");
+                .HasComputedColumnSql("now()", stored: true);
+                */
 
             // unique indexes
             modelBuilder.Entity<Courier>()
@@ -57,15 +118,12 @@ namespace shipping_service.Persistence.DatabaseContext
                 .IsUnique();
 
             // relationships
-
-            // this property is not required because the user can
-            // delete their account while packages are still in transfer
             modelBuilder.Entity<Package>()
                 .HasOne(p => p.Sender)
                 .WithMany(s => s.Packages)
                 .HasForeignKey(p => p.SenderId)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Package>()
                 .HasOne(p => p.Courier)
                 .WithMany(c => c.CurrentPackages)
@@ -84,16 +142,6 @@ namespace shipping_service.Persistence.DatabaseContext
                 .HasForeignKey(p => p.DestinationMachineId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
-
-            // keys
-            modelBuilder.Entity<Courier>()
-                .HasKey(c => c.Id);
-            modelBuilder.Entity<Package>()
-                .HasKey(p => p.Id);
-            modelBuilder.Entity<PostMachine>()
-                .HasKey(p => p.Id);
-            modelBuilder.Entity<Sender>()
-                .HasKey(s => s.Id);
 
             // property types
             modelBuilder.Entity<Courier>()

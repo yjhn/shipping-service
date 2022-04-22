@@ -4,11 +4,6 @@ namespace shipping_service.Repositories
 {
     public class CourierRepository : ICourierRepository
     {
-
-        public CourierRepository()
-        {
-        }
-
         public async Task<List<Courier>> GetAsync()
         {
             return new List<Courier>();

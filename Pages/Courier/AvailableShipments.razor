@@ -6,14 +6,19 @@
 
     [Inject]
     public ISenderRepository SenderRepository { get; set; }
+
     [Inject]
     public IPackageRepository PackageRepository { get; set; }
+
     [Inject]
     public IPostMachineRepository PostMachineRepository { get; set; }
+
     [Inject]
     public ICourierRepository CourierRepository { get; set; }
+
     [Inject]
     public IPackageService PackageService { get; set; }
+
     public IEnumerable<Package> UnassignedPackages { get; set; }
 
     protected override async Task OnInitializedAsync()
@@ -28,7 +33,7 @@
 
     public async Task AssignPackageToCourier(ulong courierId, ulong packageId)
     {
-        var packages = (List<Package>)(await PackageService.GetUnassignedAsync());
+        var packages = (List<Package>)await PackageService.GetUnassignedAsync();
         var courier = await CourierRepository.GetAsync(courierId);
         var package = await PackageRepository.GetAsync(packageId);
         if (package == null || courier == null)
@@ -41,7 +46,7 @@
             courier.CurrentPackages.Add(package);
             await CourierRepository.UpdateAsync(courier.Id, courier);
         }
-        // No handling if false, yet.
+    // No handling if false, yet.
     }
 
 }

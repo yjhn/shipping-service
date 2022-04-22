@@ -1,4 +1,5 @@
 # Shipping service
+
 <img src="databaseDiagram.drawio.png">
 
 Sender must have zero or more packages.<br />

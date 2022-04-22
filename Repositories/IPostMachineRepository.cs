@@ -1,5 +1,4 @@
-﻿
-using shipping_service.Persistence.Entities;
+﻿using shipping_service.Persistence.Entities;
 
 namespace shipping_service.Repositories
 {
@@ -14,6 +13,5 @@ namespace shipping_service.Repositories
         Task<PostMachine> UpdateAsync(ulong id, PostMachine postMachineIn);
 
         Task<ulong> DeleteAsync(ulong id);
-
     }
 }

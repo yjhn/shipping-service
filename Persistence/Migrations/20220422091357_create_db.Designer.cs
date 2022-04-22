@@ -2,18 +2,20 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using shipping_service.Persistence.DatabaseContext;
+using shipping_service.Persistence.Database;
 
 #nullable disable
 
-namespace shipping_service.Migrations
+namespace shipping_service.Persistence.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20220422091357_create_db")]
+    partial class create_db
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,9 +40,7 @@ namespace shipping_service.Migrations
                         .HasColumnType("bytea");
 
                     b.Property<DateTime>("Modified")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("timestamp with time zone")
-                        .HasComputedColumnSql("now()");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -79,13 +79,7 @@ namespace shipping_service.Migrations
                         .HasColumnType("numeric(20,0)");
 
                     b.Property<DateTime>("Modified")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("timestamp with time zone")
-                        .HasComputedColumnSql("now()");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal?>("SenderId")
                         .HasColumnType("numeric(20,0)");
@@ -95,6 +89,10 @@ namespace shipping_service.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)");
 
                     b.HasKey("Id");
 
@@ -125,9 +123,7 @@ namespace shipping_service.Migrations
                         .HasDefaultValueSql("now()");
 
                     b.Property<DateTime>("Modified")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("timestamp with time zone")
-                        .HasComputedColumnSql("now()");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -157,9 +153,7 @@ namespace shipping_service.Migrations
                         .HasColumnType("bytea");
 
                     b.Property<DateTime>("Modified")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("timestamp with time zone")
-                        .HasComputedColumnSql("now()");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -186,7 +180,7 @@ namespace shipping_service.Migrations
                         .IsRequired();
 
                     b.HasOne("shipping_service.Persistence.Entities.Sender", "Sender")
-                        .WithMany("SentPackages")
+                        .WithMany("Packages")
                         .HasForeignKey("SenderId");
 
                     b.HasOne("shipping_service.Persistence.Entities.PostMachine", "SourceMachine")
@@ -218,7 +212,7 @@ namespace shipping_service.Migrations
 
             modelBuilder.Entity("shipping_service.Persistence.Entities.Sender", b =>
                 {
-                    b.Navigation("SentPackages");
+                    b.Navigation("Packages");
                 });
 #pragma warning restore 612, 618
         }
