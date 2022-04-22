@@ -2,13 +2,13 @@
 
 <img src="databaseDiagram.drawio.png">
 
-Sender must have zero or more packages.<br />
-Package must have one and only one sender.<br />
-Package must have zero or one courier.<br />
-Package must have one and only one source machine.<br />
-Package must have one and only one destination machine.<br />
-Post machine must have zero or more packages to hold.<br />
-Courier must have zero or more packages to deliver.<br />
+- Sender must have zero or more packages.
+- Package must have one and only one sender.
+- Package must have zero or one courier.
+- Package must have one and only one source machine.
+- Package must have one and only one destination machine.
+- Post machine must have zero or more packages to hold.
+- Courier must have zero or more packages to deliver.
 
 ## System usage story
 Peter wants to send a package to Chloe. He signs up to our Shipping service, entering his username and password. The username and password hash is sent to db.
@@ -23,20 +23,31 @@ Since Peter sent the shipment tracking link to Cloe, she sees that the package h
 
 Database used is PostgreSQL 13 (should also work with newer versions).
 
-### Linux (Manjaro, Arch)
+### Linux
 
 1. install postgresql
 2. `initdb --locale $LANG -E UTF8 -D ~/postgres/data/`
 3. `sudo mkdir /run/postgresql`
 4. `sudo chown -R $USER:$USER /run/postgresql`
-5. `createuser --createdb admin --pwprompt` and enter `password` as password
+5. `createuser -d -P admin` and enter `password` as password
 6. execute on each startup to run the DB: `pg_ctl -D ~/potgres/data -l ~/postgres/logfile start`
 
 If database directory is deleted, steps 2-6 need to be repeated.
 
 ### Windows
 
-TODO
+1. download PostgreSQL 13 from https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
+2. launch installer
+3. select at least "PostgreSQL Server", "pgAdmin4" and "Command Line Tools" in the installer
+4. choose user postgres password and remember it, don't change the default port
+5. install
+5. launch pgAdmin
+6. choose pgAdmin password
+7. in the servers panel (upper right corner) select first and connect using password from step 4
+8. create a new role, named "admin" with password "password" and privileges "Can login" and "Create databases"
+9. run the application, the database will be automatically created and will be visible in pgAdmin
+
+Note: on closing, pgAdmin will show message saying that changes might not be saved, just choose leave, everything is ok.
 
 ### Database migrations
 
