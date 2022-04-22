@@ -37,10 +37,10 @@ namespace shipping_service.Persistence.Database
 
             foreach (EntityEntry entry in entries)
             {
-                // generate modified time (cannot call "now()" as it is
+                // set modified time on create or update (cannot call "now()" as it is
                 // not an immutable function, so do this on save manually)
-                // for entities that implement IBaseEntity,
-                // set Modified on create or update
+                // see https://www.npgsql.org/efcore/modeling/generated-properties.html#timestamp-generation
+                // and https://threewill.com/how-to-auto-generate-created-updated-field-in-ef-core/
                 if (entry.Entity is IBaseEntity trackable)
                 {
                     switch (entry.State)

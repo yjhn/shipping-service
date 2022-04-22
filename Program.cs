@@ -8,12 +8,11 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 // Configure services
 builder.Configuration.AddJsonFile("appsettings.json");
 builder.Services.AddDbContext<DatabaseContext>(option =>
-    option.UseNpgsql("Server=::1;Port=5432;Database=shipping_service_db;User Id=admin;Password=password")
+    option.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
         // enable logging for debugging
         .EnableSensitiveDataLogging()
         .EnableDetailedErrors()
         .LogTo(Console.WriteLine));
-// option.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<ICourierRepository, CourierRepository>();
 builder.Services.AddScoped<IPackageRepository, PackageRepository>();
 builder.Services.AddScoped<IPostMachineRepository, PostMachineRepository>();
