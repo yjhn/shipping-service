@@ -10,6 +10,6 @@ namespace shipping_service.Persistence.Entities
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
         public string Username { get; set; }
-        public ICollection<Package> SentPackages { get; set; }
+        public ICollection<Package> Packages { get; set; }
     }
 }

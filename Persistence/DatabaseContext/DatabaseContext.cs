@@ -62,7 +62,7 @@ namespace shipping_service.Persistence.DatabaseContext
             // delete their account while packages are still in transfer
             modelBuilder.Entity<Package>()
                 .HasOne(p => p.Sender)
-                .WithMany(s => s.SentPackages)
+                .WithMany(s => s.Packages)
                 .HasForeignKey(p => p.SenderId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.ClientSetNull);
@@ -128,7 +128,7 @@ namespace shipping_service.Persistence.DatabaseContext
                 .IsRequired();
 
             modelBuilder.Entity<Package>()
-                .Property(p => p.Name)
+                .Property(p => p.Title)
                 .HasColumnType("varchar(50)")
                 .IsRequired();
             modelBuilder.Entity<Package>()

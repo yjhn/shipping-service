@@ -9,7 +9,7 @@ namespace shipping_service.Persistence.Entities
         public ulong Id { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
-        public string Name { get; set; }
+        public string Title { get; set; }
         public string? Description { get; set; }
         public Sender? Sender { get; set; }
         public ulong? SenderId { get; set; }
