@@ -18,3 +18,28 @@ Peter goes to the source post machine, enters its unlocking code and places the 
 To send a package to the destination machine the need the courier. Courier cannot register himself, instead our team registers him (he must change the password). Courier’s name is William.
 Once Peter registration of shipment is uploaded to the db, William can search for new packages to deliver. Since shipments can have no couriers for some time, William is shown a list of these shipments. A source and destination machines’ addresses are shown. If William is willing to deliver the shipment to the endpoint, he can assign it to self. Once William does that, a source and destination machines’ unlocking codes are given. The shipment itself is given a courier and is no longer shown in shipment list for other couriers to consider delivering. William goes to source destination machine, enters the unlocking code and picks up the package. The status of the shipment changes. After some time, William arrives at the endpoint enters destination machine unlocking code and places the package. The status of the shipment changes. Courier cannot unlock the machine once it shuts the doors. William has done his work for this shipment.
 Since Peter sent the shipment tracking link to Cloe, she sees that the package has arrived. She goes to the destination post machine and enters the unlocking code Peter has given to her. Chloe takes the package. Shipment status changes. Peter has successfully delivered the package to Chloe.
+
+## Setting up the database
+
+Database used is PostgreSQL 13 (should also work with newer versions).
+
+### Linux (Manjaro, Arch)
+
+1. install postgresql
+2. `initdb --locale $LANG -E UTF8 -D ~/postgres/data/`
+3. `sudo mkdir /run/postgresql`
+4. `sudo chown -R $USER:$USER /run/postgresql`
+5. `createuser --createdb admin --pwprompt` and enter `password` as password
+6. execute on each startup to run the DB: `pg_ctl -D ~/potgres/data -l ~/postgres/logfile start`
+
+If database directory is deleted, steps 2-6 need to be repeated.
+
+### Windows
+
+TODO
+
+### Database migrations
+
+execute
+`dotnet ef migrations add create_db -o Persistence/Migrations`
+in project directory

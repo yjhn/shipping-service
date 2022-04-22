@@ -14,11 +14,11 @@ namespace shipping_service.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
-                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
-                    Modified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Username = table.Column<string>(type: "varchar(50)", nullable: false),
                     HashedPassword = table.Column<byte[]>(type: "bytea", nullable: false),
-                    Name = table.Column<string>(type: "varchar(100)", nullable: false)
+                    Name = table.Column<string>(type: "varchar(100)", nullable: false),
+                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
+                    Modified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -30,10 +30,10 @@ namespace shipping_service.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
-                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
-                    Modified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Name = table.Column<string>(type: "varchar(50)", nullable: false),
-                    Address = table.Column<string>(type: "varchar(100)", nullable: false)
+                    Address = table.Column<string>(type: "varchar(100)", nullable: false),
+                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
+                    Modified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -45,10 +45,10 @@ namespace shipping_service.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
-                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
-                    Modified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     HashedPassword = table.Column<byte[]>(type: "bytea", nullable: false),
-                    Username = table.Column<string>(type: "varchar(50)", nullable: false)
+                    Username = table.Column<string>(type: "varchar(50)", nullable: false),
+                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
+                    Modified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -60,15 +60,15 @@ namespace shipping_service.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
-                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
-                    Modified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Title = table.Column<string>(type: "varchar(50)", nullable: false),
                     Description = table.Column<string>(type: "varchar(100)", nullable: true),
-                    SenderId = table.Column<decimal>(type: "numeric(20,0)", nullable: true),
+                    SenderId = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
                     CourierId = table.Column<decimal>(type: "numeric(20,0)", nullable: true),
                     SourceMachineId = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
                     DestinationMachineId = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
-                    Status = table.Column<int>(type: "integer", nullable: false)
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
+                    Modified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -94,7 +94,8 @@ namespace shipping_service.Persistence.Migrations
                         name: "FK_Packages_Senders_SenderId",
                         column: x => x.SenderId,
                         principalTable: "Senders",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
