@@ -3,10 +3,57 @@
 <PageTitle> Courier main page</PageTitle>
 <h4> Courier main page</h4>
 
+<h5>Here is a demonstration of the database and seed data working:</h5>
+<table class="table table-sm table-striped table-bordered">
+    <tbody>
+    @if (ShipmentRepository.Shipments?.Count() > 0)
+    {
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Sender username</th>
+            <th>Courier name</th>
+            <th>Source machine address</th>
+            <th>Destination machine address</th>
+            <th>Status</th>
+        </tr>
+        foreach(var shipment in Shipments)
+        {
+            <tr>
+                <td>@shipment.Title</td>
+                <td>@(shipment.Description ?? "No description provided.")</td>
+                <td>@shipment.Sender.Username</td>
+                <td>@(shipment.Courier?.Name ?? "No courier has promised to deliver this shipment yet.")</td>
+                <td>@shipment.SourceMachine.Address</td>
+                <td>@shipment.DestinationMachine.Address</td>
+                <td>@shipment.Status</td>
+            </tr>
+        }
+    }
+    else
+    {
+        <tr><td colspan="5" class="text-center">No shipments yet</td></tr>
+    }
+    </tbody>
+</table>
+
 <NavLink class="btn btn-primary" href="@SearchAvailableShipmentsUrl">
     Available shipments
 </NavLink>
 
 @code {
+    [Inject]
+    public IShipmentRepository ShipmentRepository { get; set; }
+    public IEnumerable<Shipment> Shipments { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Shipments = ShipmentRepository.Shipments.
+            Include(s => s.Sender).
+            Include(s => s.Courier).
+            Include(s => s.SourceMachine).
+            Include(s => s.DestinationMachine);
+    }
+
     public string SearchAvailableShipmentsUrl = "/courier/available-shipments";
 }
