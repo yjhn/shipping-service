@@ -117,25 +117,25 @@ namespace shipping_service.Persistence.Database
             // relationships
             modelBuilder.Entity<Shipment>()
                 .HasOne(p => p.Sender)
-                .WithMany(s => s.Packages)
+                .WithMany(s => s.Shipments)
                 .HasForeignKey(p => p.SenderId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Shipment>()
                 .HasOne(p => p.Courier)
-                .WithMany(c => c.CurrentPackages)
+                .WithMany(c => c.CurrentShipments)
                 .HasForeignKey(p => p.CourierId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.ClientSetNull);
             modelBuilder.Entity<Shipment>()
                 .HasOne(p => p.SourceMachine)
-                .WithMany(p => p.PackagesWithThisSource)
+                .WithMany(p => p.ShipmentsWithThisSource)
                 .HasForeignKey(p => p.SourceMachineId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Shipment>()
                 .HasOne(p => p.DestinationMachine)
-                .WithMany(p => p.PackagesWithThisDestination)
+                .WithMany(p => p.ShipmentsWithThisDestination)
                 .HasForeignKey(p => p.DestinationMachineId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);

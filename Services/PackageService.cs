@@ -14,23 +14,9 @@ namespace shipping_service.Services
             _courierRepository = courierRepository;
         }
 
-        public async Task<ICollection<Shipment>> GetUnassignedAsync()
+        public IEnumerable<Shipment> GetUnassignedAsync()
         {
-            List<Shipment>? packages = await _packageRepository.GetAsync();
-            List<Courier> couriers = await _courierRepository.GetAsync();
-            foreach (Courier courier in couriers)
-            {
-                ICollection<Shipment> courierPackages = courier.CurrentPackages;
-                if (packages != null)
-                {
-                    foreach (Shipment package in courierPackages)
-                    {
-                        packages.Remove(package);
-                    }
-                }
-            }
-
-            return packages;
+            return _packageRepository.Shipments.Where(s => s.CourierId == null);
         }
     }
 }
