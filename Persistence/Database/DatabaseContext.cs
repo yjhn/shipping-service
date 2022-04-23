@@ -12,7 +12,7 @@ namespace shipping_service.Persistence.Database
         }
 
         public DbSet<Courier> Couriers { get; set; }
-        public DbSet<Shipment> Packages { get; set; }
+        public DbSet<Shipment> Shipments { get; set; }
         public DbSet<PostMachine> PostMachines { get; set; }
         public DbSet<Sender> Senders { get; set; }
 

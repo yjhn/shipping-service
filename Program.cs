@@ -49,4 +49,5 @@ app.UseEndpoints(endpoints =>
     endpoints.MapBlazorHub();
     endpoints.MapFallbackToPage("/_Host");
 });
+SeedData.PopulateIfEmpty(app);
 app.Run();
