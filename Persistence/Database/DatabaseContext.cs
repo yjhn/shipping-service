@@ -174,7 +174,7 @@ namespace shipping_service.Persistence.Database
                 .IsRequired();
             modelBuilder.Entity<Shipment>()
                 .Property(p => p.Description)
-                .HasColumnType("varchar(100)")
+                .HasColumnType("varchar(1000)")
                 .IsRequired(false);
             modelBuilder.Entity<Shipment>()
                 .Property(p => p.Status)
