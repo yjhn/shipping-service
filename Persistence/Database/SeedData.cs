@@ -56,8 +56,8 @@ namespace shipping_service.Persistence.Database
                     string username = sheet.Cells[i, usernameColumnPosition].Value.ToString();
                     string password = sheet.Cells[i, passwordColumnPosition].Value.ToString();
                     // TODO: password hash.
-                    // Sender sender = new Sender { Username = username, HashedPassword = passwordHash};
-                    // context.Senders.Add(sender);
+                    Sender sender = new Sender { Username = username, HashedPassword = {}};
+                    context.Senders.Add(sender);
                 }
             }
             context.SaveChanges();
@@ -78,8 +78,8 @@ namespace shipping_service.Persistence.Database
                     string password = sheet.Cells[i, passwordColumnPosition].Value.ToString();
                     string name = sheet.Cells[i, nameColumnPosition].Value.ToString();
                     // TODO: password hash.
-                    // Courier courier = new Courier { Username = username, HashedPassword = passwordHash, Name = name};
-                    // context.Couriers.Add(courier);
+                    Courier courier = new Courier { Username = username, HashedPassword = {}, Name = name};
+                    context.Couriers.Add(courier);
                 }
             }
             context.SaveChanges();
