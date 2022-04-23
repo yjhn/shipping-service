@@ -4,7 +4,7 @@
     {
         public byte[] HashedPassword { get; set; }
         public string Username { get; set; }
-        public ICollection<Shipment> Packages { get; set; }
+        public ICollection<Shipment> Shipments { get; set; }
         public ulong Id { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }

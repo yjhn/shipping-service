@@ -124,17 +124,32 @@ namespace shipping_service.Persistence.Database
                     ulong senderId = Convert.ToUInt64(
                         sheet.Cells[i, senderIdColumnPosition].Value.ToString());
                     string? courierIdString = sheet.Cells[i, courierIdColumnPosition].Value?.ToString();
-                    ulong? courierId = null;
-                    if (courierIdString != null)
-                    {
-                        courierId = Convert.ToUInt64(courierIdString);
-                    }
                     ulong sourceMachineId = Convert.ToUInt64(
                         sheet.Cells[i, sourceMachineIdColumnPosition].Value.ToString());
                     ulong destinationMachineId = Convert.ToUInt64(
                         sheet.Cells[i, destinationMachineIdColumnPosition].Value.ToString());
-                    Shipment shipment = new Shipment { Title = title, Description = description };
-                    context.Shipments.Add(shipment);
+                    string shipmentStatusString = 
+                        sheet.Cells[i, descriptionColumnPosition].Value.ToString();
+                    ShipmentStatus shipmentStatus = 
+                        (ShipmentStatus) Enum.Parse(typeof(ShipmentStatus), shipmentStatusString);
+                    Shipment shipment = 
+                        new Shipment { Title = title, Description = description, Status = shipmentStatus};
+                    //context.Shipments.Add(shipment);
+                    Sender shipmentSender = context.Senders.First(s => s.Id == senderId);
+                    shipmentSender.Shipments.Add(shipment);
+                    if (courierIdString != null)
+                    {
+                        ulong courierId = Convert.ToUInt64(courierIdString);
+                        Courier shipmentCourier = context.Couriers.First(c => c.Id == courierId);
+                        shipmentCourier.CurrentShipments.Add(shipment);
+                    }
+
+                    PostMachine shipmentSourceMachine = 
+                        context.PostMachines.First(sm => sm.Id == sourceMachineId);
+                    shipmentSourceMachine.ShipmentsWithThisSource.Add(shipment);
+                    PostMachine shipmentDestinationMachine =
+                        context.PostMachines.First(dm => dm.Id == destinationMachineId);
+                    shipmentDestinationMachine.ShipmentsWithThisDestination.Add(shipment);
                 }
             }
             context.SaveChanges();
