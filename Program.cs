@@ -17,7 +17,7 @@ builder.Services.AddScoped<ICourierRepository, CourierRepository>();
 builder.Services.AddScoped<IShipmentRepository, ShipmentRepository>();
 builder.Services.AddScoped<IPostMachineRepository, PostMachineRepository>();
 builder.Services.AddScoped<ISenderRepository, SenderRepository>();
-builder.Services.AddScoped<IPackageService, PackageService>();
+builder.Services.AddScoped<IShipmentService, ShipmentService>();
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 //builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); This one could come in handy.
 builder.Services.AddServerSideBlazor();

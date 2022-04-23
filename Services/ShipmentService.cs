@@ -3,18 +3,16 @@ using shipping_service.Repositories;
 
 namespace shipping_service.Services
 {
-    public class PackageService : IPackageService
+    public class ShipmentService : IShipmentService
     {
-        private readonly ICourierRepository _courierRepository;
         private readonly IShipmentRepository _packageRepository;
 
-        public PackageService(IShipmentRepository packageRepository, ICourierRepository courierRepository)
+        public ShipmentService(IShipmentRepository packageRepository)
         {
             _packageRepository = packageRepository;
-            _courierRepository = courierRepository;
         }
 
-        public IEnumerable<Shipment> GetUnassignedAsync()
+        public IEnumerable<Shipment> GetUnassigned()
         {
             return _packageRepository.Shipments.Where(s => s.CourierId == null);
         }

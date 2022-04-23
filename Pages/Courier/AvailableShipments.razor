@@ -5,21 +5,16 @@
 @code {
 
     [Inject]
-    public ISenderRepository SenderRepository { get; set; }
-
-    [Inject]
-    public IShipmentRepository PackageRepository { get; set; }
-
-    [Inject]
-    public IPostMachineRepository PostMachineRepository { get; set; }
+    public IShipmentRepository ShipmentRepository { get; set; }
 
     [Inject]
     public ICourierRepository CourierRepository { get; set; }
 
     [Inject]
-    public IPackageService PackageService { get; set; }
+    public IShipmentService ShipmentService { get; set; }
 
-    public IEnumerable<Shipment> UnassignedPackages { get; set; }
+    public IEnumerable<Shipment> UnassignedShipments { get; set; }
+    public Courier Courier { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -28,23 +23,20 @@
 
     public async Task GetUnassignedPackages()
     {
-        UnassignedPackages = await PackageService.GetUnassignedAsync();
+        UnassignedShipments = ShipmentService.GetUnassigned();
     }
 
-    public async Task AssignPackageToCourier(ulong courierId, ulong packageId)
+    public async Task AssignPackageToCourier(ulong shipmentId)
     {
-        var packages = (List<Shipment>)await PackageService.GetUnassignedAsync();
-        var courier = await CourierRepository.GetAsync(courierId);
-        var package = await PackageRepository.GetAsync(packageId);
-        if (package == null || courier == null)
+        var shipment = await ShipmentRepository.Shipments.FirstOrDefaultAsync(s => s.Id == shipmentId);
+        if (shipment == null)
         {
             return; // Better handling could be implemented in the future.
         }
-        if (packages.Contains(package))
+        if (shipment.CourierId == null)
         {
-            packages.Add(package);
-            courier.CurrentPackages.Add(package);
-            await CourierRepository.UpdateAsync(courier.Id, courier);
+            Courier.CurrentShipments.Add(shipment);
+            await CourierRepository.UpdateAsync(Courier);
         }
     // No handling if false, yet.
     }
