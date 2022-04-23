@@ -4,14 +4,12 @@ namespace shipping_service.Repositories
 {
     public interface IPostMachineRepository
     {
-        Task<List<PostMachine>> GetAsync();
+        IQueryable<PostMachine> PostMachines { get; }
 
-        Task<PostMachine> GetAsync(ulong id);
+        Task CreateAsync(PostMachine postMachine);
 
-        Task<PostMachine> CreateAsync(PostMachine postMachine);
+        Task UpdateAsync(PostMachine postMachine);
 
-        Task<PostMachine> UpdateAsync(ulong id, PostMachine postMachineIn);
-
-        Task<ulong> DeleteAsync(ulong id);
+        void DeleteAsync(PostMachine postMachine);
     }
 }

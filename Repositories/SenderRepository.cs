@@ -1,32 +1,34 @@
-﻿using shipping_service.Persistence.Entities;
+﻿using shipping_service.Persistence.Database;
+using shipping_service.Persistence.Entities;
 
 namespace shipping_service.Repositories
 {
     public class SenderRepository : ISenderRepository
     {
-        public async Task<List<Sender>> GetAsync()
+        private DatabaseContext context;
+        public IQueryable<Sender> Senders => context.Senders;
+
+        public SenderRepository(DatabaseContext ctx)
         {
-            return new List<Sender>();
+            context = ctx;
         }
 
-        public async Task<Sender> GetAsync(ulong id)
+        public async Task CreateAsync(Sender sender)
         {
-            return new Sender();
+            await context.AddAsync(sender);
+            await context.SaveChangesAsync();
         }
 
-        public async Task<Sender> CreateAsync(Sender sender)
+        public async Task UpdateAsync(Sender sender)
         {
-            return new Sender();
+            await context.SaveChangesAsync();
         }
 
-        public async Task<Sender> UpdateAsync(ulong id, Sender senderIn)
+        public void DeleteAsync(Sender sender)
         {
-            return new Sender();
+            context.Remove(sender);
+            context.SaveChanges();
         }
 
-        public async Task<ulong> DeleteAsync(ulong id)
-        {
-            return 0;
-        }
     }
 }

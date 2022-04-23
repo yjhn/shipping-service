@@ -6,9 +6,9 @@ namespace shipping_service.Services
     public class PackageService : IPackageService
     {
         private readonly ICourierRepository _courierRepository;
-        private readonly IPackageRepository _packageRepository;
+        private readonly IShipmentRepository _packageRepository;
 
-        public PackageService(IPackageRepository packageRepository, ICourierRepository courierRepository)
+        public PackageService(IShipmentRepository packageRepository, ICourierRepository courierRepository)
         {
             _packageRepository = packageRepository;
             _courierRepository = courierRepository;

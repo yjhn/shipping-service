@@ -14,7 +14,7 @@ builder.Services.AddDbContext<DatabaseContext>(option =>
         .EnableDetailedErrors()
         .LogTo(Console.WriteLine));
 builder.Services.AddScoped<ICourierRepository, CourierRepository>();
-builder.Services.AddScoped<IPackageRepository, PackageRepository>();
+builder.Services.AddScoped<IShipmentRepository, ShipmentRepository>();
 builder.Services.AddScoped<IPostMachineRepository, PostMachineRepository>();
 builder.Services.AddScoped<ISenderRepository, SenderRepository>();
 builder.Services.AddScoped<IPackageService, PackageService>();
