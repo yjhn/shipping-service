@@ -5,14 +5,14 @@ namespace shipping_service.Repositories
 {
     public class CourierRepository : ICourierRepository
     {
-
-        private DatabaseContext context;
-        public IQueryable<Courier> Couriers => context.Couriers;
+        private readonly DatabaseContext context;
 
         public CourierRepository(DatabaseContext ctx)
         {
             context = ctx;
         }
+
+        public IQueryable<Courier> Couriers => context.Couriers;
 
         public async Task CreateAsync(Courier courier)
         {
@@ -30,6 +30,5 @@ namespace shipping_service.Repositories
             context.Remove(courier);
             context.SaveChanges();
         }
-
     }
 }

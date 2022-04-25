@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+
 using OfficeOpenXml;
 
 using shipping_service.Extensions;
@@ -8,7 +9,6 @@ namespace shipping_service.Persistence.Database
 {
     public class SeedData
     {
-
         private const bool seed = true;
         private const bool migrate = true;
         private const string basePath = $"{nameof(Persistence)}/{nameof(Database)}/test-data";
@@ -22,20 +22,24 @@ namespace shipping_service.Persistence.Database
             {
                 context.Database.Migrate();
             }
+
             if (seed)
             {
                 if (!context.PostMachines.Any())
                 {
                     populatePostMachines(context);
                 }
+
                 if (!context.Senders.Any())
                 {
                     populateSenders(context);
                 }
+
                 if (!context.Couriers.Any())
                 {
                     populateCouriers(context);
                 }
+
                 if (!context.Shipments.Any())
                 {
                     populateShipments(context);
@@ -45,13 +49,13 @@ namespace shipping_service.Persistence.Database
 
         private static void populateSenders(DatabaseContext context)
         {
-            FileInfo excelFileInfo = new FileInfo($"{basePath}/{nameof(Sender)}s.xlsx");
-            using (var excelFile = new ExcelPackage(excelFileInfo))
+            FileInfo excelFileInfo = new($"{basePath}/{nameof(Sender)}s.xlsx");
+            using (ExcelPackage excelFile = new ExcelPackage(excelFileInfo))
             {
-                var sheet = excelFile.Workbook.Worksheets.First();
-                int idColumnPosition = EPPlusExtensions.GetColumnByName(sheet, "ID");
-                int usernameColumnPosition = EPPlusExtensions.GetColumnByName(sheet, "Username");
-                int passwordColumnPosition = EPPlusExtensions.GetColumnByName(sheet, "Password");
+                ExcelWorksheet? sheet = excelFile.Workbook.Worksheets.First();
+                int idColumnPosition = sheet.GetColumnByName("ID");
+                int usernameColumnPosition = sheet.GetColumnByName("Username");
+                int passwordColumnPosition = sheet.GetColumnByName("Password");
                 for (int i = 2; i <= sheet.Dimension.Rows; i++)
                 {
                     ulong id = Convert.ToUInt64(
@@ -59,26 +63,24 @@ namespace shipping_service.Persistence.Database
                     string username = sheet.Cells[i, usernameColumnPosition].Value.ToString();
                     string password = sheet.Cells[i, passwordColumnPosition].Value.ToString();
                     // TODO: password hash.
-                    Sender sender = new Sender
-                    {
-                        Id = id, Username = username, HashedPassword = new byte[7]
-                    };
+                    Sender sender = new() { Id = id, Username = username, HashedPassword = new byte[7] };
                     context.Senders.Add(sender);
                 }
             }
+
             context.SaveChanges();
         }
 
         private static void populateCouriers(DatabaseContext context)
         {
-            FileInfo excelFileInfo = new FileInfo($"{basePath}/{nameof(Courier)}s.xlsx");
-            using (var excelFile = new ExcelPackage(excelFileInfo))
+            FileInfo excelFileInfo = new($"{basePath}/{nameof(Courier)}s.xlsx");
+            using (ExcelPackage excelFile = new ExcelPackage(excelFileInfo))
             {
-                var sheet = excelFile.Workbook.Worksheets.First();
-                int idColumnPosition = EPPlusExtensions.GetColumnByName(sheet, "ID");
-                int usernameColumnPosition = EPPlusExtensions.GetColumnByName(sheet, "Username");
-                int passwordColumnPosition = EPPlusExtensions.GetColumnByName(sheet, "Password");
-                int nameColumnPosition = EPPlusExtensions.GetColumnByName(sheet, "Name");
+                ExcelWorksheet? sheet = excelFile.Workbook.Worksheets.First();
+                int idColumnPosition = sheet.GetColumnByName("ID");
+                int usernameColumnPosition = sheet.GetColumnByName("Username");
+                int passwordColumnPosition = sheet.GetColumnByName("Password");
+                int nameColumnPosition = sheet.GetColumnByName("Name");
                 for (int i = 2; i <= sheet.Dimension.Rows; i++)
                 {
                     ulong id = Convert.ToUInt64(
@@ -87,56 +89,51 @@ namespace shipping_service.Persistence.Database
                     string password = sheet.Cells[i, passwordColumnPosition].Value.ToString();
                     string name = sheet.Cells[i, nameColumnPosition].Value.ToString();
                     // TODO: password hash.
-                    Courier courier = new Courier
-                    {
-                        Id = id, Username = username,
-                        HashedPassword = new byte[7]
-                    };
+                    Courier courier = new() { Id = id, Username = username, HashedPassword = new byte[7] };
                     context.Couriers.Add(courier);
                 }
             }
+
             context.SaveChanges();
         }
 
         private static void populatePostMachines(DatabaseContext context)
         {
-            FileInfo excelFileInfo = new FileInfo($"{basePath}/{nameof(PostMachine)}s.xlsx");
-            using (var excelFile = new ExcelPackage(excelFileInfo))
+            FileInfo excelFileInfo = new($"{basePath}/{nameof(PostMachine)}s.xlsx");
+            using (ExcelPackage excelFile = new ExcelPackage(excelFileInfo))
             {
-                var sheet = excelFile.Workbook.Worksheets.First();
-                int idColumnPosition = EPPlusExtensions.GetColumnByName(sheet, "ID");
-                int nameColumnPosition = EPPlusExtensions.GetColumnByName(sheet, "Name");
-                int addressColumnPosition = EPPlusExtensions.GetColumnByName(sheet, "Address");
+                ExcelWorksheet? sheet = excelFile.Workbook.Worksheets.First();
+                int idColumnPosition = sheet.GetColumnByName("ID");
+                int nameColumnPosition = sheet.GetColumnByName("Name");
+                int addressColumnPosition = sheet.GetColumnByName("Address");
                 for (int i = 2; i <= sheet.Dimension.Rows; i++)
                 {
                     ulong id = Convert.ToUInt64(
                         sheet.Cells[i, idColumnPosition].Value.ToString());
                     string name = sheet.Cells[i, nameColumnPosition].Value.ToString();
                     string address = sheet.Cells[i, addressColumnPosition].Value.ToString();
-                    PostMachine postMachine = new PostMachine
-                    {
-                        Id = id, Name = name, Address = address
-                    };
+                    PostMachine postMachine = new() { Id = id, Name = name, Address = address };
                     context.PostMachines.Add(postMachine);
                 }
             }
+
             context.SaveChanges();
         }
 
         private static void populateShipments(DatabaseContext context)
         {
-            FileInfo excelFileInfo = new FileInfo($"{basePath}/{nameof(Shipment)}s.xlsx");
-            using (var excelFile = new ExcelPackage(excelFileInfo))
+            FileInfo excelFileInfo = new($"{basePath}/{nameof(Shipment)}s.xlsx");
+            using (ExcelPackage excelFile = new ExcelPackage(excelFileInfo))
             {
-                var sheet = excelFile.Workbook.Worksheets.First();
-                int idColumnPosition = EPPlusExtensions.GetColumnByName(sheet, "ID");
-                int titleColumnPosition = EPPlusExtensions.GetColumnByName(sheet, "Title");
-                int descriptionColumnPosition = EPPlusExtensions.GetColumnByName(sheet, "Description");
-                int senderIdColumnPosition = EPPlusExtensions.GetColumnByName(sheet, "SenderId");
-                int courierIdColumnPosition = EPPlusExtensions.GetColumnByName(sheet, "CourierId");
-                int sourceMachineIdColumnPosition = EPPlusExtensions.GetColumnByName(sheet, "SourceMachineId");
-                int destinationMachineIdColumnPosition = EPPlusExtensions.GetColumnByName(sheet, "DestinationMachineId");
-                int statusColumnPosition = EPPlusExtensions.GetColumnByName(sheet, "Status");
+                ExcelWorksheet? sheet = excelFile.Workbook.Worksheets.First();
+                int idColumnPosition = sheet.GetColumnByName("ID");
+                int titleColumnPosition = sheet.GetColumnByName("Title");
+                int descriptionColumnPosition = sheet.GetColumnByName("Description");
+                int senderIdColumnPosition = sheet.GetColumnByName("SenderId");
+                int courierIdColumnPosition = sheet.GetColumnByName("CourierId");
+                int sourceMachineIdColumnPosition = sheet.GetColumnByName("SourceMachineId");
+                int destinationMachineIdColumnPosition = sheet.GetColumnByName("DestinationMachineId");
+                int statusColumnPosition = sheet.GetColumnByName("Status");
                 for (int i = 2; i <= sheet.Dimension.Rows; i++)
                 {
                     ulong id = Convert.ToUInt64(
@@ -150,26 +147,27 @@ namespace shipping_service.Persistence.Database
                         sheet.Cells[i, sourceMachineIdColumnPosition].Value.ToString());
                     ulong destinationMachineId = Convert.ToUInt64(
                         sheet.Cells[i, destinationMachineIdColumnPosition].Value.ToString());
-                    string shipmentStatusString = 
+                    string shipmentStatusString =
                         sheet.Cells[i, statusColumnPosition].Value.ToString();
-                    ShipmentStatus shipmentStatus = 
-                        (ShipmentStatus) Enum.Parse(typeof(ShipmentStatus), shipmentStatusString);
-                    Shipment shipment = 
-                        new Shipment
+                    ShipmentStatus shipmentStatus =
+                        (ShipmentStatus)Enum.Parse(typeof(ShipmentStatus), shipmentStatusString);
+                    Shipment shipment =
+                        new()
                         {
-                            Id = id, Title = title,
-                            Description = description, Status = shipmentStatus,
+                            Id = id,
+                            Title = title,
+                            Description = description,
+                            Status = shipmentStatus,
                             SenderId = senderId,
                             CourierId = courierIdString == null ? null : Convert.ToUInt64(courierIdString),
-                            SourceMachineId = sourceMachineId, DestinationMachineId = destinationMachineId
+                            SourceMachineId = sourceMachineId,
+                            DestinationMachineId = destinationMachineId
                         };
                     context.Shipments.Add(shipment);
                 }
             }
+
             context.SaveChanges();
         }
-
-
-
     }
 }

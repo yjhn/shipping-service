@@ -5,13 +5,14 @@ namespace shipping_service.Repositories
 {
     public class SenderRepository : ISenderRepository
     {
-        private DatabaseContext context;
-        public IQueryable<Sender> Senders => context.Senders;
+        private readonly DatabaseContext context;
 
         public SenderRepository(DatabaseContext ctx)
         {
             context = ctx;
         }
+
+        public IQueryable<Sender> Senders => context.Senders;
 
         public async Task CreateAsync(Sender sender)
         {
@@ -29,6 +30,5 @@ namespace shipping_service.Repositories
             context.Remove(sender);
             context.SaveChanges();
         }
-
     }
 }

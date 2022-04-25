@@ -5,13 +5,14 @@ namespace shipping_service.Repositories
 {
     public class ShipmentRepository : IShipmentRepository
     {
-        private DatabaseContext context;
-        public IQueryable<Shipment> Shipments => context.Shipments;
+        private readonly DatabaseContext context;
 
         public ShipmentRepository(DatabaseContext ctx)
         {
             context = ctx;
         }
+
+        public IQueryable<Shipment> Shipments => context.Shipments;
 
         public async Task CreateAsync(Shipment shipment)
         {

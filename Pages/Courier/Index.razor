@@ -17,7 +17,7 @@
             <th>Destination machine address</th>
             <th>Status</th>
         </tr>
-        foreach(var shipment in Shipments)
+        foreach (var shipment in Shipments)
         {
             <tr>
                 <td>@shipment.Title</td>
@@ -32,7 +32,9 @@
     }
     else
     {
-        <tr><td colspan="5" class="text-center">No shipments yet</td></tr>
+        <tr>
+            <td colspan="5" class="text-center">No shipments yet</td>
+        </tr>
     }
     </tbody>
 </table>
@@ -42,8 +44,10 @@
 </NavLink>
 
 @code {
+
     [Inject]
     public IShipmentRepository ShipmentRepository { get; set; }
+
     public IEnumerable<Shipment> Shipments { get; set; }
 
     protected override async Task OnInitializedAsync()

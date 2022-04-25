@@ -5,13 +5,14 @@ namespace shipping_service.Repositories
 {
     public class PostMachineRepository : IPostMachineRepository
     {
-        private DatabaseContext context;
-        public IQueryable<PostMachine> PostMachines => context.PostMachines;
+        private readonly DatabaseContext context;
 
         public PostMachineRepository(DatabaseContext ctx)
         {
             context = ctx;
         }
+
+        public IQueryable<PostMachine> PostMachines => context.PostMachines;
 
         public async Task CreateAsync(PostMachine postMachine)
         {
@@ -29,6 +30,5 @@ namespace shipping_service.Repositories
             context.Remove(postMachine);
             context.SaveChanges();
         }
-
     }
 }
