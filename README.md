@@ -34,6 +34,8 @@ Database system used is PostgreSQL.
 
 Execute step 5 on each startup to run the DB.
 
+To delete the database, run `dropdb shipping_service_db`.
+
 If database directory is deleted, steps 2-6 need to be repeated.
 
 ### Windows
