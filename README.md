@@ -21,7 +21,7 @@ Since Peter sent the shipment tracking link to Cloe, she sees that the package h
 
 ## Setting up the database
 
-Database used is PostgreSQL 13 (should also work with newer versions).
+Database system used is PostgreSQL.
 
 ### Linux
 
@@ -38,7 +38,7 @@ If database directory is deleted, steps 2-6 need to be repeated.
 
 ### Windows
 
-1. download PostgreSQL from https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
+1. download newest PostgreSQL from https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
 2. launch installer
 3. select at least "PostgreSQL Server", "pgAdmin4" and "Command Line Tools" in the installer
 4. choose user postgres password and remember it, don't change the default port

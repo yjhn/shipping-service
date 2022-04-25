@@ -37,8 +37,8 @@ namespace shipping_service.Persistence.Database
 
             foreach (EntityEntry entry in entries)
             {
-                // set modified time on create or update (cannot call "now()" as it is
-                // not an immutable function, so do this on save manually)
+                // set modified time on create or update (cannot call "now()" on update
+                // as it is not an immutable function, so do this on save manually)
                 // see https://www.npgsql.org/efcore/modeling/generated-properties.html#timestamp-generation
                 // and https://threewill.com/how-to-auto-generate-created-updated-field-in-ef-core/
                 if (entry.Entity is IBaseEntity trackable)
@@ -144,10 +144,6 @@ namespace shipping_service.Persistence.Database
             modelBuilder.Entity<Courier>()
                 .Property(c => c.Username)
                 .HasColumnType("varchar(50)")
-                .IsRequired();
-            modelBuilder.Entity<Courier>()
-                .Property(c => c.Name)
-                .HasColumnType("varchar(100)")
                 .IsRequired();
             modelBuilder.Entity<Courier>()
                 .Property(c => c.HashedPassword)
