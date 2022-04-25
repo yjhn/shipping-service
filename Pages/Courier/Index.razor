@@ -23,7 +23,7 @@
                 <td>@shipment.Title</td>
                 <td>@(shipment.Description ?? "No description provided.")</td>
                 <td>@shipment.Sender.Username</td>
-                <td>@(shipment.Courier?.Name ?? "No courier has promised to deliver this shipment yet.")</td>
+                <td>@(shipment.Courier?.Username ?? "No courier has promised to deliver this shipment yet.")</td>
                 <td>@shipment.SourceMachine.Address</td>
                 <td>@shipment.DestinationMachine.Address</td>
                 <td>@shipment.Status</td>

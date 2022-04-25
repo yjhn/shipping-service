@@ -1,6 +1,6 @@
 # Shipping service
 
-<img src="databaseDiagram.drawio.png">
+<img src="docs/databaseDiagram.drawio.png">
 
 - Sender must have zero or more packages.
 - Package must have one and only one sender.
