@@ -59,7 +59,10 @@ namespace shipping_service.Persistence.Database
                     string username = sheet.Cells[i, usernameColumnPosition].Value.ToString();
                     string password = sheet.Cells[i, passwordColumnPosition].Value.ToString();
                     // TODO: password hash.
-                    Sender sender = new Sender { Id = id, Username = username, HashedPassword = new byte[7]};
+                    Sender sender = new Sender
+                    {
+                        Id = id, Username = username, HashedPassword = new byte[7]
+                    };
                     context.Senders.Add(sender);
                 }
             }
@@ -84,7 +87,11 @@ namespace shipping_service.Persistence.Database
                     string password = sheet.Cells[i, passwordColumnPosition].Value.ToString();
                     string name = sheet.Cells[i, nameColumnPosition].Value.ToString();
                     // TODO: password hash.
-                    Courier courier = new Courier { Id = id, Username = username, HashedPassword = new byte[7], Name = name};
+                    Courier courier = new Courier
+                    {
+                        Id = id, Username = username,
+                        HashedPassword = new byte[7]
+                    };
                     context.Couriers.Add(courier);
                 }
             }
@@ -106,7 +113,10 @@ namespace shipping_service.Persistence.Database
                         sheet.Cells[i, idColumnPosition].Value.ToString());
                     string name = sheet.Cells[i, nameColumnPosition].Value.ToString();
                     string address = sheet.Cells[i, addressColumnPosition].Value.ToString();
-                    PostMachine postMachine = new PostMachine { Id = id, Name = name, Address = address};
+                    PostMachine postMachine = new PostMachine
+                    {
+                        Id = id, Name = name, Address = address
+                    };
                     context.PostMachines.Add(postMachine);
                 }
             }
@@ -145,23 +155,15 @@ namespace shipping_service.Persistence.Database
                     ShipmentStatus shipmentStatus = 
                         (ShipmentStatus) Enum.Parse(typeof(ShipmentStatus), shipmentStatusString);
                     Shipment shipment = 
-                        new Shipment { Id = id, Title = title, Description = description, Status = shipmentStatus};
-                    // context.Shipments.Add(shipment);
-                    Sender shipmentSender = context.Senders.First(s => s.Id == senderId);
-                    shipmentSender.Shipments.Add(shipment);
-                    if (courierIdString != null)
-                    {
-                        ulong courierId = Convert.ToUInt64(courierIdString);
-                        Courier shipmentCourier = context.Couriers.First(c => c.Id == courierId);
-                        shipmentCourier.CurrentShipments.Add(shipment);
-                    }
-
-                    PostMachine shipmentSourceMachine = 
-                        context.PostMachines.First(sm => sm.Id == sourceMachineId);
-                    shipmentSourceMachine.ShipmentsWithThisSource.Add(shipment);
-                    PostMachine shipmentDestinationMachine =
-                        context.PostMachines.First(dm => dm.Id == destinationMachineId);
-                    shipmentDestinationMachine.ShipmentsWithThisDestination.Add(shipment);
+                        new Shipment
+                        {
+                            Id = id, Title = title,
+                            Description = description, Status = shipmentStatus,
+                            SenderId = senderId,
+                            CourierId = courierIdString == null ? null : Convert.ToUInt64(courierIdString),
+                            SourceMachineId = sourceMachineId, DestinationMachineId = destinationMachineId
+                        };
+                    context.Shipments.Add(shipment);
                 }
             }
             context.SaveChanges();
