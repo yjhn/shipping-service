@@ -10,6 +10,6 @@ namespace shipping_service.Repositories
 
         Task UpdateAsync(Courier courier);
 
-        void DeleteAsync(Courier courier);
+        void Delete(Courier courier);
     }
 }

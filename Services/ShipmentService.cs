@@ -5,16 +5,16 @@ namespace shipping_service.Services
 {
     public class ShipmentService : IShipmentService
     {
-        private readonly IShipmentRepository _packageRepository;
+        private readonly IShipmentRepository _shipmentRepository;
 
-        public ShipmentService(IShipmentRepository packageRepository)
+        public ShipmentService(IShipmentRepository shipmentRepository)
         {
-            _packageRepository = packageRepository;
+            _shipmentRepository = shipmentRepository;
         }
 
         public IEnumerable<Shipment> GetUnassigned()
         {
-            return _packageRepository.Shipments.Where(s => s.CourierId == null);
+            return _shipmentRepository.Shipments.Where(s => s.CourierId == null);
         }
     }
 }

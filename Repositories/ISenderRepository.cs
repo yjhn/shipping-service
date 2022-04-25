@@ -10,6 +10,6 @@ namespace shipping_service.Repositories
 
         Task UpdateAsync(Sender sender);
 
-        void DeleteAsync(Sender sender);
+        void Delete(Sender sender);
     }
 }

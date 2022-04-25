@@ -25,7 +25,7 @@ namespace shipping_service.Repositories
             await context.SaveChangesAsync();
         }
 
-        public void DeleteAsync(Sender sender)
+        public void Delete(Sender sender)
         {
             context.Remove(sender);
             context.SaveChanges();
