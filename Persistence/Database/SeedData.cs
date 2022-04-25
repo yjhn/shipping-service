@@ -11,17 +11,13 @@ namespace shipping_service.Persistence.Database
     {
         private const bool seed = true;
         private const bool migrate = true;
-        private const string basePath = $"{nameof(Persistence)}/{nameof(Database)}/test-data";
+        private const string basePath = $"{nameof(Persistence)}/{nameof(Database)}/test_data";
 
         public static void PopulateIfEmpty(IApplicationBuilder app)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             DatabaseContext context = app.ApplicationServices.CreateScope().ServiceProvider
                 .GetRequiredService<DatabaseContext>();
-            if (migrate && context.Database.GetPendingMigrations().Any())
-            {
-                context.Database.Migrate();
-            }
 
             if (seed)
             {

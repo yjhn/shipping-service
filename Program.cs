@@ -25,11 +25,14 @@ builder.Services.AddServerSideBlazor();
 //Build
 WebApplication app = builder.Build();
 
-// create DB with all migrations applied on startup
-using (IServiceScope serviceScope = app.Services.CreateScope())
+if (builder.Configuration.GetValue<bool>("AutomaticallyApplyMigrations"))
 {
-    DatabaseContext context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
-    context.Database.Migrate();
+    // create DB with all migrations applied on startup
+    using (IServiceScope serviceScope = app.Services.CreateScope())
+    {
+        DatabaseContext context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
+        context.Database.Migrate();
+    }
 }
 
 //Configure
