@@ -26,24 +26,26 @@ Database used is PostgreSQL 13 (should also work with newer versions).
 ### Linux
 
 1. install postgresql
-2. `initdb --locale $LANG -E UTF8 -D ~/postgres/data/`
-3. `sudo mkdir /run/postgresql`
-4. `sudo chown -R $USER:$USER /run/postgresql`
-5. `createuser -d -P admin` and enter `password` as password
-6. execute on each startup to run the DB: `pg_ctl -D ~/potgres/data -l ~/postgres/logfile start`
+2. `sudo mkdir /run/postgresql`
+3. `sudo chown -R $USER:$USER /run/postgresql`
+4. `initdb --locale $LANG -E UTF8 -D ~/postgres/data/`
+5. `pg_ctl -D ~/postgres/data -l ~/postgres/logfile start`
+6. `createuser -d -P admin` and enter `password` as password 
+
+Execute step 5 on each startup to run the DB.
 
 If database directory is deleted, steps 2-6 need to be repeated.
 
 ### Windows
 
-1. download PostgreSQL 13 from https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
+1. download PostgreSQL from https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
 2. launch installer
 3. select at least "PostgreSQL Server", "pgAdmin4" and "Command Line Tools" in the installer
 4. choose user postgres password and remember it, don't change the default port
 5. install
 5. launch pgAdmin
 6. choose pgAdmin password
-7. in the servers panel (upper right corner) select first and connect using password from step 4
+7. in the servers panel (upper left corner) select first and connect using password from step 4
 8. create a new role, named "admin" with password "password" and privileges "Can login" and "Create databases"
 9. run the application, the database will be automatically created and will be visible in pgAdmin
 

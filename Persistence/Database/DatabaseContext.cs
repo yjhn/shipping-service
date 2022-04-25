@@ -75,6 +75,20 @@ namespace shipping_service.Persistence.Database
             modelBuilder.Entity<Sender>()
                 .HasKey(s => s.Id);
 
+            // generate keys automatically
+            modelBuilder.Entity<Courier>()
+                .Property(c => c.Id)
+                .ValueGeneratedOnAdd();
+            modelBuilder.Entity<Shipment>()
+                .Property(p => p.Id)
+                .ValueGeneratedOnAdd();
+            modelBuilder.Entity<PostMachine>()
+                .Property(p => p.Id)
+                .ValueGeneratedOnAdd();
+            modelBuilder.Entity<Sender>()
+                .Property(s => s.Id)
+                .ValueGeneratedOnAdd();
+
             // generate created time
             modelBuilder.Entity<Courier>()
                 .Property(c => c.Created)
