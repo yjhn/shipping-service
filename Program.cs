@@ -7,8 +7,12 @@ using shipping_service.Services;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 // Configure services
 builder.Configuration.AddJsonFile("appsettings.json");
+string dbConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+bool autoApplyMigrations = builder.Configuration.GetValue<bool>("AutomaticallyApplyMigrations");
+bool addSeedData = builder.Configuration.GetValue<bool>("AddSeedDataIfDBEmpty");
+
 builder.Services.AddDbContext<DatabaseContext>(option =>
-    option.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+    option.UseNpgsql(dbConnectionString)
         // enable logging for debugging
         .EnableSensitiveDataLogging()
         .EnableDetailedErrors()
@@ -25,7 +29,7 @@ builder.Services.AddServerSideBlazor();
 //Build
 WebApplication app = builder.Build();
 
-if (builder.Configuration.GetValue<bool>("AutomaticallyApplyMigrations"))
+if (autoApplyMigrations)
 {
     // create DB with all migrations applied on startup
     using (IServiceScope serviceScope = app.Services.CreateScope())
@@ -33,6 +37,11 @@ if (builder.Configuration.GetValue<bool>("AutomaticallyApplyMigrations"))
         DatabaseContext context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
         context.Database.Migrate();
     }
+}
+
+if (addSeedData)
+{
+    SeedData.PopulateIfEmpty(app);
 }
 
 //Configure
@@ -52,5 +61,5 @@ app.UseEndpoints(endpoints =>
     endpoints.MapBlazorHub();
     endpoints.MapFallbackToPage("/_Host");
 });
-SeedData.PopulateIfEmpty(app);
+
 app.Run();

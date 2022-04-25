@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-using OfficeOpenXml;
+﻿using OfficeOpenXml;
 
 using shipping_service.Extensions;
 using shipping_service.Persistence.Entities;
@@ -9,8 +7,6 @@ namespace shipping_service.Persistence.Database
 {
     public class SeedData
     {
-        private const bool seed = true;
-        private const bool migrate = true;
         private const string basePath = $"{nameof(Persistence)}/{nameof(Database)}/test_data";
 
         public static void PopulateIfEmpty(IApplicationBuilder app)
@@ -19,34 +15,31 @@ namespace shipping_service.Persistence.Database
             DatabaseContext context = app.ApplicationServices.CreateScope().ServiceProvider
                 .GetRequiredService<DatabaseContext>();
 
-            if (seed)
+            if (!context.PostMachines.Any())
             {
-                if (!context.PostMachines.Any())
-                {
-                    populatePostMachines(context);
-                }
+                populatePostMachines(context);
+            }
 
-                if (!context.Senders.Any())
-                {
-                    populateSenders(context);
-                }
+            if (!context.Senders.Any())
+            {
+                populateSenders(context);
+            }
 
-                if (!context.Couriers.Any())
-                {
-                    populateCouriers(context);
-                }
+            if (!context.Couriers.Any())
+            {
+                populateCouriers(context);
+            }
 
-                if (!context.Shipments.Any())
-                {
-                    populateShipments(context);
-                }
+            if (!context.Shipments.Any())
+            {
+                populateShipments(context);
             }
         }
 
         private static void populateSenders(DatabaseContext context)
         {
             FileInfo excelFileInfo = new($"{basePath}/{nameof(Sender)}s.xlsx");
-            using (ExcelPackage excelFile = new ExcelPackage(excelFileInfo))
+            using (ExcelPackage excelFile = new(excelFileInfo))
             {
                 ExcelWorksheet? sheet = excelFile.Workbook.Worksheets.First();
                 int idColumnPosition = sheet.GetColumnByName("ID");
@@ -70,7 +63,7 @@ namespace shipping_service.Persistence.Database
         private static void populateCouriers(DatabaseContext context)
         {
             FileInfo excelFileInfo = new($"{basePath}/{nameof(Courier)}s.xlsx");
-            using (ExcelPackage excelFile = new ExcelPackage(excelFileInfo))
+            using (ExcelPackage excelFile = new(excelFileInfo))
             {
                 ExcelWorksheet? sheet = excelFile.Workbook.Worksheets.First();
                 int idColumnPosition = sheet.GetColumnByName("ID");
@@ -96,7 +89,7 @@ namespace shipping_service.Persistence.Database
         private static void populatePostMachines(DatabaseContext context)
         {
             FileInfo excelFileInfo = new($"{basePath}/{nameof(PostMachine)}s.xlsx");
-            using (ExcelPackage excelFile = new ExcelPackage(excelFileInfo))
+            using (ExcelPackage excelFile = new(excelFileInfo))
             {
                 ExcelWorksheet? sheet = excelFile.Workbook.Worksheets.First();
                 int idColumnPosition = sheet.GetColumnByName("ID");
@@ -119,7 +112,7 @@ namespace shipping_service.Persistence.Database
         private static void populateShipments(DatabaseContext context)
         {
             FileInfo excelFileInfo = new($"{basePath}/{nameof(Shipment)}s.xlsx");
-            using (ExcelPackage excelFile = new ExcelPackage(excelFileInfo))
+            using (ExcelPackage excelFile = new(excelFileInfo))
             {
                 ExcelWorksheet? sheet = excelFile.Workbook.Worksheets.First();
                 int idColumnPosition = sheet.GetColumnByName("ID");
