@@ -1,11 +1,11 @@
-ID,Title,Description,SenderId,CourierId,SourceMachineId,DestinationMachineId,Status
-1,Jewerly for grandma,"Dear grandma, I know you are angry at me because I did not go to your birthday anniversary party and won't cook me cepelinai for that, but look: got you your favourite jewerly, we can now reconcile :).",4,3,1,2,Delivered
-2,Keys of the car,"Hey dude, thanks for letting me use your car. Sorry I have accidently forgot to give back you your keys. I know you live in your car and past few days should have been rough for you, but hey, I am bringing your keys back. Don't catch a cold.",1,,2,3,RegisteredForSending
-3,Face masks,"Hey friend, you are as lazy as always. Afraid to catch Covid yet too lazy to go get you some mask. So here, I am gifting a ton of them to you. Stay safe and healthy.",2,7,2,1,Delivered
-4,New laptop,,9,,7,10,RegisteredForSending
-5,Fart of the celebrity in the jar,"Dude, I don't know why you need this useless thing, but you have requested it so I am obliged to give it to you. Here, get it, QUICKLY!",5,,8,5,InSourcePostMachine
-6,"Bicycle computer ""Sigma""",Thank you for your purchase. You are contributing to the healthier tomorrow by not polluting the environment!,6,7,6,4,Shipping
-7,Lego police station,Thanks for the purchase. Here is your police Lego station oh great lawful constructor!,5,10,7,3,Shipping
-8,PocketBook reader,"Here friend, I know you are very mean and like to pirate stuff, so I am bringing you (actually not I, but the effort is the same) a pocket book reader. However, take my advice, I is always better to read books the classic way. Don't care for the trees, care for the nostalgia as I do!",2,,8,10,InSourcePostMachine
-9,"""Ace combat 7"" game disc",The legendary flying game is coming to you! It should arrive shorty! Remember to buy a good joystick for that. You can do this in your shop :).,7,1,10,1,InDestinationPostMachine
-10,Driving license,Greetings. Congrats for passing the exam. The driving license if coming to you. Drive safely.,8,3,2,5,InDestinationPostMachine
+ID;Title;Description;SenderId;CourierId;SourceMachineId;DestinationMachineId;Status
+1;Jewerly for grandma;Dear grandma, I know you are angry at me because I did not go to your birthday anniversary party and won't cook me cepelinai for that, but look: got you your favourite jewerly, we can now reconcile :).;4;3;1;2;Delivered
+2;Keys of the car;Hey dude, thanks for letting me use your car. Sorry I have accidently forgot to give back you your keys. I know you live in your car and past few days should have been rough for you, but hey, I am bringing your keys back. Don't catch a cold.;1;;2;3;RegisteredForSending
+3;Face masks;Hey friend, you are as lazy as always. Afraid to catch Covid yet too lazy to go get you some mask. So here, I am gifting a ton of them to you. Stay safe and healthy.;2;7;2;1;Delivered
+4;New laptop;;9;;7;10;RegisteredForSending
+5;Fart of the celebrity in the jar;Dude, I don't know why you need this useless thing, but you have requested it so I am obliged to give it to you. Here, get it, QUICKLY!;5;;8;5;InSourcePostMachine
+6;"Bicycle computer ""Sigma""";Thank you for your purchase. You are contributing to the healthier tomorrow by not polluting the environment!;6;7;6;4;Shipping
+7;Lego police station;Thanks for the purchase. Here is your police Lego station oh great lawful constructor!;5;10;7;3;Shipping
+8;PocketBook reader;Here friend, I know you are very mean and like to pirate stuff, so I am bringing you (actually not I, but the effort is the same) a pocket book reader. However, take my advice, I is always better to read books the classic way. Don't care for the trees, care for the nostalgia as I do!;2;;8;10;InSourcePostMachine
+9;"""Ace combat 7"" game disc";The legendary flying game is coming to you! It should arrive shorty! Remember to buy a good joystick for that. You can do this in your shop :).;7;1;10;1;InDestinationPostMachine
+10;Driving license;Greetings. Congrats for passing the exam. The driving license if coming to you. Drive safely.;8;3;2;5;InDestinationPostMachine
