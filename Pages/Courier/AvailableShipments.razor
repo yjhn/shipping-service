@@ -6,15 +6,20 @@
 
     [Inject]
     public ISenderRepository SenderRepository { get; set; }
+
     [Inject]
     public IPackageRepository PackageRepository { get; set; }
+
     [Inject]
     public IPostMachineRepository PostMachineRepository { get; set; }
+
     [Inject]
     public ICourierRepository CourierRepository { get; set; }
+
     [Inject]
     public IPackageService PackageService { get; set; }
-    public IEnumerable<Package> UnassignedPackages { get; set; }
+
+    public IEnumerable<Shipment> UnassignedPackages { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -26,11 +31,11 @@
         UnassignedPackages = await PackageService.GetUnassignedAsync();
     }
 
-    public async Task AssignPackageToCourier(String CourierId, String PackageId)
+    public async Task AssignPackageToCourier(ulong courierId, ulong packageId)
     {
-        List<Package> packages = await PackageService.GetUnassignedAsync();
-        var courier = await CourierRepository.GetAsync(CourierId);
-        var package = await PackageRepository.GetAsync(PackageId);
+        var packages = (List<Shipment>)await PackageService.GetUnassignedAsync();
+        var courier = await CourierRepository.GetAsync(courierId);
+        var package = await PackageRepository.GetAsync(packageId);
         if (package == null || courier == null)
         {
             return; // Better handling could be implemented in the future.
@@ -38,10 +43,10 @@
         if (packages.Contains(package))
         {
             packages.Add(package);
-            courier.Packages.Add(package);
-            await CourierRepository.UpdateAsync(courier._id, courier);
+            courier.CurrentPackages.Add(package);
+            await CourierRepository.UpdateAsync(courier.Id, courier);
         }
-        // No handling if false, yet.
+    // No handling if false, yet.
     }
 
 }

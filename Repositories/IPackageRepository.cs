@@ -1,17 +1,17 @@
-﻿using shipping_service.Entities;
+﻿using shipping_service.Persistence.Entities;
 
 namespace shipping_service.Repositories
 {
     public interface IPackageRepository
     {
-        Task<List<Package>> GetAsync();
+        Task<List<Shipment>> GetAsync();
 
-        Task<Package> GetAsync(string id);
+        Task<Shipment> GetAsync(ulong id);
 
-        Task<Package> CreateAsync(Package package);
+        Task<Shipment> CreateAsync(Shipment shipment);
 
-        Task<Package> UpdateAsync(string id, Package packageIn);
+        Task<Shipment> UpdateAsync(ulong id, Shipment shipmentIn);
 
-        Task<string> DeleteAsync(string id);
+        Task<ulong> DeleteAsync(ulong id);
     }
 }

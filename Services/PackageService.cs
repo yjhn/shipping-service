@@ -1,12 +1,12 @@
-using shipping_service.Entities;
+using shipping_service.Persistence.Entities;
 using shipping_service.Repositories;
 
 namespace shipping_service.Services
 {
     public class PackageService : IPackageService
     {
-        private readonly IPackageRepository _packageRepository;
         private readonly ICourierRepository _courierRepository;
+        private readonly IPackageRepository _packageRepository;
 
         public PackageService(IPackageRepository packageRepository, ICourierRepository courierRepository)
         {
@@ -14,22 +14,22 @@ namespace shipping_service.Services
             _courierRepository = courierRepository;
         }
 
-        public async Task<List<Package>> GetUnassignedAsync()
+        public async Task<ICollection<Shipment>> GetUnassignedAsync()
         {
-            var packages = await _packageRepository.GetAsync();
-            var couriers = await _courierRepository.GetAsync();
+            List<Shipment>? packages = await _packageRepository.GetAsync();
+            List<Courier> couriers = await _courierRepository.GetAsync();
             foreach (Courier courier in couriers)
             {
-                var courierPackages = courier.Packages;
+                ICollection<Shipment> courierPackages = courier.CurrentPackages;
                 if (packages != null)
                 {
-                    foreach (Package package in courierPackages)
+                    foreach (Shipment package in courierPackages)
                     {
                         packages.Remove(package);
                     }
                 }
-
             }
+
             return packages;
         }
     }

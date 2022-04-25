@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-
-using shipping_service.Entities;
+﻿using shipping_service.Persistence.Entities;
 
 namespace shipping_service.Repositories
 {
@@ -11,7 +9,7 @@ namespace shipping_service.Repositories
             return new List<Sender>();
         }
 
-        public async Task<Sender> GetAsync(string id)
+        public async Task<Sender> GetAsync(ulong id)
         {
             return new Sender();
         }
@@ -21,14 +19,14 @@ namespace shipping_service.Repositories
             return new Sender();
         }
 
-        public async Task<Sender> UpdateAsync(string id, Sender senderIn)
+        public async Task<Sender> UpdateAsync(ulong id, Sender senderIn)
         {
             return new Sender();
         }
 
-        public async Task<string> DeleteAsync(string id)
+        public async Task<ulong> DeleteAsync(ulong id)
         {
-            return "PlaceHolder";
+            return 0;
         }
     }
 }

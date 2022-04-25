@@ -1,4 +1,4 @@
-﻿using shipping_service.Entities;
+﻿using shipping_service.Persistence.Entities;
 
 namespace shipping_service.Repositories
 {
@@ -6,12 +6,12 @@ namespace shipping_service.Repositories
     {
         Task<List<Courier>> GetAsync();
 
-        Task<Courier> GetAsync(string id);
+        Task<Courier> GetAsync(ulong id);
 
         Task<Courier> CreateAsync(Courier courier);
 
-        Task<Courier> UpdateAsync(string id, Courier courierIn);
+        Task<Courier> UpdateAsync(ulong id, Courier courierIn);
 
-        Task<string> DeleteAsync(string id);
+        Task<ulong> DeleteAsync(ulong id);
     }
 }

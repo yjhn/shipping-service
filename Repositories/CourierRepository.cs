@@ -1,20 +1,15 @@
-﻿using shipping_service.Entities;
+﻿using shipping_service.Persistence.Entities;
 
 namespace shipping_service.Repositories
 {
     public class CourierRepository : ICourierRepository
     {
-
-        public CourierRepository()
-        {
-        }
-
         public async Task<List<Courier>> GetAsync()
         {
             return new List<Courier>();
         }
 
-        public async Task<Courier> GetAsync(string id)
+        public async Task<Courier> GetAsync(ulong id)
         {
             return new Courier();
         }
@@ -24,14 +19,14 @@ namespace shipping_service.Repositories
             return new Courier();
         }
 
-        public async Task<Courier> UpdateAsync(string id, Courier courierIn)
+        public async Task<Courier> UpdateAsync(ulong id, Courier courierIn)
         {
             return new Courier();
         }
 
-        public async Task<string> DeleteAsync(string id)
+        public async Task<ulong> DeleteAsync(ulong id)
         {
-            return "PlaceHolder";
+            return 0;
         }
     }
 }
