@@ -3,31 +3,31 @@ using shipping_service.Persistence.Entities;
 
 namespace shipping_service.Repositories
 {
-    public class SenderRepository : ISenderRepository
+    public class ShipmentRepository : IShipmentRepository
     {
         private readonly DatabaseContext context;
 
-        public SenderRepository(DatabaseContext ctx)
+        public ShipmentRepository(DatabaseContext ctx)
         {
             context = ctx;
         }
 
-        public IQueryable<Sender> Senders => context.Senders;
+        public IQueryable<Shipment> Shipments => context.Shipments;
 
-        public async Task CreateAsync(Sender sender)
+        public async Task CreateAsync(Shipment shipment)
         {
-            await context.AddAsync(sender);
+            await context.AddAsync(shipment);
             await context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Sender sender)
+        public async Task UpdateAsync(Shipment shipment)
         {
             await context.SaveChangesAsync();
         }
 
-        public void Delete(Sender sender)
+        public void Delete(Shipment shipment)
         {
-            context.Remove(sender);
+            context.Remove(shipment);
             context.SaveChanges();
         }
     }

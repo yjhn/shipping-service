@@ -1,25 +1,22 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.1.32328.378
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "shipping-service", "shipping-service.csproj", "{F130B2F6-9524-4A63-9B28-D11AEA268CFF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "shipping-service", "shipping-service.csproj", "{333CD3D1-E3FF-4BEB-B67E-8084AA09E3F8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F130B2F6-9524-4A63-9B28-D11AEA268CFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F130B2F6-9524-4A63-9B28-D11AEA268CFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F130B2F6-9524-4A63-9B28-D11AEA268CFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F130B2F6-9524-4A63-9B28-D11AEA268CFF}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {CB13EC39-A616-4C26-93A9-5414C3B4040A}
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{333CD3D1-E3FF-4BEB-B67E-8084AA09E3F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{333CD3D1-E3FF-4BEB-B67E-8084AA09E3F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{333CD3D1-E3FF-4BEB-B67E-8084AA09E3F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{333CD3D1-E3FF-4BEB-B67E-8084AA09E3F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

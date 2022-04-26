@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace shipping_service.Persistence.Migrations
+namespace shipping_service.Migrations
 {
-    public partial class create_db : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -56,12 +56,12 @@ namespace shipping_service.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Packages",
+                name: "Shipments",
                 columns: table => new
                 {
                     Id = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
                     Title = table.Column<string>(type: "varchar(50)", nullable: false),
-                    Description = table.Column<string>(type: "varchar(100)", nullable: true),
+                    Description = table.Column<string>(type: "varchar(1000)", nullable: true),
                     SenderId = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
                     CourierId = table.Column<decimal>(type: "numeric(20,0)", nullable: true),
                     SourceMachineId = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
@@ -72,26 +72,26 @@ namespace shipping_service.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Packages", x => x.Id);
+                    table.PrimaryKey("PK_Shipments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Packages_Couriers_CourierId",
+                        name: "FK_Shipments_Couriers_CourierId",
                         column: x => x.CourierId,
                         principalTable: "Couriers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Packages_PostMachines_DestinationMachineId",
+                        name: "FK_Shipments_PostMachines_DestinationMachineId",
                         column: x => x.DestinationMachineId,
                         principalTable: "PostMachines",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Packages_PostMachines_SourceMachineId",
+                        name: "FK_Shipments_PostMachines_SourceMachineId",
                         column: x => x.SourceMachineId,
                         principalTable: "PostMachines",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Packages_Senders_SenderId",
+                        name: "FK_Shipments_Senders_SenderId",
                         column: x => x.SenderId,
                         principalTable: "Senders",
                         principalColumn: "Id",
@@ -105,26 +105,6 @@ namespace shipping_service.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Packages_CourierId",
-                table: "Packages",
-                column: "CourierId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Packages_DestinationMachineId",
-                table: "Packages",
-                column: "DestinationMachineId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Packages_SenderId",
-                table: "Packages",
-                column: "SenderId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Packages_SourceMachineId",
-                table: "Packages",
-                column: "SourceMachineId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_PostMachines_Name",
                 table: "PostMachines",
                 column: "Name",
@@ -135,12 +115,32 @@ namespace shipping_service.Persistence.Migrations
                 table: "Senders",
                 column: "Username",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Shipments_CourierId",
+                table: "Shipments",
+                column: "CourierId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Shipments_DestinationMachineId",
+                table: "Shipments",
+                column: "DestinationMachineId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Shipments_SenderId",
+                table: "Shipments",
+                column: "SenderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Shipments_SourceMachineId",
+                table: "Shipments",
+                column: "SourceMachineId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Packages");
+                name: "Shipments");
 
             migrationBuilder.DropTable(
                 name: "Couriers");

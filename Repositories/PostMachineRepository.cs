@@ -1,32 +1,34 @@
-﻿using shipping_service.Persistence.Entities;
+﻿using shipping_service.Persistence.Database;
+using shipping_service.Persistence.Entities;
 
 namespace shipping_service.Repositories
 {
     public class PostMachineRepository : IPostMachineRepository
     {
-        public async Task<List<PostMachine>> GetAsync()
+        private readonly DatabaseContext context;
+
+        public PostMachineRepository(DatabaseContext ctx)
         {
-            return new List<PostMachine>();
+            context = ctx;
         }
 
-        public async Task<PostMachine> GetAsync(ulong id)
+        public IQueryable<PostMachine> PostMachines => context.PostMachines;
+
+        public async Task CreateAsync(PostMachine postMachine)
         {
-            return new PostMachine();
+            await context.AddAsync(postMachine);
+            await context.SaveChangesAsync();
         }
 
-        public async Task<PostMachine> CreateAsync(PostMachine postMachine)
+        public async Task UpdateAsync(PostMachine postMachine)
         {
-            return new PostMachine();
+            await context.SaveChangesAsync();
         }
 
-        public async Task<PostMachine> UpdateAsync(ulong id, PostMachine postMachineIn)
+        public void Delete(PostMachine postMachine)
         {
-            return new PostMachine();
-        }
-
-        public async Task<ulong> DeleteAsync(ulong id)
-        {
-            return 0;
+            context.Remove(postMachine);
+            context.SaveChanges();
         }
     }
 }

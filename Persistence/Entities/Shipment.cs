@@ -12,13 +12,13 @@
         public ulong SourceMachineId { get; set; }
         public PostMachine DestinationMachine { get; set; }
         public ulong DestinationMachineId { get; set; }
-        public PackageStatus Status { get; set; }
+        public ShipmentStatus Status { get; set; }
         public ulong Id { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
     }
 
-    public enum PackageStatus
+    public enum ShipmentStatus
     {
         // when sender registers shipment to be sent
         RegisteredForSending,

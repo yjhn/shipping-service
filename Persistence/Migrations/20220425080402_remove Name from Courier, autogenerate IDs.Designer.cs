@@ -9,11 +9,11 @@ using shipping_service.Persistence.Database;
 
 #nullable disable
 
-namespace shipping_service.Persistence.Migrations
+namespace shipping_service.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20220422110503_create_db")]
-    partial class create_db
+    [Migration("20220425080402_remove Name from Courier, autogenerate IDs")]
+    partial class removeNamefromCourierautogenerateIDs
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -41,10 +41,6 @@ namespace shipping_service.Persistence.Migrations
 
                     b.Property<DateTime>("Modified")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -133,7 +129,7 @@ namespace shipping_service.Persistence.Migrations
                         .HasDefaultValueSql("now()");
 
                     b.Property<string>("Description")
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("varchar(1000)");
 
                     b.Property<decimal>("DestinationMachineId")
                         .HasColumnType("numeric(20,0)");
@@ -164,29 +160,29 @@ namespace shipping_service.Persistence.Migrations
 
                     b.HasIndex("SourceMachineId");
 
-                    b.ToTable("Packages");
+                    b.ToTable("Shipments");
                 });
 
             modelBuilder.Entity("shipping_service.Persistence.Entities.Shipment", b =>
                 {
                     b.HasOne("shipping_service.Persistence.Entities.Courier", "Courier")
-                        .WithMany("CurrentPackages")
+                        .WithMany("CurrentShipments")
                         .HasForeignKey("CourierId");
 
                     b.HasOne("shipping_service.Persistence.Entities.PostMachine", "DestinationMachine")
-                        .WithMany("PackagesWithThisDestination")
+                        .WithMany("ShipmentsWithThisDestination")
                         .HasForeignKey("DestinationMachineId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("shipping_service.Persistence.Entities.Sender", "Sender")
-                        .WithMany("Packages")
+                        .WithMany("Shipments")
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("shipping_service.Persistence.Entities.PostMachine", "SourceMachine")
-                        .WithMany("PackagesWithThisSource")
+                        .WithMany("ShipmentsWithThisSource")
                         .HasForeignKey("SourceMachineId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -202,19 +198,19 @@ namespace shipping_service.Persistence.Migrations
 
             modelBuilder.Entity("shipping_service.Persistence.Entities.Courier", b =>
                 {
-                    b.Navigation("CurrentPackages");
+                    b.Navigation("CurrentShipments");
                 });
 
             modelBuilder.Entity("shipping_service.Persistence.Entities.PostMachine", b =>
                 {
-                    b.Navigation("PackagesWithThisDestination");
+                    b.Navigation("ShipmentsWithThisDestination");
 
-                    b.Navigation("PackagesWithThisSource");
+                    b.Navigation("ShipmentsWithThisSource");
                 });
 
             modelBuilder.Entity("shipping_service.Persistence.Entities.Sender", b =>
                 {
-                    b.Navigation("Packages");
+                    b.Navigation("Shipments");
                 });
 #pragma warning restore 612, 618
         }

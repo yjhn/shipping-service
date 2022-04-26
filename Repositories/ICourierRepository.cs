@@ -4,14 +4,12 @@ namespace shipping_service.Repositories
 {
     public interface ICourierRepository
     {
-        Task<List<Courier>> GetAsync();
+        IQueryable<Courier> Couriers { get; }
 
-        Task<Courier> GetAsync(ulong id);
+        Task CreateAsync(Courier courier);
 
-        Task<Courier> CreateAsync(Courier courier);
+        Task UpdateAsync(Courier courier);
 
-        Task<Courier> UpdateAsync(ulong id, Courier courierIn);
-
-        Task<ulong> DeleteAsync(ulong id);
+        void Delete(Courier courier);
     }
 }

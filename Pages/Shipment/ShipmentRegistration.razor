@@ -5,16 +5,13 @@
 @code {
 
     [Inject]
-    public ISenderRepository SenderRepository { get; set; }
-
-    [Inject]
-    public IPackageRepository PackageRepository { get; set; }
+    public IShipmentRepository ShipmentRepository { get; set; }
 
     [Inject]
     public IPostMachineRepository PostMachineRepository { get; set; }
 
-    public Shipment Shipment { get; set; }
     public IEnumerable<PostMachine> PostMachines { get; set; }
+    public Shipment Shipment { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -24,12 +21,12 @@
 
     public async Task RetrievePostMachines()
     {
-        PostMachines = await PostMachineRepository.GetAsync();
+        PostMachines = PostMachineRepository.PostMachines;
     }
 
     public async void CreateShipment()
     {
-        await PackageRepository.CreateAsync(Shipment);
+        await ShipmentRepository.CreateAsync(Shipment);
     }
 
 }

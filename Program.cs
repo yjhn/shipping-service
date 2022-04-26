@@ -7,17 +7,21 @@ using shipping_service.Services;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 // Configure services
 builder.Configuration.AddJsonFile("appsettings.json");
+string dbConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+bool autoApplyMigrations = builder.Configuration.GetValue<bool>("AutomaticallyApplyMigrations");
+bool addSeedData = builder.Configuration.GetValue<bool>("AddSeedDataIfDBEmpty");
+
 builder.Services.AddDbContext<DatabaseContext>(option =>
-    option.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+    option.UseNpgsql(dbConnectionString)
         // enable logging for debugging
         .EnableSensitiveDataLogging()
         .EnableDetailedErrors()
         .LogTo(Console.WriteLine));
 builder.Services.AddScoped<ICourierRepository, CourierRepository>();
-builder.Services.AddScoped<IPackageRepository, PackageRepository>();
+builder.Services.AddScoped<IShipmentRepository, ShipmentRepository>();
 builder.Services.AddScoped<IPostMachineRepository, PostMachineRepository>();
 builder.Services.AddScoped<ISenderRepository, SenderRepository>();
-builder.Services.AddScoped<IPackageService, PackageService>();
+builder.Services.AddScoped<IShipmentService, ShipmentService>();
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 //builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); This one could come in handy.
 builder.Services.AddServerSideBlazor();
@@ -25,11 +29,19 @@ builder.Services.AddServerSideBlazor();
 //Build
 WebApplication app = builder.Build();
 
-// create DB with all migrations applied on startup
-using (IServiceScope serviceScope = app.Services.CreateScope())
+if (autoApplyMigrations)
 {
-    DatabaseContext context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
-    context.Database.Migrate();
+    // create DB with all migrations applied on startup
+    using (IServiceScope serviceScope = app.Services.CreateScope())
+    {
+        DatabaseContext context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
+        context.Database.Migrate();
+    }
+}
+
+if (addSeedData)
+{
+    SeedData.PopulateIfEmpty(app);
 }
 
 //Configure
@@ -49,4 +61,5 @@ app.UseEndpoints(endpoints =>
     endpoints.MapBlazorHub();
     endpoints.MapFallbackToPage("/_Host");
 });
+
 app.Run();

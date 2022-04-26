@@ -12,7 +12,7 @@ namespace shipping_service.Persistence.Database
         }
 
         public DbSet<Courier> Couriers { get; set; }
-        public DbSet<Shipment> Packages { get; set; }
+        public DbSet<Shipment> Shipments { get; set; }
         public DbSet<PostMachine> PostMachines { get; set; }
         public DbSet<Sender> Senders { get; set; }
 
@@ -117,25 +117,25 @@ namespace shipping_service.Persistence.Database
             // relationships
             modelBuilder.Entity<Shipment>()
                 .HasOne(p => p.Sender)
-                .WithMany(s => s.Packages)
+                .WithMany(s => s.Shipments)
                 .HasForeignKey(p => p.SenderId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Shipment>()
                 .HasOne(p => p.Courier)
-                .WithMany(c => c.CurrentPackages)
+                .WithMany(c => c.CurrentShipments)
                 .HasForeignKey(p => p.CourierId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.ClientSetNull);
             modelBuilder.Entity<Shipment>()
                 .HasOne(p => p.SourceMachine)
-                .WithMany(p => p.PackagesWithThisSource)
+                .WithMany(p => p.ShipmentsWithThisSource)
                 .HasForeignKey(p => p.SourceMachineId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Shipment>()
                 .HasOne(p => p.DestinationMachine)
-                .WithMany(p => p.PackagesWithThisDestination)
+                .WithMany(p => p.ShipmentsWithThisDestination)
                 .HasForeignKey(p => p.DestinationMachineId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
@@ -174,7 +174,7 @@ namespace shipping_service.Persistence.Database
                 .IsRequired();
             modelBuilder.Entity<Shipment>()
                 .Property(p => p.Description)
-                .HasColumnType("varchar(100)")
+                .HasColumnType("varchar(1000)")
                 .IsRequired(false);
             modelBuilder.Entity<Shipment>()
                 .Property(p => p.Status)

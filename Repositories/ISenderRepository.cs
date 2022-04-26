@@ -4,14 +4,12 @@ namespace shipping_service.Repositories
 {
     public interface ISenderRepository
     {
-        Task<List<Sender>> GetAsync();
+        IQueryable<Sender> Senders { get; }
 
-        Task<Sender> GetAsync(ulong id);
+        Task CreateAsync(Sender sender);
 
-        Task<Sender> CreateAsync(Sender sender);
+        Task UpdateAsync(Sender sender);
 
-        Task<Sender> UpdateAsync(ulong id, Sender senderIn);
-
-        Task<ulong> DeleteAsync(ulong id);
+        void Delete(Sender sender);
     }
 }
