@@ -1,16 +1,19 @@
 @page "/shipment/registration"
-
+@attribute [Authorize]
 @inherits OwningComponentBase<IPostMachineRepository>
+@inject NavigationManager NavigationManager
 
 <h3>Shipment registration</h3>
 
 <EditForm Model = "@Shipment" OnSubmit="@HandleSubmit">
     <div>
-        <label>Title: </label><InputText id = "title" @bind-Value="Shipment.Title"/><br/>
-        <label>Description: </label><InputTextArea id = "description" @bind-Value="Shipment.Description"/><br/>
+        <label>Title: </label><br/>
+        <InputText class = "input" id = "title" @bind-Value="Shipment.Title"/><br/>
+        <label>Description: </label><br/>
+        <InputTextArea class = "input" id = "description" @bind-Value="Shipment.Description"/><br/>
     </div>
     <div>
-        <label>Source machine: </label>
+        <label>Source machine: </label><br/>
 
         <select @bind="Shipment.SourceMachineId">
                 @if(PostMachines != null)
@@ -22,7 +25,7 @@
                 }
         </select><br/>
 
-        <label>Destination machine: </label>
+        <label>Destination machine: </label><br/>
         <select @bind="Shipment.DestinationMachineId">
                 @if(PostMachines != null)
                 {
@@ -31,19 +34,20 @@
                         <option value="@machine.Id">@machine.Address</option>
                     }
                 }
-        </select>
+        </select><br/>
 
-        
+       <button type="submit" disabled="@DisableRegisterButton">Register shipment</button> 
     </div>
-    <button type="submit">Register shipment</button>
 
 </EditForm>
 
 
 @code {
-    [Inject]
-    public AuthenticationStateProvider authStateProvider { get; set; }
 
+    [CascadingParameter]
+    private Task<AuthenticationState> authStateTask {get; set;}
+    [Inject]
+    public ISenderRepository SenderRepository { get; set; }
     [Inject]
     public IShipmentRepository ShipmentRepository { get; set; }
 
@@ -51,18 +55,15 @@
 
     public IEnumerable<PostMachine> PostMachines { get; set; }
     public Shipment Shipment { get; set; }
+    public Sender Sender { get; set; }
+    public bool DisableRegisterButton { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        Shipment = new Shipment();
-        
-        //This should get id of logged in user and use it to set senderId of shipment.
-        //Can't be used yet as log in is not yet implemented.
-
-        //var user = (await authStateProvider.GetAuthenticationStateAsync()).User;
-        //Shipment.SenderId = user.FindFirst(c => c.Type == "sub")?.Value;
-        
-
+        var authState = await authStateTask;
+        var username = authState.User.Identities.First().Name;
+        Sender = SenderRepository.Senders.First(s => s.Username == username);
+        Shipment = new Shipment {SenderId = Sender.Id};
         RetrievePostMachines();
     }
 
@@ -71,14 +72,14 @@
         PostMachines = PostMachineRepository.PostMachines;
     }
 
-    public async void CreateShipment()
-    {
-        await ShipmentRepository.CreateAsync(Shipment);
-    }
-
     public async void HandleSubmit()
     {
-        CreateShipment();
+        DisableRegisterButton = true;
+        await ShipmentRepository.CreateAsync(Shipment);
+        long shipmentId = ShipmentRepository.Shipments.
+            Where(s => s.SenderId == Sender.Id).
+            OrderByDescending(s => s.Created).First().Id;
+        NavigationManager.NavigateTo($"/shipment/{shipmentId}");
     }
 
 }

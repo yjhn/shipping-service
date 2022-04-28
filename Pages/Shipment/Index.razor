@@ -1,12 +1,26 @@
 ﻿@page "/shipment"
+@attribute [Authorize]
 <PageTitle>Shipment main page</PageTitle>
 
 <h4>Shipment main page</h4>
-
 <NavLink class="btn btn-primary" href="@RegisterShipmentUrl">Register a shipment</NavLink>
+<ShipmentsList Shipments="Shipments"></ShipmentsList>
 
 @code {
 
     public string RegisterShipmentUrl = "/shipment/registration";
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authStateTask {get; set;}
+    [Inject]
+    public IShipmentRepository ShipmentRepository { get; set; }
+    public IEnumerable<Shipment> Shipments { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authStateTask;
+        var username = authState.User.Identities.First().Name;
+        Shipments = ShipmentRepository.Shipments.Where(s => s.Sender.Username == username);
+    }
 
 }
