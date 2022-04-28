@@ -1,7 +1,5 @@
 @page "/shipment/registration"
 
-@inherits OwningComponentBase<IPostMachineRepository>
-
 <h3>Shipment registration</h3>
 
 <EditForm Model = "@Shipment" OnSubmit="@HandleSubmit">
@@ -47,7 +45,8 @@
     [Inject]
     public IShipmentRepository ShipmentRepository { get; set; }
 
-    public IPostMachineRepository PostMachineRepository => Service;
+    [Inject]
+    public IPostMachineRepository PostMachineRepository { get; set; }
 
     public IEnumerable<PostMachine> PostMachines { get; set; }
     public Shipment Shipment { get; set; }
@@ -63,10 +62,10 @@
         //Shipment.SenderId = user.FindFirst(c => c.Type == "sub")?.Value;
         
 
-        RetrievePostMachines();
+        await RetrievePostMachines();
     }
 
-    public void RetrievePostMachines()
+    public async Task RetrievePostMachines()
     {
         PostMachines = PostMachineRepository.PostMachines;
     }
