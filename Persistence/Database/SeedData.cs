@@ -47,7 +47,7 @@ namespace shipping_service.Persistence.Database
                 int passwordColumnPosition = sheet.GetColumnByName("Password");
                 for (int i = 2; i <= sheet.Dimension.Rows; i++)
                 {
-                    ulong id = Convert.ToUInt64(
+                    long id = Convert.ToInt64(
                         sheet.Cells[i, idColumnPosition].Value.ToString());
                     string username = sheet.Cells[i, usernameColumnPosition].Value.ToString();
                     string password = sheet.Cells[i, passwordColumnPosition].Value.ToString();
@@ -72,7 +72,7 @@ namespace shipping_service.Persistence.Database
                 int nameColumnPosition = sheet.GetColumnByName("Name");
                 for (int i = 2; i <= sheet.Dimension.Rows; i++)
                 {
-                    ulong id = Convert.ToUInt64(
+                    long id = Convert.ToInt64(
                         sheet.Cells[i, idColumnPosition].Value.ToString());
                     string username = sheet.Cells[i, usernameColumnPosition].Value.ToString();
                     string password = sheet.Cells[i, passwordColumnPosition].Value.ToString();
@@ -97,7 +97,7 @@ namespace shipping_service.Persistence.Database
                 int addressColumnPosition = sheet.GetColumnByName("Address");
                 for (int i = 2; i <= sheet.Dimension.Rows; i++)
                 {
-                    ulong id = Convert.ToUInt64(
+                    long id = Convert.ToInt64(
                         sheet.Cells[i, idColumnPosition].Value.ToString());
                     string name = sheet.Cells[i, nameColumnPosition].Value.ToString();
                     string address = sheet.Cells[i, addressColumnPosition].Value.ToString();
@@ -125,16 +125,16 @@ namespace shipping_service.Persistence.Database
                 int statusColumnPosition = sheet.GetColumnByName("Status");
                 for (int i = 2; i <= sheet.Dimension.Rows; i++)
                 {
-                    ulong id = Convert.ToUInt64(
+                    long id = Convert.ToInt64(
                         sheet.Cells[i, idColumnPosition].Value.ToString());
                     string title = sheet.Cells[i, titleColumnPosition].Value.ToString();
                     string? description = sheet.Cells[i, descriptionColumnPosition].Value?.ToString();
-                    ulong senderId = Convert.ToUInt64(
+                    long senderId = Convert.ToInt64(
                         sheet.Cells[i, senderIdColumnPosition].Value.ToString());
                     string? courierIdString = sheet.Cells[i, courierIdColumnPosition].Value?.ToString();
-                    ulong sourceMachineId = Convert.ToUInt64(
+                    long sourceMachineId = Convert.ToInt64(
                         sheet.Cells[i, sourceMachineIdColumnPosition].Value.ToString());
-                    ulong destinationMachineId = Convert.ToUInt64(
+                    long destinationMachineId = Convert.ToInt64(
                         sheet.Cells[i, destinationMachineIdColumnPosition].Value.ToString());
                     string shipmentStatusString =
                         sheet.Cells[i, statusColumnPosition].Value.ToString();
@@ -148,7 +148,7 @@ namespace shipping_service.Persistence.Database
                             Description = description,
                             Status = shipmentStatus,
                             SenderId = senderId,
-                            CourierId = courierIdString == null ? null : Convert.ToUInt64(courierIdString),
+                            CourierId = courierIdString == null ? null : Convert.ToInt64(courierIdString),
                             SourceMachineId = sourceMachineId,
                             DestinationMachineId = destinationMachineId
                         };
