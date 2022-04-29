@@ -26,7 +26,7 @@
         UnassignedShipments = ShipmentService.GetUnassigned();
     }
 
-    public async Task AssignPackageToCourier(ulong shipmentId)
+    public async Task AssignPackageToCourier(long shipmentId)
     {
         var shipment = await ShipmentRepository.Shipments.FirstOrDefaultAsync(s => s.Id == shipmentId);
         if (shipment == null)
