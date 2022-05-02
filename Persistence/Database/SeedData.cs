@@ -42,17 +42,14 @@ namespace shipping_service.Persistence.Database
             using (ExcelPackage excelFile = new(excelFileInfo))
             {
                 ExcelWorksheet? sheet = excelFile.Workbook.Worksheets.First();
-                int idColumnPosition = sheet.GetColumnByName("ID");
                 int usernameColumnPosition = sheet.GetColumnByName("Username");
                 int passwordColumnPosition = sheet.GetColumnByName("Password");
                 for (int i = 2; i <= sheet.Dimension.Rows; i++)
                 {
-                    long id = Convert.ToInt64(
-                        sheet.Cells[i, idColumnPosition].Value.ToString());
                     string username = sheet.Cells[i, usernameColumnPosition].Value.ToString();
                     string password = sheet.Cells[i, passwordColumnPosition].Value.ToString();
                     // TODO: password hash.
-                    Sender sender = new() { Id = id, Username = username, HashedPassword = new byte[7] };
+                    Sender sender = new() { Username = username, HashedPassword = new byte[7] };
                     context.Senders.Add(sender);
                 }
             }
@@ -66,19 +63,16 @@ namespace shipping_service.Persistence.Database
             using (ExcelPackage excelFile = new(excelFileInfo))
             {
                 ExcelWorksheet? sheet = excelFile.Workbook.Worksheets.First();
-                int idColumnPosition = sheet.GetColumnByName("ID");
                 int usernameColumnPosition = sheet.GetColumnByName("Username");
                 int passwordColumnPosition = sheet.GetColumnByName("Password");
                 int nameColumnPosition = sheet.GetColumnByName("Name");
                 for (int i = 2; i <= sheet.Dimension.Rows; i++)
                 {
-                    long id = Convert.ToInt64(
-                        sheet.Cells[i, idColumnPosition].Value.ToString());
                     string username = sheet.Cells[i, usernameColumnPosition].Value.ToString();
                     string password = sheet.Cells[i, passwordColumnPosition].Value.ToString();
                     string name = sheet.Cells[i, nameColumnPosition].Value.ToString();
                     // TODO: password hash.
-                    Courier courier = new() { Id = id, Username = username, HashedPassword = new byte[7] };
+                    Courier courier = new() { Username = username, HashedPassword = new byte[7] };
                     context.Couriers.Add(courier);
                 }
             }
@@ -92,16 +86,13 @@ namespace shipping_service.Persistence.Database
             using (ExcelPackage excelFile = new(excelFileInfo))
             {
                 ExcelWorksheet? sheet = excelFile.Workbook.Worksheets.First();
-                int idColumnPosition = sheet.GetColumnByName("ID");
                 int nameColumnPosition = sheet.GetColumnByName("Name");
                 int addressColumnPosition = sheet.GetColumnByName("Address");
                 for (int i = 2; i <= sheet.Dimension.Rows; i++)
                 {
-                    long id = Convert.ToInt64(
-                        sheet.Cells[i, idColumnPosition].Value.ToString());
                     string name = sheet.Cells[i, nameColumnPosition].Value.ToString();
                     string address = sheet.Cells[i, addressColumnPosition].Value.ToString();
-                    PostMachine postMachine = new() { Id = id, Name = name, Address = address };
+                    PostMachine postMachine = new() { Name = name, Address = address };
                     context.PostMachines.Add(postMachine);
                 }
             }
@@ -115,7 +106,6 @@ namespace shipping_service.Persistence.Database
             using (ExcelPackage excelFile = new(excelFileInfo))
             {
                 ExcelWorksheet? sheet = excelFile.Workbook.Worksheets.First();
-                int idColumnPosition = sheet.GetColumnByName("ID");
                 int titleColumnPosition = sheet.GetColumnByName("Title");
                 int descriptionColumnPosition = sheet.GetColumnByName("Description");
                 int senderIdColumnPosition = sheet.GetColumnByName("SenderId");
@@ -125,8 +115,6 @@ namespace shipping_service.Persistence.Database
                 int statusColumnPosition = sheet.GetColumnByName("Status");
                 for (int i = 2; i <= sheet.Dimension.Rows; i++)
                 {
-                    long id = Convert.ToInt64(
-                        sheet.Cells[i, idColumnPosition].Value.ToString());
                     string title = sheet.Cells[i, titleColumnPosition].Value.ToString();
                     string? description = sheet.Cells[i, descriptionColumnPosition].Value?.ToString();
                     long senderId = Convert.ToInt64(
@@ -143,7 +131,6 @@ namespace shipping_service.Persistence.Database
                     Shipment shipment =
                         new()
                         {
-                            Id = id,
                             Title = title,
                             Description = description,
                             Status = shipmentStatus,

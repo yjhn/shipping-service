@@ -1,0 +1,36 @@
+@page "/login"
+@using shipping_service.Pages.Registration
+@using System.ComponentModel.DataAnnotations
+@using shipping_service.Models
+@model LoginModel
+
+<div class="col-md-8 mx-auto">
+        <div class="card" style="margin: auto; max-width: 500px">
+            <h3 class="card-header">
+                Log in
+            </h3>
+            <div class="card-body">
+                @if (!string.IsNullOrWhiteSpace(Model.error))
+                {
+                    <div class="alert alert-danger">
+                        @Model.error
+                    </div>
+                }
+
+
+                <form method="POST">
+                    <label class="form-label" for="username">Username</label>
+                    <input id="username" asp-for="Account.Username" class="form-control" style="margin-bottom: 1rem;" />
+					<span asp-validation-for="Account.Username"></span>
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" asp-for="Account.Password" class="form-control" style="margin-bottom: 1rem;" />
+					        <span asp-validation-for="Account.Password"></span>
+                    <button class="btn btn-primary" type="submit" style="margin-top: .5rem;">Log in</button>
+                    <a class="btn btn-primary" href="register" style="margin-left: .5rem; margin-top: .5rem;">Register</a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+

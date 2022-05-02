@@ -14,16 +14,20 @@
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </div>
-        <div class="nav-item px-3">
+<AuthorizeView Roles="Sender">
+	        <div class="nav-item px-3">
             <NavLink class="nav-link" href="shipment">
                 <span class="oi oi-plus" aria-hidden="true"></span> Shipment
             </NavLink>
         </div>
+</AuthorizeView>
+<AuthorizeView Roles="Courier">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="Courier">
                 <span class="oi oi-list-rich" aria-hidden="true"></span> Courier
             </NavLink>
         </div>
+		</AuthorizeView>
     </nav>
 </div>
 

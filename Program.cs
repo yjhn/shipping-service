@@ -2,7 +2,9 @@ using Microsoft.EntityFrameworkCore;
 
 using shipping_service.Persistence.Database;
 using shipping_service.Repositories;
-using shipping_service.Services;
+        using shipping_service.Services;
+using shipping_service.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 // Configure services
@@ -22,9 +24,18 @@ builder.Services.AddScoped<IShipmentRepository, ShipmentRepository>();
 builder.Services.AddScoped<IPostMachineRepository, PostMachineRepository>();
 builder.Services.AddScoped<ISenderRepository, SenderRepository>();
 builder.Services.AddScoped<IShipmentService, ShipmentService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+.AddCookie(options =>
+{
+    options.ExpireTimeSpan = TimeSpan.FromDays(20);
+});
+
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
-//builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); This one could come in handy.
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddScoped<TokenProvider>();
 
 //Build
 WebApplication app = builder.Build();
@@ -55,6 +66,8 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapRazorPages();

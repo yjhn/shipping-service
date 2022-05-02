@@ -1,14 +1,53 @@
 @page "/shipment/registration"
 
+@inherits OwningComponentBase<IPostMachineRepository>
+
 <h3>Shipment registration</h3>
 
+<EditForm Model = "@Shipment" OnSubmit="@HandleSubmit">
+    <div>
+        <label>Title: </label><InputText id = "title" @bind-Value="Shipment.Title"/><br/>
+        <label>Description: </label><InputTextArea id = "description" @bind-Value="Shipment.Description"/><br/>
+    </div>
+    <div>
+        <label>Source machine: </label>
+
+        <select @bind="Shipment.SourceMachineId">
+                @if(PostMachines != null)
+                {
+                    @foreach(var machine in PostMachines)
+                    {
+                        <option value="@machine.Id">@machine.Address</option>
+                    }
+                }
+        </select><br/>
+
+        <label>Destination machine: </label>
+        <select @bind="Shipment.DestinationMachineId">
+                @if(PostMachines != null)
+                {
+                    @foreach(var machine in PostMachines)
+                    {
+                        <option value="@machine.Id">@machine.Address</option>
+                    }
+                }
+        </select>
+
+        
+    </div>
+    <button type="submit">Register shipment</button>
+
+</EditForm>
+
+
 @code {
+    [Inject]
+    public AuthenticationStateProvider authStateProvider { get; set; }
 
     [Inject]
     public IShipmentRepository ShipmentRepository { get; set; }
 
-    [Inject]
-    public IPostMachineRepository PostMachineRepository { get; set; }
+    public IPostMachineRepository PostMachineRepository => Service;
 
     public IEnumerable<PostMachine> PostMachines { get; set; }
     public Shipment Shipment { get; set; }
@@ -16,10 +55,18 @@
     protected override async Task OnInitializedAsync()
     {
         Shipment = new Shipment();
-        await RetrievePostMachines();
+        
+        //This should get id of logged in user and use it to set senderId of shipment.
+        //Can't be used yet as log in is not yet implemented.
+
+        //var user = (await authStateProvider.GetAuthenticationStateAsync()).User;
+        //Shipment.SenderId = user.FindFirst(c => c.Type == "sub")?.Value;
+        
+
+        RetrievePostMachines();
     }
 
-    public async Task RetrievePostMachines()
+    public void RetrievePostMachines()
     {
         PostMachines = PostMachineRepository.PostMachines;
     }
@@ -27,6 +74,11 @@
     public async void CreateShipment()
     {
         await ShipmentRepository.CreateAsync(Shipment);
+    }
+
+    public async void HandleSubmit()
+    {
+        CreateShipment();
     }
 
 }
