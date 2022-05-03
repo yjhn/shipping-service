@@ -148,18 +148,14 @@ return null;
             if (courier != null)
             {
                 claims.Add(new Claim(ClaimTypes.Role, "Sender"));
-                var newCourier = new Courier();
-                newCourier.Username = username;
-                newCourier.HashedPassword = courier.HashedPassword;
-                await _courierRepository.UpdateAsync(newCourier);
+                courier.Username = username;
+                await _courierRepository.UpdateAsync(courier);
             }
             else
             {
                 claims.Add(new Claim(ClaimTypes.Role, "Courier"));
-                var newSender = new Sender();
-                newSender.Username = username;
-                newSender.HashedPassword = sender.HashedPassword;
-                await _senderRepository.UpdateAsync(newSender);
+                sender.Username = username;
+                await _senderRepository.UpdateAsync(sender);
             }
             var claimsIdentity = new ClaimsIdentity(
                 claims, CookieAuthenticationDefaults.AuthenticationScheme);
