@@ -21,21 +21,21 @@ After Peter confirms the package registration, system generates a unique link to
 source and destination post machines’ unlocking codes. The tracking link does not contain the codes (for security
 reasons), instead the codes are sent to Peter along with the tracking link as a response of shipment registration.
 Chloe (package receiver) does not need the account to get a package, instead, Peter sends destination post machine
-unlocking code and the tracking link to Chloe. The tracking link contains shipment status so Chloe can now there is the
-package and then it has arrived. Then Chloe (or anybody since links don’t require authentication although are difficult
-to guess) enters the link, the system checks if there is such one. Since the link starts with shipment ID and since
-shipment entity contains the link it is easy to verify the links existence. If the link is confirmed to exist, package
-statuses are sent as a response.
+unlocking code and the tracking link to Chloe. The tracking link contains shipment status so Chloe can know where the 
+package is and when it has arrived. Then Chloe (or anybody since links don’t require authentication although are difficult
+to guess) enters the link, the system checks if there is such one. Since the shipment tracking link can be generated 
+from the entity's ID the link it is easy to verify the link's existence.
+If the link is confirmed to exist, package status and destination post machine information are sent as a response.
 Peter goes to the source post machine, enters its unlocking code and places the package. Once Peter shuts the safe door,
-it cannot open it again since the unlocking code becomes invalid.
-To send a package to the destination machine the need the courier. Courier cannot register himself, instead our team
-registers him (he must change the password). Courier’s name is William.
-Once Peter registration of shipment is uploaded to the db, William can search for new packages to deliver. Since
-shipments can have no couriers for some time, William is shown a list of these shipments. A source and destination
-machines’ addresses are shown. If William is willing to deliver the shipment to the endpoint, he can assign it to self.
+he cannot open it again since the unlocking code becomes invalid. The system then generates a new unlocking code for 
+the courier. To send a package to the destination machine the courier is needed. Courier can register himself just
+like the sender. Courier’s name is William.
+Once Peter places the shipment inside post machine, it is shown to William. Since shipments can have no couriers 
+for some time, William is shown a list of these shipments. Source and destination
+machines’ addresses are shown. If William is willing to deliver the shipment to the endpoint, he can assign it to himself.
 Once William does that, a source and destination machines’ unlocking codes are given. The shipment itself is given a
-courier and is no longer shown in shipment list for other couriers to consider delivering. William goes to source
-destination machine, enters the unlocking code and picks up the package. The status of the shipment changes. After some
+courier and is no longer shown in shipment list for other couriers to consider delivering. William goes to the source
+machine, enters the unlocking code and picks up the package. The status of the shipment changes. After some
 time, William arrives at the endpoint enters destination machine unlocking code and places the package. The status of
 the shipment changes. Courier cannot unlock the machine once it shuts the doors. William has done his work for this
 shipment.
