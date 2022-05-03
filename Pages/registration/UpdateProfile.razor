@@ -64,6 +64,7 @@
 
 	protected async Task HandleSubmit()
 	{
+success = false;
 		User userUpdating = new();
 		userUpdating.Username = user.Username;
 		userUpdating.Role = user.Role;
