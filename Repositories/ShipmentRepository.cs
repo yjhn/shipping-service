@@ -22,6 +22,7 @@ namespace shipping_service.Repositories
 
         public async Task UpdateAsync(Shipment shipment)
         {
+context.Update(shipment);
             await context.SaveChangesAsync();
         }
 

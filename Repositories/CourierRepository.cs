@@ -1,5 +1,6 @@
 ﻿using shipping_service.Persistence.Database;
 using shipping_service.Persistence.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace shipping_service.Repositories
 {
@@ -18,11 +19,16 @@ namespace shipping_service.Repositories
         {
             await context.AddAsync(courier);
             await context.SaveChangesAsync();
+            context.Entry(courier).State = EntityState.Detached;
+
         }
 
         public async Task UpdateAsync(Courier courier)
         {
+            context.Update(courier);
             await context.SaveChangesAsync();
+            context.Entry(courier).State = EntityState.Detached;
+
         }
 
         public void Delete(Courier courier)
@@ -30,5 +36,17 @@ namespace shipping_service.Repositories
             context.Remove(courier);
             context.SaveChanges();
         }
+
+public async Task<Courier> GetByUsername(string username)
+{
+            foreach (var courier in Couriers)
+            {
+                if (courier.Username == username)
+                {
+                    return courier;
+                }
+            }
+                    return null;
+            }
     }
 }

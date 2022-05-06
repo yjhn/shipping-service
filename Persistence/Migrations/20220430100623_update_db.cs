@@ -1,11 +1,12 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace shipping_service.Migrations
+namespace shipping_service.Persistence.Migrations
 {
-    public partial class Initial : Migration
+    public partial class update_db : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,10 +14,10 @@ namespace shipping_service.Migrations
                 name: "Couriers",
                 columns: table => new
                 {
-                    Id = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
                     Username = table.Column<string>(type: "varchar(50)", nullable: false),
                     HashedPassword = table.Column<byte[]>(type: "bytea", nullable: false),
-                    Name = table.Column<string>(type: "varchar(100)", nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
                     Modified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -29,7 +30,8 @@ namespace shipping_service.Migrations
                 name: "PostMachines",
                 columns: table => new
                 {
-                    Id = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
                     Name = table.Column<string>(type: "varchar(50)", nullable: false),
                     Address = table.Column<string>(type: "varchar(100)", nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
@@ -44,7 +46,8 @@ namespace shipping_service.Migrations
                 name: "Senders",
                 columns: table => new
                 {
-                    Id = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
                     HashedPassword = table.Column<byte[]>(type: "bytea", nullable: false),
                     Username = table.Column<string>(type: "varchar(50)", nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
@@ -59,13 +62,14 @@ namespace shipping_service.Migrations
                 name: "Shipments",
                 columns: table => new
                 {
-                    Id = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
                     Title = table.Column<string>(type: "varchar(50)", nullable: false),
                     Description = table.Column<string>(type: "varchar(1000)", nullable: true),
-                    SenderId = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
-                    CourierId = table.Column<decimal>(type: "numeric(20,0)", nullable: true),
-                    SourceMachineId = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
-                    DestinationMachineId = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    SenderId = table.Column<long>(type: "bigint", nullable: false),
+                    CourierId = table.Column<long>(type: "bigint", nullable: true),
+                    SourceMachineId = table.Column<long>(type: "bigint", nullable: false),
+                    DestinationMachineId = table.Column<long>(type: "bigint", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now()"),
                     Modified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
