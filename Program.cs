@@ -49,16 +49,16 @@ WebApplication app = builder.Build();
 
 if (autoApplyMigrations)
 {
+    Console.WriteLine("Creating the DB and applying DB migrations");
     // create DB with all migrations applied on startup
-    using (IServiceScope serviceScope = app.Services.CreateScope())
-    {
-        DatabaseContext context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
-        context.Database.Migrate();
-    }
+    using IServiceScope serviceScope = app.Services.CreateScope();
+    DatabaseContext context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
+    context.Database.Migrate();
 }
 
 if (addSeedData)
 {
+    Console.WriteLine("Adding seed data to DB");
     SeedData.PopulateIfEmpty(app);
 }
 

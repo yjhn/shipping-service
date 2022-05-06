@@ -13,6 +13,10 @@
         public PostMachine DestinationMachine { get; set; }
         public long DestinationMachineId { get; set; }
         public ShipmentStatus Status { get; set; }
+        public int? SrcPmSenderUnlockCode { get; set; }
+        public int? SrcPmCourierUnlockCode { get; set; }
+        public int? DestPmSenderUnlockCode { get; set; }
+        public int? DestPmCourierUnlockCode { get; set; }
         public long Id { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
