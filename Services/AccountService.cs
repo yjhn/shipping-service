@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 using shipping_service.Repositories;
 using shipping_service.Persistence.Entities;
+using Microsoft.JSInterop;
 namespace shipping_service.Services
 {
     public class AccountService : IAccountService
@@ -13,13 +14,16 @@ namespace shipping_service.Services
         private ISenderRepository _senderRepository;
         private ICourierRepository _courierRepository;
         private IHttpContextAccessor _accessor;
-
-        public AccountService(ISenderRepository senderRepository, ICourierRepository courierRepository, IHttpContextAccessor accessor)
+        private IJSRuntime _JSRunTime;
+        private Sender sender;
+        private Courier courier;
+        public AccountService(ISenderRepository senderRepository, ICourierRepository courierRepository, IHttpContextAccessor accessor, IJSRuntime jSRunTime)
         {
             _senderRepository = senderRepository;
             _courierRepository = courierRepository;
             _accessor = accessor;
-        }
+            _JSRunTime = jSRunTime;
+                    }
         private byte[] PasswordHash(string password)
         {
             byte[] salt = new byte[16];
@@ -52,50 +56,30 @@ namespace shipping_service.Services
             return true;
         }
 
-        private string LoginBegin(string password, Courier courier, Sender sender)
+        private string LoginBegin(string password)
         {
-            if (courier == null && sender == null)
+            if (!ExistsCourier() && !ExistsSender())
             {
                 return "Invalid username";
             }
-            if ((courier != null && !ValidatePasswordHash(password, courier.HashedPassword)) || (sender != null && !ValidatePasswordHash(password, sender.HashedPassword)))
+            if ((ExistsCourier() && !ValidatePasswordHash(password, courier.HashedPassword)) || (ExistsSender() && !ValidatePasswordHash(password, sender.HashedPassword)))
             {
                 return "The password is incorrect";
             }
 return null;
             }
 
-        public async Task<string> LoginAsync(User user)
+        public async Task<(string, string)> LoginAsync(UserLogin user)
         {
             var username = user.Username;
-                    var courier = await _courierRepository.GetByUsername(username);
-        var sender = await _senderRepository.GetByUsername(username);
-        var message = LoginBegin(user.Password, courier, sender);
+            await SetUser(username);
+        var message = LoginBegin(user.Password);
         if (message!= null)
         {
-            return message;
+            return (message, null);
         }
-            var claims = new List<Claim>();
-            claims.Add(new Claim(ClaimTypes.Name, username));
 
-            if (sender != null)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, "Sender"));
-            }
-            else
-            {
-                claims.Add(new Claim(ClaimTypes.Role, "Courier"));
-            }
-            var claimsIdentity = new ClaimsIdentity(
-                claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-            var authProperties = new AuthenticationProperties
-            { };
-            await _accessor.HttpContext.SignInAsync(
-       CookieAuthenticationDefaults.AuthenticationScheme,
-       new ClaimsPrincipal(claimsIdentity),
-       authProperties);
-            return null;
+            return !ExistsSender()? (null, "Courier") : (null, "Sender");
 
         }
 
@@ -103,9 +87,8 @@ return null;
         {
             var role = user.Role;
             var username = user.Username;
-            var courier = await _courierRepository.GetByUsername(username);
-            var sender = await _senderRepository.GetByUsername(username);
-            if (sender != null || courier != null)
+            await SetUser(username);
+            if (ExistsSender() || ExistsCourier())
             {
                 return "This username already exists.";
             }
@@ -126,64 +109,49 @@ return null;
             }
             return null;
         }
-        public async Task<string> UpdateAsync(User user, string oldUsername)
+
+        public async Task<string> UpdateAsync(string newUsername, string oldUsername)
         {
-            var username = user.Username;
-            var role = user.Role;
-            var courier = await _courierRepository.GetByUsername(oldUsername);
-            var sender = await _senderRepository.GetByUsername(oldUsername);
-            if (sender == null && courier == null)
-            {
-                return "The specified user was not found";
-            }
-            var courierExists = await _courierRepository.GetByUsername(username);
-            var senderExists = await _senderRepository.GetByUsername(username);
-            if (courierExists != null || senderExists != null)
+            await SetUser(newUsername);
+            if (ExistsCourier() || ExistsSender())
             {
                 return "This username already exists.";
             }
-            var claims = new List<Claim>();
-            claims.Add(new Claim(ClaimTypes.Name, username));
-
-            if (courier != null)
+            await SetUser(oldUsername);
+            if (!ExistsCourier() && !ExistsSender())
             {
-                claims.Add(new Claim(ClaimTypes.Role, "Sender"));
-                courier.Username = username;
+                return "The specified user was not found";
+            }
+
+                return null;
+
+        }
+        public async Task UpdateDatabaseAsync(string newUsername, string oldUsername, string role)
+        {
+            if (role == "Courier")
+            {
+                courier = await _courierRepository.GetByUsername(oldUsername);
+                courier.Username = newUsername;
                 await _courierRepository.UpdateAsync(courier);
             }
             else
             {
-                claims.Add(new Claim(ClaimTypes.Role, "Courier"));
-                sender.Username = username;
+                sender = await _senderRepository.GetByUsername(oldUsername);
+                sender.Username = newUsername;
                 await _senderRepository.UpdateAsync(sender);
             }
-            var claimsIdentity = new ClaimsIdentity(
-                claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-            var authProperties = new AuthenticationProperties
-            { };
-/*            await _accessor.HttpContext
-            .SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            await _accessor.HttpContext.SignInAsync(
-       CookieAuthenticationDefaults.AuthenticationScheme,
-       new ClaimsPrincipal(claimsIdentity),
-       authProperties);
-*/
-
-            return null;
-
         }
-        public async Task<string> ChangePasswordAsync(string oldPassword, string newPassword, string username)
+
+            public async Task<string> ChangePasswordAsync(string oldPassword, string newPassword, string username)
         {
-        var courier = await _courierRepository.GetByUsername(username);
-        var sender = await _senderRepository.GetByUsername(username);
-        var message = LoginBegin(oldPassword, courier, sender);
+            await SetUser(username);
+        var message = LoginBegin(oldPassword);
         if (message != null)
         {
             return message;
         }
         var password = PasswordHash(newPassword);
-if (courier != null)
+if (ExistsCourier())
         {
             courier.HashedPassword = password;
             await _courierRepository.UpdateAsync(courier);
@@ -195,6 +163,26 @@ if (courier != null)
         }
         return null;
     }
+public async Task<bool> Exists(string username)
+        {
+            await SetUser(username);
+            return ExistsSender() || ExistsCourier()?true:false;
+        }
 
-}
+private bool ExistsSender()
+        {
+            return sender != null;
+        }
+
+        private bool ExistsCourier()
+        {
+            return courier!= null;
+        }
+
+        private async Task SetUser(string username)
+        {
+            sender = await _senderRepository.GetByUsername(username);
+            courier = await _courierRepository.GetByUsername(username);
+        }
+    }
 }

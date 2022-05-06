@@ -4,6 +4,9 @@
 @using shipping_service.Services
 @inject IAccountService accountService
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject IHttpContextAccessor accessor
+@inject TokenProvider _tokenProvider
 <div class="col-md-8 mx-auto">
         <div class="card" style="margin: auto; max-width: 500px">
             <h3 class="card-header">
@@ -64,13 +67,13 @@
 
 	protected async Task HandleSubmit()
 	{
-success = false;
-		User userUpdating = new();
-		userUpdating.Username = user.Username;
-		userUpdating.Role = user.Role;
-		error = await accountService.UpdateAsync(userUpdating, oldUsername);
+		success = false;
+
+error = await accountService.UpdateAsync(user.Username, oldUsername);
 		if (error == null)
 		{
+			var authModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./scripts/auth.js");
+			await authModule.InvokeVoidAsync("Update", user.Username, oldUsername, user.Role, _tokenProvider.AntiForgeryToken);
 			success = true;
 		}
 
