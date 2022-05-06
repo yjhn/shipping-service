@@ -4,6 +4,7 @@ using shipping_service.Persistence.Database;
 using shipping_service.Repositories;
         using shipping_service.Services;
 using shipping_service.Models;
+using shipping_service.Controllers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -25,17 +26,23 @@ builder.Services.AddScoped<IPostMachineRepository, PostMachineRepository>();
 builder.Services.AddScoped<ISenderRepository, SenderRepository>();
 builder.Services.AddScoped<IShipmentService, ShipmentService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
-
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 .AddCookie(options =>
 {
     options.ExpireTimeSpan = TimeSpan.FromDays(20);
-});
+    options.Cookie.Name = "auth";
+    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
+    options.EventsType = typeof(shipping_service.Controllers.CookieAuthenticationEvents);
 
+});
+builder.Services.AddScoped<shipping_service.Controllers.CookieAuthenticationEvents>();
+//builder.Services.AddAntiforgery(
+//options => options.HeaderName = "__RequestVerificationToken");
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<TokenProvider>();
+builder.Services.AddControllers();
 
 //Build
 WebApplication app = builder.Build();
@@ -73,6 +80,8 @@ app.UseEndpoints(endpoints =>
     endpoints.MapRazorPages();
     endpoints.MapBlazorHub();
     endpoints.MapFallbackToPage("/_Host");
+    endpoints.MapControllers();
+
 });
 
 app.Run();

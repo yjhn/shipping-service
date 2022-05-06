@@ -1,13 +1,14 @@
-﻿@page "/register"
+@page "/login"
 @using System.ComponentModel.DataAnnotations
 @using shipping_service.Models
 @using shipping_service.Services
+@inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 @inject IAccountService accountService
 <div class="col-md-8 mx-auto">
         <div class="card" style="margin: auto; max-width: 500px">
             <h3 class="card-header">
-                Register
+                Login
             </h3>
             <div class="card-body">
                 @if (!string.IsNullOrWhiteSpace(error))
@@ -28,19 +29,7 @@
                     <InputText type="password" id="password" @bind-Value="@user.Password" class="form-control" style="margin-bottom: 1rem;" />
 					                    <ValidationMessage For="@(() => user.Password)" />
 
-                    <label class="form-label" for="confirmPassword">Confirm Password</label>
-                    <InputText type="password" id="confirmPassword" @bind-Value="@user.ConfirmPassword" class="form-control" style="margin-bottom: 1rem;" />
-					                    <ValidationMessage For="@(() => user.ConfirmPassword)" />
-
-											                    <label class="form-label" for="role">Role</label>
-																                    <InputSelect @bind-Value="user.Role" class="form-control" id="role">
-                        <option value="">--SELECT</option>
-                        <option value="Sender">Sender</option>
-                        <option value="Courier">Courier</option>
-                    </InputSelect>
-					                    <ValidationMessage For="@(() => user.Role)" />
-
-                    <button class="btn btn-primary" type="submit" style="margin-top: .5rem;">Register</button>
+                    <button class="btn btn-primary" type="submit" style="margin-top: .5rem;">Login</button>
                 <button type="reset" class="btn btn-secondary" style="margin-top: .5rem;">Reset</button>
                 </EditForm>
             </div>
@@ -48,7 +37,7 @@
     </div>
 
 @code {
-	private User user = new();
+	private UserLogin user = new();
 	private string error;
 	[CascadingParameter]
 	private Task<AuthenticationState> authStateTask {get; set;}
@@ -65,17 +54,20 @@
 
 	protected async Task HandleSubmit()
 	{
-		error = await accountService.RegisterAsync(user);
-		if (error == null)
+		var (loginError, role) = await accountService.LoginAsync(user);
+		if (loginError == null)
 		{
-NavigationManager.NavigateTo("/login");
-//			await RedirectTo("/login");
+			var authModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./scripts/auth.js");
+			await authModule.InvokeVoidAsync("SignIn", user.Username, role, user.Password, "/");
 		}
-	}
+		else{
+			error = loginError;
+		}
+}
 
 	protected async Task HandleReset()
 	{
-		        user = new User();
+		        user = new UserLogin();
 	}
 	
 }
