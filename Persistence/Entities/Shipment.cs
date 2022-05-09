@@ -1,4 +1,7 @@
-﻿namespace shipping_service.Persistence.Entities
+﻿using System.Security.Cryptography;
+using System.Text;
+
+namespace shipping_service.Persistence.Entities
 {
     public class Shipment : IBaseEntity
     {
@@ -15,11 +18,37 @@
         public ShipmentStatus Status { get; set; }
         public int? SrcPmSenderUnlockCode { get; set; }
         public int? SrcPmCourierUnlockCode { get; set; }
-        public int? DestPmSenderUnlockCode { get; set; }
+        public int? DestPmReceiverUnlockCode { get; set; }
         public int? DestPmCourierUnlockCode { get; set; }
         public long Id { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
+
+        // TODO: move the below methods to use cases
+        public string GenerateIdHash()
+        {
+            return ComputeSha256Hash(Id);
+        }
+
+        public bool IsValidIdHash(string hash)
+        {
+            return hash == GenerateIdHash();
+        }
+
+        private static string ComputeSha256Hash(long rawData)
+        {
+            using SHA256 sha256Hash = SHA256.Create();
+            byte[] bytes = sha256Hash.ComputeHash(BitConverter.GetBytes(rawData));
+
+            // Convert byte array to a string
+            StringBuilder builder = new();
+            foreach (byte b in bytes)
+            {
+                builder.Append(b.ToString("x2"));
+            }
+
+            return builder.ToString();
+        }
     }
 
     public enum ShipmentStatus
