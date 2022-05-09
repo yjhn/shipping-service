@@ -27,7 +27,7 @@ namespace shipping_service.Persistence.Entities
         // TODO: move the below methods to use cases
         public string GenerateIdHash()
         {
-            return ComputeSha256Hash(Id);
+            return ComputeIdHashBase64(Id);
         }
 
         public bool IsValidIdHash(string hash)
@@ -35,19 +35,15 @@ namespace shipping_service.Persistence.Entities
             return hash == GenerateIdHash();
         }
 
-        private static string ComputeSha256Hash(long rawData)
+        private static string ComputeIdHashBase64(long rawData)
         {
             using SHA256 sha256Hash = SHA256.Create();
             byte[] bytes = sha256Hash.ComputeHash(BitConverter.GetBytes(rawData));
-
-            // Convert byte array to a string
-            StringBuilder builder = new();
-            foreach (byte b in bytes)
-            {
-                builder.Append(b.ToString("x2"));
-            }
-
-            return builder.ToString();
+            string s = Convert.ToBase64String(bytes); // Regular base64 encoder
+            s = s.Split('=')[0]; // Remove any trailing '='s
+            s = s.Replace('+', '-'); // 62nd char of encoding
+            s = s.Replace('/', '_'); // 63rd char of encoding
+            return s;
         }
     }
 
