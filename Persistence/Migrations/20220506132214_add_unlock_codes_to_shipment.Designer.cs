@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using shipping_service.Persistence.Database;
@@ -11,9 +12,10 @@ using shipping_service.Persistence.Database;
 namespace shipping_service.Persistence.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20220506132214_add_unlock_codes_to_shipment")]
+    partial class add_unlock_codes_to_shipment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -140,7 +142,7 @@ namespace shipping_service.Persistence.Migrations
                     b.Property<int?>("DestPmCourierUnlockCode")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("DestPmReceiverUnlockCode")
+                    b.Property<int?>("DestPmSenderUnlockCode")
                         .HasColumnType("integer");
 
                     b.Property<long>("DestinationMachineId")
