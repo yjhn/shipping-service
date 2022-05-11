@@ -1,4 +1,6 @@
-﻿using shipping_service.Persistence.Database;
+﻿using Microsoft.EntityFrameworkCore;
+
+using shipping_service.Persistence.Database;
 using shipping_service.Persistence.Entities;
 
 namespace shipping_service.Repositories
@@ -12,7 +14,12 @@ namespace shipping_service.Repositories
             context = ctx;
         }
 
-        public IQueryable<PostMachine> PostMachines => context.PostMachines;
+        public DbSet<PostMachine> PostMachines => context.PostMachines;
+
+        public async Task<PostMachine?> GetAsync(long id)
+        {
+            return await context.PostMachines.FindAsync(id);
+        }
 
         public async Task CreateAsync(PostMachine postMachine)
         {

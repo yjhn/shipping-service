@@ -1,0 +1,197 @@
+@page "/post_machine/{id:long}"
+@using System.ComponentModel.DataAnnotations
+@layout BasicLayout
+
+<PageTitle>Post machine UI</PageTitle>
+@if (loaded)
+{
+    <h2 class="text-center">@ThisPostMachine.Name</h2>
+}
+
+@if (!placePackage && !pickUpPackage)
+{
+    <div class="col-md-8 mx-auto">
+        <div class="card" style="margin: auto; max-width: 500px">
+            <h3 class="card-header">
+                What do you want to do?
+            </h3>
+            <div class="card-body">
+                <button class="btn btn-primary" type="button" style="margin-top: .5rem; margin-right: 1rem;" onclick="@PickUpPackage">Pick up package</button>
+                <button type="button" class="btn btn-secondary" style="margin-top: .5rem;" onclick="@PlacePackage">Place package</button>
+            </div>
+        </div>
+    </div>
+}
+else if (pickUpPackage)
+{
+    <div class="col-md-8 mx-auto">
+        <EditForm Model="@unlockCodeFormData" OnValidSubmit="@HandlePickUpSubmit">
+
+            <div class="card" style="margin: auto; max-width: 500px; min-height: 16rem;">
+                <div class="card-header d-flex">
+                    <h3>Pick up package</h3>
+                    <button class="btn btn-secondary align-self-end ms-auto" type="button" style="margin-left: .5rem;" onclick="@GoToMainScreen">Go back</button>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrWhiteSpace(error))
+                    {
+                        <div class="alert alert-danger">
+                            @error
+                        </div>
+                    }
+                    <DataAnnotationsValidator/>
+                    <label class="form-label" for="pickUpUnlockCode">Enter the 6-digit unlock code:</label>
+                    <InputText id="pickUpUnlockCode" class="form-control" style="margin-bottom: 1rem;" @bind-Value="@unlockCodeFormData.unlockCode"/>
+                    <ValidationMessage For="@(() => unlockCodeFormData.unlockCode)"/>
+
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary" type="submit" onclick="@ClearError">Ok</button>
+
+                </div>
+            </div>
+        </EditForm>
+
+    </div>
+}
+else if (placePackage)
+{
+    <div class="col-md-8 mx-auto">
+        <EditForm Model="@unlockCodeFormData" OnValidSubmit="@HandlePlaceSubmit">
+
+            <div class="card" style="margin: auto; max-width: 500px; min-height: 16rem;">
+                <div class="card-header d-flex">
+                    <h3>Place package</h3>
+                    <button class="btn btn-secondary align-self-end ms-auto" type="button" style="margin-left: .5rem;" onclick="@GoToMainScreen">Go back</button>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrWhiteSpace(error))
+                    {
+                        <div class="alert alert-danger">
+                            @error
+                        </div>
+                    }
+                    <DataAnnotationsValidator/>
+                    <label class="form-label" for="pickUpUnlockCode">Enter the 6-digit unlock code:</label>
+                    <InputText id="pickUpUnlockCode" class="form-control" style="margin-bottom: 1rem;" @bind-Value="@unlockCodeFormData.unlockCode"/>
+                    <ValidationMessage For="@(() => unlockCodeFormData.unlockCode)"/>
+
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary align-bottom" type="submit" onclick="@ClearError">Ok</button>
+                </div>
+            </div>
+        </EditForm>
+
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public long Id { get; set; }
+
+    bool loaded;
+    bool placePackage;
+    bool pickUpPackage;
+
+    bool validPlaceUnlockCode;
+    bool validPickUpUnlockCode;
+
+    string? error;
+
+    [Inject]
+    IPostMachineRepository PostMachineRepository { get; set; }
+
+    PostMachine ThisPostMachine { get; set; }
+    IEnumerable<Shipment> ShipmentsWithThisSource { get; set; }
+    IEnumerable<Shipment> ShipmentsWithThisDestination { get; set; }
+
+    readonly FormData unlockCodeFormData = new();
+
+    void PickUpPackage()
+    {
+        pickUpPackage = true;
+    }
+
+    void PlacePackage()
+    {
+        placePackage = true;
+    }
+
+    void GoToMainScreen()
+    {
+        placePackage = false;
+        pickUpPackage = false;
+        error = null;
+    }
+
+    void ClearError()
+    {
+        error = null;
+    }
+
+    // If submit is not called on click, it's because the button
+    // jumps when you deselect the input field and the button click
+    // is not registered.
+    void HandlePlaceSubmit()
+    {
+        error = null;
+        var code = int.Parse(unlockCodeFormData.unlockCode!);
+        if (ShipmentsWithThisSource.Any(s => s.SrcPmSenderUnlockCode == code)
+            || ShipmentsWithThisSource.Any(s => s.DestPmCourierUnlockCode == code))
+        {
+            validPlaceUnlockCode = true;
+        }
+        else
+        {
+            error = "Invalid unlock code";
+        }
+    }
+
+    void HandlePickUpSubmit()
+    {
+        error = null;
+        Console.WriteLine("HandlePickUpSubmit called");
+        var code = int.Parse(unlockCodeFormData.unlockCode!);
+        if (ShipmentsWithThisSource.Any(s => s.SrcPmSenderUnlockCode == code)
+            || ShipmentsWithThisSource.Any(s => s.DestPmCourierUnlockCode == code))
+        {
+            validPickUpUnlockCode = true;
+        }
+        else
+        {
+            error = "Invalid unlock code";
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ThisPostMachine = await PostMachineRepository.PostMachines.Include(p => p.ShipmentsWithThisSource)
+            .Include(p => p.ShipmentsWithThisDestination).FirstAsync(p => p.Id == Id); //.GetAsync(Id);
+        ShipmentsWithThisSource = ThisPostMachine.ShipmentsWithThisSource;
+        ShipmentsWithThisDestination = ThisPostMachine.ShipmentsWithThisDestination;
+        if (ShipmentsWithThisSource == null)
+        {
+            throw new ApplicationException(nameof(ShipmentsWithThisSource) + " is null");
+        }
+        if (ShipmentsWithThisDestination == null)
+        {
+            throw new ApplicationException(nameof(ShipmentsWithThisDestination) + " is null");
+        }
+        foreach (var s in ShipmentsWithThisSource)
+        {
+            Console.WriteLine("Shipment: " + s.Created);
+        }
+        loaded = true;
+    }
+
+    // FormData must be a class, otherwise validation does not work properly.
+    class FormData
+    {
+        [Required(ErrorMessage = "Code is required")]
+        [RegularExpression(@"^[0-9]{6}$", ErrorMessage = "Code must be a number")]
+        public string? unlockCode { get; set; }
+    }
+
+}

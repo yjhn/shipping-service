@@ -48,7 +48,7 @@ Database system used is PostgreSQL.
 5. `pg_ctl -D ~/postgres/data -l ~/postgres/logfile start`
 6. `createuser -d -P admin` and enter `password` as password
 
-Execute step 5 on each startup to run the DB.
+Execute steps 2,3 and 5 on each startup to run the DB.
 
 To delete the database, run `dropdb shipping_service_db`.
 
