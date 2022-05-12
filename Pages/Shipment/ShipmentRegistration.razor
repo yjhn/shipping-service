@@ -1,5 +1,5 @@
 @page "/shipment/registration"
-
+@attribute [Authorize]
 @inherits OwningComponentBase<IPostMachineRepository>
 
 <h3>Shipment registration</h3>
@@ -43,9 +43,11 @@
 
 
 @code {
-    [Inject]
-    public AuthenticationStateProvider authStateProvider { get; set; }
 
+    [CascadingParameter]
+    private Task<AuthenticationState> authStateTask {get; set;}
+    [Inject]
+    public ISenderRepository SenderRepository { get; set; }
     [Inject]
     public IShipmentRepository ShipmentRepository { get; set; }
 
@@ -56,15 +58,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Shipment = new Shipment();
-        
-        //This should get id of logged in user and use it to set senderId of shipment.
-        //Can't be used yet as log in is not yet implemented.
-
-        //var user = (await authStateProvider.GetAuthenticationStateAsync()).User;
-        //Shipment.SenderId = user.FindFirst(c => c.Type == "sub")?.Value;
-        
-
+        var authState = await authStateTask;
+        var username = authState.User.Identities.First().Name;
+        Sender sender = SenderRepository.Senders.First(s => s.Username == username);
+        Shipment = new Shipment {SenderId = sender.Id};
         RetrievePostMachines();
     }
 
@@ -73,14 +70,9 @@
         PostMachines = PostMachineRepository.PostMachines;
     }
 
-    public async void CreateShipment()
-    {
-        await ShipmentRepository.CreateAsync(Shipment);
-    }
-
     public async void HandleSubmit()
     {
-        CreateShipment();
+        await ShipmentRepository.CreateAsync(Shipment);
     }
 
 }
