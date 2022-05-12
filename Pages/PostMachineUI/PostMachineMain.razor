@@ -132,7 +132,7 @@ else if (placePackage)
     }
 
     // If submit is not called on click, it's because the button
-    // jumps when you deselect the input field and the button click
+    // jumps when the input field loses focus and the button click
     // is not registered.
     void HandlePlaceSubmit()
     {
@@ -169,21 +169,14 @@ else if (placePackage)
     {
         ThisPostMachine = await PostMachineRepository.PostMachines.Include(p => p.ShipmentsWithThisSource)
             .Include(p => p.ShipmentsWithThisDestination).FirstAsync(p => p.Id == Id); //.GetAsync(Id);
+        loaded = true;
+
         ShipmentsWithThisSource = ThisPostMachine.ShipmentsWithThisSource;
         ShipmentsWithThisDestination = ThisPostMachine.ShipmentsWithThisDestination;
-        if (ShipmentsWithThisSource == null)
-        {
-            throw new ApplicationException(nameof(ShipmentsWithThisSource) + " is null");
-        }
-        if (ShipmentsWithThisDestination == null)
-        {
-            throw new ApplicationException(nameof(ShipmentsWithThisDestination) + " is null");
-        }
-        foreach (var s in ShipmentsWithThisSource)
-        {
-            Console.WriteLine("Shipment: " + s.Created);
-        }
-        loaded = true;
+        // foreach (var s in ShipmentsWithThisSource)
+        // {
+        //     Console.WriteLine("Shipment: " + s.Created);
+        // }
     }
 
     // FormData must be a class, otherwise validation does not work properly.
