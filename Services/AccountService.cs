@@ -24,7 +24,7 @@ namespace shipping_service.Services
             _accessor = accessor;
             _JSRunTime = jSRunTime;
                     }
-        private byte[] PasswordHash(string password)
+        public static byte[] PasswordHash(string password)
         {
             byte[] salt = new byte[16];
             new RNGCryptoServiceProvider().GetBytes(salt);
@@ -38,7 +38,7 @@ namespace shipping_service.Services
 
             return hashBytes;
         }
-        private bool ValidatePasswordHash(string password, byte[] dbPasswordHash)
+        public static bool ValidatePasswordHash(string password, byte[] dbPasswordHash)
         {
             byte[] salt = new byte[16];
             Array.Copy(dbPasswordHash, 0, salt, 0, 16);
