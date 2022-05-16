@@ -4,40 +4,40 @@
 
 <h3>Shipment registration</h3>
 
-<EditForm Model = "@Shipment" OnSubmit="@HandleSubmit">
+<EditForm Model="@Shipment" OnSubmit="@HandleSubmit">
     <div>
         <label>Title: </label><br/>
-        <InputText class = "input" id = "title" @bind-Value="Shipment.Title"/><br/>
+        <InputText class="input" id="title" @bind-Value="Shipment.Title"/><br/>
         <label>Description: </label><br/>
-        <InputTextArea class = "input" id = "description" @bind-Value="Shipment.Description"/><br/>
+        <InputTextArea class="input" id="description" @bind-Value="Shipment.Description"/><br/>
     </div>
     <div>
         <label>Source machine: </label><br/>
 
         <select @bind="Shipment.SourceMachineId">
-                @if(PostMachines != null)
+            @if (PostMachines != null)
+            {
+                @foreach (var machine in PostMachines)
                 {
-                    @foreach(var machine in PostMachines)
-                    {
-                        <option value="@machine.Id">@machine.Address</option>
-                    }
+                    <option value="@machine.Id">@machine.Address</option>
                 }
+            }
         </select><br/>
 
         <label>Destination machine: </label><br/>
         <select @bind="Shipment.DestinationMachineId">
-                @if(PostMachines != null)
+            @if (PostMachines != null)
+            {
+                @foreach (var machine in PostMachines)
                 {
-                    @foreach(var machine in PostMachines)
-                    {
-                        <option value="@machine.Id">@machine.Address</option>
-                    }
+                    <option value="@machine.Id">@machine.Address</option>
                 }
+            }
         </select><br/>
 
-       <button type="submit">Register shipment</button> 
+        <button type="submit">Register shipment</button>
     </div>
-    
+
 
 </EditForm>
 
@@ -45,9 +45,11 @@
 @code {
 
     [CascadingParameter]
-    Task<AuthenticationState> authStateTask {get; set;}
+    Task<AuthenticationState> authStateTask { get; set; }
+
     [Inject]
     ISenderRepository SenderRepository { get; set; }
+
     [Inject]
     IShipmentRepository ShipmentRepository { get; set; }
 
@@ -61,7 +63,7 @@
         var authState = await authStateTask;
         var username = authState.User.Identities.First().Name;
         sender = SenderRepository.Senders.First(s => s.Username == username);
-        Shipment = new Shipment {SenderId = sender.Id};
+        Shipment = new Shipment { SenderId = sender.Id };
         RetrievePostMachines();
     }
 
@@ -73,6 +75,7 @@
     async void HandleSubmit()
     {
         await ShipmentRepository.CreateAsync(Shipment);
-        Shipment = new Shipment {SenderId = sender.Id};
+        Shipment = new Shipment { SenderId = sender.Id };
     }
+
 }
