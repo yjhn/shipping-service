@@ -5,7 +5,7 @@
 <PageTitle>Post machine UI</PageTitle>
 @if (loaded)
 {
-    <h2 class="text-center">@ThisPostMachine.Name</h2>
+    <h2 class="text-center">@thisPostMachine.Name</h2>
 }
 
 @if (!placePackage && !pickUpPackage)
@@ -24,66 +24,104 @@
 }
 else if (pickUpPackage)
 {
-    <div class="col-md-8 mx-auto">
-        <EditForm Model="@unlockCodeFormData" OnValidSubmit="@HandlePickUpSubmit">
-
-            <div class="card" style="margin: auto; max-width: 500px; min-height: 16rem;">
-                <div class="card-header d-flex">
-                    <h3>Pick up package</h3>
-                    <button class="btn btn-secondary align-self-end ms-auto" type="button" style="margin-left: .5rem;" onclick="@GoToMainScreen">Go back</button>
-                </div>
-                <div class="card-body">
-                    @if (!string.IsNullOrWhiteSpace(error))
-                    {
-                        <div class="alert alert-danger">
-                            @error
-                        </div>
-                    }
-                    <DataAnnotationsValidator/>
-                    <label class="form-label" for="pickUpUnlockCode">Enter the 6-digit unlock code:</label>
-                    <InputText id="pickUpUnlockCode" class="form-control" style="margin-bottom: 1rem;" @bind-Value="@unlockCodeFormData.unlockCode"/>
-                    <ValidationMessage For="@(() => unlockCodeFormData.unlockCode)"/>
-
-                </div>
-                <div class="card-footer">
-                    <button class="btn btn-primary" type="submit" onclick="@ClearError">Ok</button>
-
-                </div>
-            </div>
-        </EditForm>
-
-    </div>
-}
-else if (placePackage)
-{
-    <div class="col-md-8 mx-auto">
-        <EditForm Model="@unlockCodeFormData" OnValidSubmit="@HandlePlaceSubmit">
-
+    if (validPlaceUnlockCode)
+    {
+        <div class="col-md-8 mx-auto">
             <div class="card" style="margin: auto; max-width: 500px; min-height: 16rem;">
                 <div class="card-header d-flex">
                     <h3>Place package</h3>
-                    <button class="btn btn-secondary align-self-end ms-auto" type="button" style="margin-left: .5rem;" onclick="@GoToMainScreen">Go back</button>
                 </div>
                 <div class="card-body">
-                    @if (!string.IsNullOrWhiteSpace(error))
-                    {
-                        <div class="alert alert-danger">
-                            @error
-                        </div>
-                    }
-                    <DataAnnotationsValidator/>
-                    <label class="form-label" for="pickUpUnlockCode">Enter the 6-digit unlock code:</label>
-                    <InputText id="pickUpUnlockCode" class="form-control" style="margin-bottom: 1rem;" @bind-Value="@unlockCodeFormData.unlockCode"/>
-                    <ValidationMessage For="@(() => unlockCodeFormData.unlockCode)"/>
-
+                    <label class="form-label">Please pick up the package from the open compartment, then close the compartment.</label>
                 </div>
                 <div class="card-footer">
-                    <button class="btn btn-primary align-bottom" type="submit" onclick="@ClearError">Ok</button>
+                    <button class="btn btn-primary align-bottom" type="submit" onclick="@GoToMainScreen">Done</button>
                 </div>
             </div>
-        </EditForm>
+        </div>
+    }
+    else
+    {
+        <div class="col-md-8 mx-auto">
+            <EditForm Model="@unlockCodeFormData" OnValidSubmit="@HandlePickUpSubmit">
 
-    </div>
+                <div class="card" style="margin: auto; max-width: 500px; min-height: 16rem;">
+                    <div class="card-header d-flex">
+                        <h3>Pick up package</h3>
+                        <button class="btn btn-secondary align-self-end ms-auto" type="button" style="margin-left: .5rem;" onclick="@GoToMainScreen">Go back</button>
+                    </div>
+                    <div class="card-body">
+                        @if (!string.IsNullOrWhiteSpace(error))
+                        {
+                            <div class="alert alert-danger">
+                                @error
+                            </div>
+                        }
+                        <DataAnnotationsValidator/>
+                        <label class="form-label" for="pickUpUnlockCode">Enter the 6-digit unlock code:</label>
+                        <InputText id="pickUpUnlockCode" autocomplete="off" class="form-control" style="margin-bottom: 1rem;" @bind-Value="@unlockCodeFormData.unlockCode"/>
+                        <ValidationMessage For="@(() => unlockCodeFormData.unlockCode)"/>
+
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-primary" type="submit" onclick="@ClearError">Ok</button>
+
+                    </div>
+                </div>
+            </EditForm>
+
+        </div>
+    }
+}
+else if (placePackage)
+{
+    if (validPlaceUnlockCode)
+    {
+        <div class="col-md-8 mx-auto">
+            <div class="card" style="margin: auto; max-width: 500px; min-height: 16rem;">
+                <div class="card-header d-flex">
+                    <h3>Place package</h3>
+                </div>
+                <div class="card-body">
+                    <label class="form-label">Please place the package inside the open compartment, then close the compartment.</label>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary align-bottom" type="submit" onclick="@GoToMainScreen">Done</button>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="col-md-8 mx-auto">
+            <EditForm Model="@unlockCodeFormData" OnValidSubmit="@HandlePlaceSubmit">
+
+                <div class="card" style="margin: auto; max-width: 500px; min-height: 16rem;">
+                    <div class="card-header d-flex">
+                        <h3>Place package</h3>
+                        <button class="btn btn-secondary align-self-end ms-auto" type="button" style="margin-left: .5rem;" onclick="@GoToMainScreen">Go back</button>
+                    </div>
+                    <div class="card-body">
+                        @if (!string.IsNullOrWhiteSpace(error))
+                        {
+                            <div class="alert alert-danger">
+                                @error
+                            </div>
+                        }
+                        <DataAnnotationsValidator/>
+                        <label class="form-label" for="placeUnlockCode">Enter the 6-digit unlock code:</label>
+                        <InputText id="placeUnlockCode" autocomplete="off" class="form-control" style="margin-bottom: 1rem;" @bind-Value="@unlockCodeFormData.unlockCode"/>
+                        <ValidationMessage For="@(() => unlockCodeFormData.unlockCode)"/>
+
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-primary align-bottom" type="submit" onclick="@ClearError">Ok</button>
+                    </div>
+                </div>
+            </EditForm>
+
+        </div>
+    }
 }
 
 @code {
@@ -103,9 +141,12 @@ else if (placePackage)
     [Inject]
     IPostMachineRepository PostMachineRepository { get; set; }
 
-    PostMachine ThisPostMachine { get; set; }
-    IEnumerable<Shipment> ShipmentsWithThisSource { get; set; }
-    IEnumerable<Shipment> ShipmentsWithThisDestination { get; set; }
+    [Inject]
+    IShipmentService shipmentService { get; set; }
+
+    PostMachine thisPostMachine { get; set; }
+    IEnumerable<Shipment> shipmentsWithThisSource { get; set; }
+    IEnumerable<Shipment> shipmentsWithThisDestination { get; set; }
 
     readonly FormData unlockCodeFormData = new();
 
@@ -123,6 +164,9 @@ else if (placePackage)
     {
         placePackage = false;
         pickUpPackage = false;
+
+        validPlaceUnlockCode = false;
+        validPickUpUnlockCode = false;
         error = null;
     }
 
@@ -138,45 +182,60 @@ else if (placePackage)
     {
         error = null;
         var code = int.Parse(unlockCodeFormData.unlockCode!);
-        if (ShipmentsWithThisSource.Any(s => s.SrcPmSenderUnlockCode == code)
-            || ShipmentsWithThisSource.Any(s => s.DestPmCourierUnlockCode == code))
+        var shipment = shipmentsWithThisSource.FirstOrDefault(s => s.SrcPmSenderUnlockCode == code);
+        if (shipment != null)
         {
             validPlaceUnlockCode = true;
+            shipmentService.ChangeShipmentStatusToSrc(shipment, thisPostMachine);
         }
         else
         {
-            error = "Invalid unlock code";
+            shipment = shipmentsWithThisDestination.FirstOrDefault(s => s.DestPmCourierUnlockCode == code);
+            if (shipment != null)
+            {
+                validPlaceUnlockCode = true;
+                shipmentService.ChangeShipmentStatusToDest(shipment, thisPostMachine);
+            }
+            else
+            {
+                error = "Invalid unlock code";
+            }
         }
     }
 
     void HandlePickUpSubmit()
     {
         error = null;
-        Console.WriteLine("HandlePickUpSubmit called");
         var code = int.Parse(unlockCodeFormData.unlockCode!);
-        if (ShipmentsWithThisSource.Any(s => s.SrcPmSenderUnlockCode == code)
-            || ShipmentsWithThisSource.Any(s => s.DestPmCourierUnlockCode == code))
+        var shipment = shipmentsWithThisSource.FirstOrDefault(s => s.SrcPmCourierUnlockCode == code);
+        if (shipment != null)
         {
-            validPickUpUnlockCode = true;
+            validPlaceUnlockCode = true;
+            shipmentService.ChangeShipmentStatusToShipping(shipment, thisPostMachine);
         }
         else
         {
-            error = "Invalid unlock code";
+            shipment = shipmentsWithThisDestination.FirstOrDefault(s => s.DestPmReceiverUnlockCode == code);
+            if (shipment != null)
+            {
+                validPlaceUnlockCode = true;
+                shipmentService.ChangeShipmentStatusToDelivered(shipment);
+            }
+            else
+            {
+                error = "Invalid unlock code";
+            }
         }
     }
 
     protected override async Task OnInitializedAsync()
     {
-        ThisPostMachine = await PostMachineRepository.PostMachines.Include(p => p.ShipmentsWithThisSource)
+        thisPostMachine = await PostMachineRepository.PostMachines.Include(p => p.ShipmentsWithThisSource)
             .Include(p => p.ShipmentsWithThisDestination).FirstAsync(p => p.Id == Id); //.GetAsync(Id);
         loaded = true;
 
-        ShipmentsWithThisSource = ThisPostMachine.ShipmentsWithThisSource;
-        ShipmentsWithThisDestination = ThisPostMachine.ShipmentsWithThisDestination;
-        // foreach (var s in ShipmentsWithThisSource)
-        // {
-        //     Console.WriteLine("Shipment: " + s.Created);
-        // }
+        shipmentsWithThisSource = thisPostMachine.ShipmentsWithThisSource;
+        shipmentsWithThisDestination = thisPostMachine.ShipmentsWithThisDestination;
     }
 
     // FormData must be a class, otherwise validation does not work properly.
