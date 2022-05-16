@@ -13,7 +13,7 @@ namespace shipping_service.Persistence.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
     [Migration("20220430100623_update_db")]
-    partial class update_db 
+    partial class update_db
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

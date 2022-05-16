@@ -45,34 +45,34 @@
 @code {
 
     [CascadingParameter]
-    private Task<AuthenticationState> authStateTask {get; set;}
+    Task<AuthenticationState> authStateTask {get; set;}
     [Inject]
-    public ISenderRepository SenderRepository { get; set; }
+    ISenderRepository SenderRepository { get; set; }
     [Inject]
-    public IShipmentRepository ShipmentRepository { get; set; }
+    IShipmentRepository ShipmentRepository { get; set; }
 
-    public IPostMachineRepository PostMachineRepository => Service;
-
-    public IEnumerable<PostMachine> PostMachines { get; set; }
-    public Shipment Shipment { get; set; }
+    IPostMachineRepository PostMachineRepository => Service;
+    Sender sender;
+    IEnumerable<PostMachine> PostMachines { get; set; }
+    Shipment Shipment { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await authStateTask;
         var username = authState.User.Identities.First().Name;
-        Sender sender = SenderRepository.Senders.First(s => s.Username == username);
+        sender = SenderRepository.Senders.First(s => s.Username == username);
         Shipment = new Shipment {SenderId = sender.Id};
         RetrievePostMachines();
     }
 
-    public void RetrievePostMachines()
+    void RetrievePostMachines()
     {
         PostMachines = PostMachineRepository.PostMachines;
     }
 
-    public async void HandleSubmit()
+    async void HandleSubmit()
     {
         await ShipmentRepository.CreateAsync(Shipment);
+        Shipment = new Shipment {SenderId = sender.Id};
     }
-
 }

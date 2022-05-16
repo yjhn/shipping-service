@@ -6,7 +6,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace shipping_service.Persistence.Migrations
 {
-    public partial class update_db : Migration 
+    public partial class update_db : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
