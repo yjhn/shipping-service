@@ -1,4 +1,5 @@
 using shipping_service.Persistence.Entities;
+using shipping_service.Repositories;
 
 namespace shipping_service.Services
 {
@@ -7,6 +8,14 @@ namespace shipping_service.Services
         private const int MIN_CODE_VALUE_INCL = 100_000;
         private const int MAX_CODE_VALUE_EXCL = 1_000_000;
         private static readonly Random rand = new();
+        public IQueryable<PostMachine> PostMachines => _postMachines.PostMachines;
+
+        private readonly IPostMachineRepository _postMachines;
+
+        public PostMachineService(IPostMachineRepository repo)
+        {
+            _postMachines = repo;
+        }
 
         // Generate unlock code. Unlock code is unique in this post machine.
         // The supplied post machine must have its `ShipmentsWithThisSource`

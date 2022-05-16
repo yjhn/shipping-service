@@ -1,6 +1,52 @@
-@page "/PostMachineSelect"
-<h3>PostMachineSelect</h3>
+@page "/post_machines"
+@using System.ComponentModel.DataAnnotations
+@inject NavigationManager NavigationManager
+@layout BasicLayout
+
+<PageTitle>Post machine UI</PageTitle>
+<h3 class="text-center">Select a post machine</h3>
+<EditForm Model="@selected" OnValidSubmit="@HandleSubmit">
+        <div class="col-md-8 mx-auto">
+            <div class="card" style="margin: auto; max-width: 500px">
+                <h3 class="card-header">
+                    Select a post machine
+                </h3>
+                <div class="card-body">
+                        <InputSelect @bind-Value="selected.Id" class="form-select">
+                            @foreach (PostMachine m in postMachineService.PostMachines)
+                            {
+                                <option value="@m.Id">@m.Name</option>
+                            }
+                        </InputSelect>
+                    <button class="btn btn-primary" type="submit" style="margin-top: .5rem; margin-right: 1rem;">Select</button>
+                </div>
+            </div>
+        </div>
+</EditForm>
 
 @code {
-    
+    [Inject]
+    IPostMachineService postMachineService { get; set; }
+
+    // IQueryable<PostMachine> machines;
+    Selected selected = new();
+
+    bool init;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // machines = postMachineService.PostMachines;
+        init = true;
+    }
+
+    void HandleSubmit()
+    {
+        NavigationManager.NavigateTo($"/post_machines/{selected.Id}");
+    }
+
+    class Selected
+    {
+        [Required(ErrorMessage = "Select a post machine")]
+        public long? Id;
+    }
 }
