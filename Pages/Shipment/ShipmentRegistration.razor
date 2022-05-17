@@ -1,45 +1,61 @@
 @page "/shipment/registration"
 @attribute [Authorize]
+@using System.ComponentModel.DataAnnotations
 @inherits OwningComponentBase<IPostMachineRepository>
 
 <h3>Shipment registration</h3>
 
-<EditForm Model="@Shipment" OnSubmit="@HandleSubmit">
-    <div>
-        <label>Title: </label><br/>
-        <InputText class="input" id="title" @bind-Value="Shipment.Title"/><br/>
-        <label>Description: </label><br/>
-        <InputTextArea class="input" id="description" @bind-Value="Shipment.Description"/><br/>
-    </div>
-    <div>
-        <label>Source machine: </label><br/>
 
-        <select @bind="Shipment.SourceMachineId">
-            @if (PostMachines != null)
-            {
-                @foreach (var machine in PostMachines)
+<div class="col-md-8 mx-auto">
+    <EditForm Model="@shipment" OnValidSubmit="@HandleSubmit" @onreset="@HandleReset">
+        <div class="card" style="margin: auto; min-height: 35rem; max-width: 500px">
+            <h3 class="card-header">
+                Register a new shipment
+            </h3>
+            <div class="card-body">
+                @if (!string.IsNullOrWhiteSpace(error))
                 {
-                    <option value="@machine.Id">@machine.Address</option>
+                    <div class="alert alert-danger">
+                        @error
+                    </div>
                 }
-            }
-        </select><br/>
+                <DataAnnotationsValidator/>
+                <ValidationSummary/>
 
-        <label>Destination machine: </label><br/>
-        <select @bind="Shipment.DestinationMachineId">
-            @if (PostMachines != null)
-            {
-                @foreach (var machine in PostMachines)
-                {
-                    <option value="@machine.Id">@machine.Address</option>
-                }
-            }
-        </select><br/>
+                <label class="form-label" for="title">Shipment title</label>
+                <InputText class="form-control" id="title" @bind-Value="shipment.Title"/>
+                <ValidationMessage For="@(() => shipment.Title)"/>
 
-        <button type="submit">Register shipment</button>
-    </div>
+                <label class="form-label" for="description">Description (optional)</label>
+                <InputTextArea class="form-control" id="description" @bind-Value="shipment.Description"/><br/>
 
+                <label class="form-label" for="source-machine">Source post machine</label>
+                <InputSelect @bind-Value="shipment.SourceMachineId" id="source-machine" class="form-select">
+                    <option>-- SELECT --</option>
+                    @foreach (var machine in PostMachines)
+                    {
+                        <option value="@machine.Id">@machine.Address</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => shipment.SourceMachineId)"/>
 
-</EditForm>
+                <label class="form-label" for="destination-machine">Destination post machine</label>
+                <InputSelect @bind-Value="shipment.DestinationMachineId" id="destination-machine" class="form-select">
+                    <option>-- SELECT --</option>
+                    @foreach (var machine in PostMachines)
+                    {
+                        <option value="@machine.Id">@machine.Address</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => shipment.DestinationMachineId)"/>
+            </div>
+            <div class="card-footer d-flex">
+                <button type="submit" class="btn btn-primary">Register shipment</button>
+                <button type="reset" class="btn btn-secondary ms-auto">Reset</button>
+            </div>
+        </div>
+    </EditForm>
+</div>
 
 
 @code {
@@ -56,14 +72,16 @@
     IPostMachineRepository PostMachineRepository => Service;
     Sender sender;
     IEnumerable<PostMachine> PostMachines { get; set; }
-    Shipment Shipment { get; set; }
+    NewShipment shipment { get; set; }
+
+    string? error;
 
     protected override async Task OnInitializedAsync()
     {
+        shipment = new NewShipment();
         var authState = await authStateTask;
         var username = authState.User.Identities.First().Name;
         sender = SenderRepository.Senders.First(s => s.Username == username);
-        Shipment = new Shipment { SenderId = sender.Id };
         RetrievePostMachines();
     }
 
@@ -74,8 +92,56 @@
 
     async void HandleSubmit()
     {
-        await ShipmentRepository.CreateAsync(Shipment);
-        Shipment = new Shipment { SenderId = sender.Id };
+        if (shipment.SourceMachineId == shipment.DestinationMachineId)
+        {
+            error = "Source and destination post machines cannot match";
+            return;
+        }
+        
+        var newShipment = new Shipment
+        {
+            Title = shipment.Title!,
+            Description = shipment.Description,
+            SenderId = sender.Id,
+            SourceMachineId = (long)shipment.SourceMachineId!,
+            DestinationMachineId = (long)shipment.DestinationMachineId!
+        };
+        await ShipmentRepository.CreateAsync(newShipment);
+        HandleReset();
+    }
+
+    void HandleReset()
+    {
+        shipment.Title = null;
+        shipment.Description = null;
+        shipment.DestinationMachineId = null;
+        shipment.SourceMachineId = null;
+    }
+
+    public class NewShipment
+    {
+        [Required(ErrorMessage = "Shipment title is required")]
+        public string? Title { get; set; }
+
+        public string? Description { get; set; }
+
+        [Required(ErrorMessage = "Source post machine is required")]
+        // [CustomValidation(typeof(NewShipment), "ValidatePostMachine")]
+        public long? SourceMachineId { get; set; }
+
+        [Required(ErrorMessage = "Destination post machine is required")]
+        // [CustomValidation(typeof(NewShipment), "ValidatePostMachine")]
+        public long? DestinationMachineId { get; set; }
+
+        // public static ValidationResult ValidatePostMachine(long id)
+        // {
+        //     if (SourceMachineId == DestinationMachineId)
+        //     {
+        //         return new ValidationResult("Source and destination post machines cannot be the same");
+        //     }
+        //     // For some reason `ValidationResult.Success` can be null, so assert that it isn't.
+        //     return ValidationResult.Success!;
+        // }
     }
 
 }
