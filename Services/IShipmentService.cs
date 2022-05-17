@@ -4,6 +4,7 @@ namespace shipping_service.Services
 {
     public interface IShipmentService
     {
-        IEnumerable<Shipment> GetUnassigned();
+Task<IEnumerable<Shipment>> GetUnassignedAsync();
+        Task<IEnumerable<Shipment>> GetAssignedAsync(long courierId);
     }
 }

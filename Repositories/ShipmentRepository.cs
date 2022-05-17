@@ -13,7 +13,6 @@ namespace shipping_service.Repositories
         }
 
         public IQueryable<Shipment> Shipments => context.Shipments;
-
         public async Task CreateAsync(Shipment shipment)
         {
             await context.AddAsync(shipment);
