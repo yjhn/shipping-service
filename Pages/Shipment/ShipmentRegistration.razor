@@ -1,6 +1,7 @@
 @page "/shipment/registration"
 @attribute [Authorize]
 @using System.ComponentModel.DataAnnotations
+@inject NavigationManager NavigationManager
 @inherits OwningComponentBase<IPostMachineRepository>
 
 <h3>Shipment registration</h3>
@@ -107,7 +108,7 @@
             DestinationMachineId = (long)shipment.DestinationMachineId!
         };
         await ShipmentRepository.CreateAsync(newShipment);
-        HandleReset();
+        NavigationManager.NavigateTo("/");
     }
 
     void HandleReset()
@@ -126,22 +127,10 @@
         public string? Description { get; set; }
 
         [Required(ErrorMessage = "Source post machine is required")]
-        // [CustomValidation(typeof(NewShipment), "ValidatePostMachine")]
         public long? SourceMachineId { get; set; }
 
         [Required(ErrorMessage = "Destination post machine is required")]
-        // [CustomValidation(typeof(NewShipment), "ValidatePostMachine")]
         public long? DestinationMachineId { get; set; }
-
-        // public static ValidationResult ValidatePostMachine(long id)
-        // {
-        //     if (SourceMachineId == DestinationMachineId)
-        //     {
-        //         return new ValidationResult("Source and destination post machines cannot be the same");
-        //     }
-        //     // For some reason `ValidationResult.Success` can be null, so assert that it isn't.
-        //     return ValidationResult.Success!;
-        // }
     }
 
 }
