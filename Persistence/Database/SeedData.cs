@@ -2,6 +2,7 @@
 
 using shipping_service.Extensions;
 using shipping_service.Persistence.Entities;
+using shipping_service.Services;
 
 namespace shipping_service.Persistence.Database
 {
@@ -48,8 +49,8 @@ namespace shipping_service.Persistence.Database
                 {
                     string username = sheet.Cells[i, usernameColumnPosition].Value.ToString();
                     string password = sheet.Cells[i, passwordColumnPosition].Value.ToString();
-                    // TODO: password hash.
-                    Sender sender = new() { Username = username, HashedPassword = new byte[7] };
+                    byte[] hashedPassword = AccountService.PasswordHash(password);
+                    Sender sender = new() { Username = username, HashedPassword = hashedPassword };
                     context.Senders.Add(sender);
                 }
             }
@@ -70,9 +71,9 @@ namespace shipping_service.Persistence.Database
                 {
                     string username = sheet.Cells[i, usernameColumnPosition].Value.ToString();
                     string password = sheet.Cells[i, passwordColumnPosition].Value.ToString();
+                    byte[] hashedPassword = AccountService.PasswordHash(password);
                     string name = sheet.Cells[i, nameColumnPosition].Value.ToString();
-                    // TODO: password hash.
-                    Courier courier = new() { Username = username, HashedPassword = new byte[7] };
+                    Courier courier = new() { Username = username, HashedPassword = hashedPassword };
                     context.Couriers.Add(courier);
                 }
             }

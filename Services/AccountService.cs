@@ -26,6 +26,39 @@ namespace shipping_service.Services
             _JSRunTime = jSRunTime;
         }
 
+        public static byte[] PasswordHash(string password)
+        {
+            byte[] salt = new byte[16];
+            new RNGCryptoServiceProvider().GetBytes(salt);
+
+            var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 1000);
+            byte[] hash = pbkdf2.GetBytes(20);
+
+            byte[] hashBytes = new byte[36];
+            Array.Copy(salt, 0, hashBytes, 0, 16);
+            Array.Copy(hash, 0, hashBytes, 16, 20);
+
+            return hashBytes;
+        }
+
+        public static bool ValidatePasswordHash(string password, byte[] dbPasswordHash)
+        {
+            byte[] salt = new byte[16];
+            Array.Copy(dbPasswordHash, 0, salt, 0, 16);
+
+            var userPasswordBytes = new Rfc2898DeriveBytes(password, salt, 1000);
+            byte[] userPasswordHash = userPasswordBytes.GetBytes(20);
+
+            for (int i = 0; i < 20; i++)
+            {
+                if (dbPasswordHash[i + 16] != userPasswordHash[i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public async Task<(string, string)> LoginAsync(UserLogin user)
         {
             string username = user.Username;
