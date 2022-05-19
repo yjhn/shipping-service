@@ -1,4 +1,6 @@
-﻿@page "/shipment/tracking/{trackingLink}"
+﻿@using System.Text.RegularExpressions
+
+@page "/shipment/tracking/{trackingLink}"
 @inject NavigationManager NavigationManager
 
 <h3>Shipment Tracking</h3>
@@ -42,7 +44,10 @@
             <label>@Shipment.Modified</label>
         </div>
     </div>
-    
+}
+else
+{
+    <label>Shipment with provided tracking link does not exist</label>
 }
 
 @code {
@@ -56,17 +61,30 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (string.IsNullOrEmpty(trackingLink))
+        {
+            return;
+        }
+
+        if(!Regex.IsMatch(trackingLink, "^[0-9]([A-Za-z0-9]{4})$"))
+        {
+            return;
+        }
+
+        long shipmentId = trackingLink[0] - '0';
+        string trackingCode = trackingLink.Substring(1, trackingLink.Length-1);
+
         Shipment = ShipmentRepository.Shipments.
             Include(s => s.Sender).
             Include(s => s.Courier).
             Include(s => s.SourceMachine).
             Include(s => s.DestinationMachine).
-            AsEnumerable().FirstOrDefault(s => s.IsValidIdHash(trackingLink));
+            FirstOrDefault(s => s.Id == shipmentId);
 
-        if(Shipment == null)
+        if(Shipment == null || !Shipment.IsValidIdHash(trackingCode))
         {
-            NavigationManager.NavigateTo("/shipment/tracking-not-found");
+            Shipment = null;
+            return;
         }
-       
     }
 }
