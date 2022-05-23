@@ -15,9 +15,16 @@ namespace shipping_service.Services
             _postMachineService = p;
         }
 
+        public IQueryable<Shipment> Shipments => _shipmentRepository.Shipments;
+
         public IEnumerable<Shipment> GetUnassigned()
         {
             return _shipmentRepository.Shipments.Where(s => s.CourierId == null);
+        }
+
+        public async Task<Shipment?> GetById(long id)
+        {
+            return await _shipmentRepository.GetAsync(id);
         }
 
         public void ChangeShipmentStatusToSrc(Shipment s, PostMachine p)
