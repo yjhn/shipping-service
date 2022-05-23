@@ -8,13 +8,13 @@
 
 @code {
 
-    public string RegisterShipmentUrl = "/shipment/registration";
+    const string RegisterShipmentUrl = "/shipment/registration";
 
     [CascadingParameter]
-    private Task<AuthenticationState> authStateTask {get; set;}
+    Task<AuthenticationState> authStateTask {get; set;}
     [Inject]
-    public IShipmentRepository ShipmentRepository { get; set; }
-    public IEnumerable<Shipment> Shipments { get; set; }
+    IShipmentRepository ShipmentRepository { get; set; }
+    IEnumerable<Shipment> Shipments { get; set; }
 
     protected override async Task OnInitializedAsync()
     {

@@ -93,6 +93,16 @@ namespace shipping_service.Persistence.Database
                 .ValueGeneratedOnAdd()
                 .UseIdentityAlwaysColumn();
 
+            // use optimistic locking (concurrency tokens)
+            // https://www.npgsql.org/efcore/modeling/concurrency.html
+            // when the same entity is concurrently updated, `DbUpdateConcurrencyException`
+            // is thrown on dbContext.SaveChanges[Async]
+            // https://microsoft.github.io/PartsUnlimited/arch/200.9x-Arch-OptimisticConcurrency.html
+            modelBuilder.Entity<Courier>().UseXminAsConcurrencyToken();
+            modelBuilder.Entity<Shipment>().UseXminAsConcurrencyToken();
+            modelBuilder.Entity<PostMachine>().UseXminAsConcurrencyToken();
+            modelBuilder.Entity<Sender>().UseXminAsConcurrencyToken();
+
             // generate created time
             modelBuilder.Entity<Courier>()
                 .Property(c => c.Created)

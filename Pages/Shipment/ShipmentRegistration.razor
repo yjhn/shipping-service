@@ -1,45 +1,62 @@
 @page "/shipment/registration"
 @attribute [Authorize]
+@using System.ComponentModel.DataAnnotations
 @inherits OwningComponentBase<IPostMachineRepository>
 @inject NavigationManager NavigationManager
 
 <h3>Shipment registration</h3>
 
-<EditForm Model = "@Shipment" OnSubmit="@HandleSubmit">
-    <div>
-        <label>Title: </label><br/>
-        <InputText class = "input" id = "title" @bind-Value="Shipment.Title"/><br/>
-        <label>Description: </label><br/>
-        <InputTextArea class = "input" id = "description" @bind-Value="Shipment.Description"/><br/>
-    </div>
-    <div>
-        <label>Source machine: </label><br/>
 
-        <select @bind="Shipment.SourceMachineId">
-                @if(PostMachines != null)
+<div class="col-md-8 mx-auto">
+    <EditForm Model="@shipment" OnValidSubmit="@HandleSubmit" @onreset="@HandleReset">
+        <div class="card" style="margin: auto; min-height: 35rem; max-width: 500px">
+            <h3 class="card-header">
+                Register a new shipment
+            </h3>
+            <div class="card-body">
+                @if (!string.IsNullOrWhiteSpace(error))
                 {
-                    @foreach(var machine in PostMachines)
+                    <div class="alert alert-danger">
+                        @error
+                    </div>
+                }
+                <DataAnnotationsValidator/>
+                <ValidationSummary/>
+
+                <label class="form-label" for="title">Shipment title</label>
+                <InputText class="form-control" id="title" @bind-Value="shipment.Title"/>
+                <ValidationMessage For="@(() => shipment.Title)"/>
+
+                <label class="form-label" for="description">Description (optional)</label>
+                <InputTextArea class="form-control" id="description" @bind-Value="shipment.Description"/><br/>
+
+                <label class="form-label" for="source-machine">Source post machine</label>
+                <InputSelect @bind-Value="shipment.SourceMachineId" id="source-machine" class="form-select">
+                    <option>-- SELECT --</option>
+                    @foreach (var machine in PostMachines)
                     {
                         <option value="@machine.Id">@machine.Address</option>
                     }
-                }
-        </select><br/>
+                </InputSelect>
+                <ValidationMessage For="@(() => shipment.SourceMachineId)"/>
 
-        <label>Destination machine: </label><br/>
-        <select @bind="Shipment.DestinationMachineId">
-                @if(PostMachines != null)
-                {
-                    @foreach(var machine in PostMachines)
+                <label class="form-label" for="destination-machine">Destination post machine</label>
+                <InputSelect @bind-Value="shipment.DestinationMachineId" id="destination-machine" class="form-select">
+                    <option>-- SELECT --</option>
+                    @foreach (var machine in PostMachines)
                     {
                         <option value="@machine.Id">@machine.Address</option>
                     }
-                }
-        </select><br/>
-
-       <button type="submit" disabled="@DisableRegisterButton">Register shipment</button> 
-    </div>
-
-</EditForm>
+                </InputSelect>
+                <ValidationMessage For="@(() => shipment.DestinationMachineId)"/>
+            </div>
+            <div class="card-footer d-flex">
+                <button type="submit" class="btn btn-primary">Register shipment</button>
+                <button type="reset" class="btn btn-secondary ms-auto">Reset</button>
+            </div>
+        </div>
+    </EditForm>
+</div>
 
 
 @code {
@@ -51,35 +68,70 @@
     [Inject]
     public IShipmentRepository ShipmentRepository { get; set; }
 
-    public IPostMachineRepository PostMachineRepository => Service;
+    IPostMachineRepository PostMachineRepository => Service;
+    Sender sender;
+    IEnumerable<PostMachine> PostMachines { get; set; }
+    NewShipment shipment { get; set; }
 
-    public IEnumerable<PostMachine> PostMachines { get; set; }
     public Shipment Shipment { get; set; }
     public Sender Sender { get; set; }
     public bool DisableRegisterButton { get; set; }
+    string? error;
 
     protected override async Task OnInitializedAsync()
     {
+        shipment = new NewShipment();
         var authState = await authStateTask;
         var username = authState.User.Identities.First().Name;
-        Sender = SenderRepository.Senders.First(s => s.Username == username);
-        Shipment = new Shipment {SenderId = Sender.Id};
+        sender = SenderRepository.Senders.First(s => s.Username == username);
         RetrievePostMachines();
     }
 
-    public void RetrievePostMachines()
+    void RetrievePostMachines()
     {
         PostMachines = PostMachineRepository.PostMachines;
     }
 
-    public async void HandleSubmit()
+    async void HandleSubmit()
     {
-        DisableRegisterButton = true;
-        await ShipmentRepository.CreateAsync(Shipment);
-        long shipmentId = ShipmentRepository.Shipments.
-            Where(s => s.SenderId == Sender.Id).
-            OrderByDescending(s => s.Created).First().Id;
-        NavigationManager.NavigateTo($"/shipment/{shipmentId}");
+        if (shipment.SourceMachineId == shipment.DestinationMachineId)
+        {
+            error = "Source and destination post machines cannot match";
+            return;
+        }
+        
+        var newShipment = new Shipment
+        {
+            Title = shipment.Title!,
+            Description = shipment.Description,
+            SenderId = sender.Id,
+            SourceMachineId = (long)shipment.SourceMachineId!,
+            DestinationMachineId = (long)shipment.DestinationMachineId!
+        };
+        await ShipmentRepository.CreateAsync(newShipment);
+        NavigationManager.NavigateTo($"/shipment/{newShipment.Id}");
+    }
+
+    void HandleReset()
+    {
+        shipment.Title = null;
+        shipment.Description = null;
+        shipment.DestinationMachineId = null;
+        shipment.SourceMachineId = null;
+    }
+
+    public class NewShipment
+    {
+        [Required(ErrorMessage = "Shipment title is required")]
+        public string? Title { get; set; }
+
+        public string? Description { get; set; }
+
+        [Required(ErrorMessage = "Source post machine is required")]
+        public long? SourceMachineId { get; set; }
+
+        [Required(ErrorMessage = "Destination post machine is required")]
+        public long? DestinationMachineId { get; set; }
     }
 
 }
