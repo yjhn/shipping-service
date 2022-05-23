@@ -10,10 +10,10 @@ namespace shipping_service.Services
 {
     public class AccountService : IAccountService
     {
-        private IHttpContextAccessor _accessor;
         private readonly ICourierRepository _courierRepository;
-        private IJSRuntime _JSRunTime;
         private readonly ISenderRepository _senderRepository;
+        private IHttpContextAccessor _accessor;
+        private IJSRuntime _JSRunTime;
         private Courier courier;
         private Sender sender;
 
@@ -24,39 +24,6 @@ namespace shipping_service.Services
             _courierRepository = courierRepository;
             _accessor = accessor;
             _JSRunTime = jSRunTime;
-        }
-
-        public static byte[] PasswordHash(string password)
-        {
-            byte[] salt = new byte[16];
-            new RNGCryptoServiceProvider().GetBytes(salt);
-
-            var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 1000);
-            byte[] hash = pbkdf2.GetBytes(20);
-
-            byte[] hashBytes = new byte[36];
-            Array.Copy(salt, 0, hashBytes, 0, 16);
-            Array.Copy(hash, 0, hashBytes, 16, 20);
-
-            return hashBytes;
-        }
-
-        public static bool ValidatePasswordHash(string password, byte[] dbPasswordHash)
-        {
-            byte[] salt = new byte[16];
-            Array.Copy(dbPasswordHash, 0, salt, 0, 16);
-
-            var userPasswordBytes = new Rfc2898DeriveBytes(password, salt, 1000);
-            byte[] userPasswordHash = userPasswordBytes.GetBytes(20);
-
-            for (int i = 0; i < 20; i++)
-            {
-                if (dbPasswordHash[i + 16] != userPasswordHash[i])
-                {
-                    return false;
-                }
-            }
-            return true;
         }
 
         public async Task<(string, string)> LoginAsync(UserLogin user)
@@ -85,14 +52,14 @@ namespace shipping_service.Services
             byte[] password = PasswordHash(user.Password);
             if (role == "Courier")
             {
-                Courier newCourier = new Courier();
+                Courier newCourier = new();
                 newCourier.Username = username;
                 newCourier.HashedPassword = password;
                 await _courierRepository.CreateAsync(newCourier);
             }
             else
             {
-                Sender newSender = new Sender();
+                Sender newSender = new();
                 newSender.Username = username;
                 newSender.HashedPassword = password;
                 await _senderRepository.CreateAsync(newSender);
@@ -162,6 +129,40 @@ namespace shipping_service.Services
         {
             await SetUser(username);
             return ExistsSender() || ExistsCourier() ? true : false;
+        }
+
+        public static byte[] PasswordHash(string password)
+        {
+            byte[] salt = new byte[16];
+            new RNGCryptoServiceProvider().GetBytes(salt);
+
+            Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(password, salt, 1000);
+            byte[] hash = pbkdf2.GetBytes(20);
+
+            byte[] hashBytes = new byte[36];
+            Array.Copy(salt, 0, hashBytes, 0, 16);
+            Array.Copy(hash, 0, hashBytes, 16, 20);
+
+            return hashBytes;
+        }
+
+        public static bool ValidatePasswordHash(string password, byte[] dbPasswordHash)
+        {
+            byte[] salt = new byte[16];
+            Array.Copy(dbPasswordHash, 0, salt, 0, 16);
+
+            Rfc2898DeriveBytes userPasswordBytes = new Rfc2898DeriveBytes(password, salt, 1000);
+            byte[] userPasswordHash = userPasswordBytes.GetBytes(20);
+
+            for (int i = 0; i < 20; i++)
+            {
+                if (dbPasswordHash[i + 16] != userPasswordHash[i])
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private string LoginBegin(string password)
