@@ -68,7 +68,7 @@
     ISenderRepository SenderRepository { get; set; }
 
     [Inject]
-    IShipmentRepository ShipmentRepository { get; set; }
+    IShipmentRepository shipmentRepository { get; set; }
 
     IPostMachineRepository PostMachineRepository => Service;
     Sender sender;
@@ -107,7 +107,7 @@
             SourceMachineId = (long)shipment.SourceMachineId!,
             DestinationMachineId = (long)shipment.DestinationMachineId!
         };
-        await ShipmentRepository.CreateAsync(newShipment);
+        await shipmentRepository.CreateAsync(newShipment);
         NavigationManager.NavigateTo("/");
     }
 
