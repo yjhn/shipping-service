@@ -1,7 +1,5 @@
 using System.Security.Cryptography;
 
-using Microsoft.JSInterop;
-
 using shipping_service.Models;
 using shipping_service.Persistence.Entities;
 using shipping_service.Repositories;
@@ -12,21 +10,16 @@ namespace shipping_service.Services
     {
         private readonly ICourierRepository _courierRepository;
         private readonly ISenderRepository _senderRepository;
-        private IHttpContextAccessor _accessor;
-        private IJSRuntime _JSRunTime;
-        private Courier courier;
-        private Sender sender;
+        private Courier? _courier;
+        private Sender? _sender;
 
-        public AccountService(ISenderRepository senderRepository, ICourierRepository courierRepository,
-            IHttpContextAccessor accessor, IJSRuntime jSRunTime)
+        public AccountService(ISenderRepository senderRepository, ICourierRepository courierRepository)
         {
             _senderRepository = senderRepository;
             _courierRepository = courierRepository;
-            _accessor = accessor;
-            _JSRunTime = jSRunTime;
         }
 
-        public async Task<(string, string)> LoginAsync(UserLogin user)
+        public async Task<(string?, string?)> LoginAsync(UserLogin user)
         {
             string username = user.Username;
             await SetUser(username);
@@ -39,7 +32,7 @@ namespace shipping_service.Services
             return !ExistsSender() ? (null, "Courier") : (null, "Sender");
         }
 
-        public async Task<string> RegisterAsync(User user)
+        public async Task<string?> RegisterAsync(User user)
         {
             string role = user.Role;
             string username = user.Username;
@@ -52,30 +45,28 @@ namespace shipping_service.Services
             byte[] password = PasswordHash(user.Password);
             if (role == "Courier")
             {
-                Courier newCourier = new();
-                newCourier.Username = username;
-                newCourier.HashedPassword = password;
+                Courier newCourier = new() { Username = username, HashedPassword = password };
                 await _courierRepository.CreateAsync(newCourier);
             }
             else
             {
-                Sender newSender = new();
-                newSender.Username = username;
-                newSender.HashedPassword = password;
+                Sender newSender = new() { Username = username, HashedPassword = password };
                 await _senderRepository.CreateAsync(newSender);
             }
 
             return null;
         }
 
-        public async Task<string> UpdateAsync(string newUsername, string oldUsername)
+        public async Task<string?> UpdateAsync(string newUsername, string oldUsername)
         {
+            // Try getting the user with the new username.
             await SetUser(newUsername);
             if (ExistsCourier() || ExistsSender())
             {
                 return "This username already exists.";
             }
 
+            // Try getting the user with the old username.
             await SetUser(oldUsername);
             if (!ExistsCourier() && !ExistsSender())
             {
@@ -89,19 +80,19 @@ namespace shipping_service.Services
         {
             if (role == "Courier")
             {
-                courier = await _courierRepository.GetByUsername(oldUsername);
-                courier.Username = newUsername;
-                await _courierRepository.UpdateAsync(courier);
+                _courier = await _courierRepository.GetByUsername(oldUsername);
+                _courier.Username = newUsername;
+                await _courierRepository.UpdateAsync(_courier);
             }
             else
             {
-                sender = await _senderRepository.GetByUsername(oldUsername);
-                sender.Username = newUsername;
-                await _senderRepository.UpdateAsync(sender);
+                _sender = await _senderRepository.GetByUsername(oldUsername);
+                _sender.Username = newUsername;
+                await _senderRepository.UpdateAsync(_sender);
             }
         }
 
-        public async Task<string> ChangePasswordAsync(string oldPassword, string newPassword, string username)
+        public async Task<string?> ChangePasswordAsync(string oldPassword, string newPassword, string username)
         {
             await SetUser(username);
             string? message = LoginBegin(oldPassword);
@@ -113,13 +104,13 @@ namespace shipping_service.Services
             byte[] password = PasswordHash(newPassword);
             if (ExistsCourier())
             {
-                courier.HashedPassword = password;
-                await _courierRepository.UpdateAsync(courier);
+                _courier!.HashedPassword = password;
+                await _courierRepository.UpdateAsync(_courier);
             }
             else
             {
-                sender.HashedPassword = password;
-                await _senderRepository.UpdateAsync(sender);
+                _sender!.HashedPassword = password;
+                await _senderRepository.UpdateAsync(_sender);
             }
 
             return null;
@@ -128,15 +119,15 @@ namespace shipping_service.Services
         public async Task<bool> Exists(string username)
         {
             await SetUser(username);
-            return ExistsSender() || ExistsCourier() ? true : false;
+            return ExistsSender() || ExistsCourier();
         }
 
         public static byte[] PasswordHash(string password)
         {
             byte[] salt = new byte[16];
-            new RNGCryptoServiceProvider().GetBytes(salt);
+            RandomNumberGenerator.Fill(salt);
 
-            Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(password, salt, 1000);
+            Rfc2898DeriveBytes pbkdf2 = new(password, salt, 1000);
             byte[] hash = pbkdf2.GetBytes(20);
 
             byte[] hashBytes = new byte[36];
@@ -165,15 +156,15 @@ namespace shipping_service.Services
             return true;
         }
 
-        private string LoginBegin(string password)
+        private string? LoginBegin(string password)
         {
             if (!ExistsCourier() && !ExistsSender())
             {
                 return "Invalid username";
             }
 
-            if ((ExistsCourier() && !ValidatePasswordHash(password, courier.HashedPassword)) ||
-                (ExistsSender() && !ValidatePasswordHash(password, sender.HashedPassword)))
+            if ((ExistsCourier() && !ValidatePasswordHash(password, _courier!.HashedPassword)) ||
+                (ExistsSender() && !ValidatePasswordHash(password, _sender!.HashedPassword)))
             {
                 return "The password is incorrect";
             }
@@ -183,18 +174,18 @@ namespace shipping_service.Services
 
         private bool ExistsSender()
         {
-            return sender != null;
+            return _sender != null;
         }
 
         private bool ExistsCourier()
         {
-            return courier != null;
+            return _courier != null;
         }
 
         private async Task SetUser(string username)
         {
-            sender = await _senderRepository.GetByUsername(username);
-            courier = await _courierRepository.GetByUsername(username);
+            _sender = await _senderRepository.GetByUsername(username);
+            _courier = await _courierRepository.GetByUsername(username);
         }
     }
 }
