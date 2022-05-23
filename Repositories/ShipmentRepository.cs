@@ -23,8 +23,11 @@ namespace shipping_service.Repositories
 
         public async Task CreateAsync(Shipment shipment)
         {
-            await _context.AddAsync(shipment);
-            await _context.SaveChangesAsync();
+            // create sender unlock code
+            
+            
+            await context.AddAsync(shipment);
+            await context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(Shipment shipment)
