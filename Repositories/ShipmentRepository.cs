@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices.ComTypes;
-
-using shipping_service.Persistence.Database;
+﻿using shipping_service.Persistence.Database;
 using shipping_service.Persistence.Entities;
 
 namespace shipping_service.Repositories
@@ -24,15 +22,15 @@ namespace shipping_service.Repositories
         public async Task CreateAsync(Shipment shipment)
         {
             // create sender unlock code
-            
-            
-            await context.AddAsync(shipment);
-            await context.SaveChangesAsync();
+
+
+            await _context.AddAsync(shipment);
+            await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(Shipment shipment)
         {
-_context.Update(shipment);
+            _context.Update(shipment);
             await _context.SaveChangesAsync();
         }
 
