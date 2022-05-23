@@ -1,7 +1,7 @@
 @page "/shipment/registration"
 @attribute [Authorize]
-@using System.ComponentModel.DataAnnotations
 @inject NavigationManager NavigationManager
+@using System.ComponentModel.DataAnnotations
 @inherits OwningComponentBase<IPostMachineRepository>
 
 <h3>Shipment registration</h3>
@@ -14,10 +14,10 @@
                 Register a new shipment
             </h3>
             <div class="card-body">
-                @if (!string.IsNullOrWhiteSpace(error))
+                @if (!string.IsNullOrWhiteSpace(_error))
                 {
                     <div class="alert alert-danger">
-                        @error
+                        @_error
                     </div>
                 }
                 <DataAnnotationsValidator/>
@@ -62,7 +62,7 @@
 @code {
 
     [CascadingParameter]
-    Task<AuthenticationState> authStateTask { get; set; }
+    Task<AuthenticationState> AuthStateTask { get; set; }
 
     [Inject]
     ISenderRepository SenderRepository { get; set; }
@@ -75,12 +75,12 @@
     IEnumerable<PostMachine> PostMachines { get; set; }
     NewShipment shipment { get; set; }
 
-    string? error;
+    string? _error;
 
     protected override async Task OnInitializedAsync()
     {
         shipment = new NewShipment();
-        var authState = await authStateTask;
+        var authState = await AuthStateTask;
         var username = authState.User.Identities.First().Name;
         sender = SenderRepository.Senders.First(s => s.Username == username);
         RetrievePostMachines();
@@ -88,17 +88,18 @@
 
     void RetrievePostMachines()
     {
-        PostMachines = PostMachineRepository.PostMachines;
+        PostMachines = PostMachineRepository.PostMachines
+            .Select(m => new PostMachine { Address = m.Address, Id = m.Id, Name = m.Name });
     }
 
     async void HandleSubmit()
     {
         if (shipment.SourceMachineId == shipment.DestinationMachineId)
         {
-            error = "Source and destination post machines cannot match";
+            _error = "Source and destination post machines cannot match";
             return;
         }
-        
+
         var newShipment = new Shipment
         {
             Title = shipment.Title!,
