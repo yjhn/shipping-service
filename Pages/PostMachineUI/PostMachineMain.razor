@@ -1,14 +1,14 @@
-@page "/post_machines/{id:long}"
+@page "/post_machines/{PostmachineId:long}"
 @using System.ComponentModel.DataAnnotations
 @layout BasicLayout
 
 <PageTitle>Post machine UI</PageTitle>
-@if (loaded)
+@if (ThisPostMachine != null)
 {
-    <h2 class="text-center">@thisPostMachine.Name</h2>
+    <h2 class="text-center">@ThisPostMachine.Name</h2>
 }
 
-@if (!placePackage && !pickUpPackage)
+@if (!_placePackage && !_pickUpPackage)
 {
     <div class="col-md-8 mx-auto">
         <div class="card" style="margin: auto; max-width: 500px">
@@ -22,9 +22,9 @@
         </div>
     </div>
 }
-else if (pickUpPackage)
+else if (_pickUpPackage)
 {
-    if (validPlaceUnlockCode)
+    if (_validPickUpUnlockCode)
     {
         <div class="col-md-8 mx-auto">
             <div class="card" style="margin: auto; max-width: 500px; min-height: 16rem;">
@@ -43,7 +43,7 @@ else if (pickUpPackage)
     else
     {
         <div class="col-md-8 mx-auto">
-            <EditForm Model="@unlockCodeFormData" OnValidSubmit="@HandlePickUpSubmit">
+            <EditForm Model="@_unlockCodeFormData" OnValidSubmit="@HandlePickUpSubmit">
 
                 <div class="card" style="margin: auto; max-width: 500px; min-height: 16rem;">
                     <div class="card-header d-flex">
@@ -51,20 +51,20 @@ else if (pickUpPackage)
                         <button class="btn btn-secondary align-self-end ms-auto" type="button" style="margin-left: .5rem;" onclick="@GoToMainScreen">Go back</button>
                     </div>
                     <div class="card-body">
-                        @if (!string.IsNullOrWhiteSpace(error))
+                        @if (!string.IsNullOrWhiteSpace(_error))
                         {
                             <div class="alert alert-danger">
-                                @error
+                                @_error
                             </div>
                         }
                         <DataAnnotationsValidator/>
                         <label class="form-label" for="pickUpUnlockCode">Enter the 6-digit unlock code:</label>
-                        <InputText id="pickUpUnlockCode" autocomplete="off" class="form-control" style="margin-bottom: 1rem;" @bind-Value="@unlockCodeFormData.unlockCode"/>
-                        <ValidationMessage For="@(() => unlockCodeFormData.unlockCode)"/>
+                        <InputText id="pickUpUnlockCode" autocomplete="off" class="form-control" style="margin-bottom: 1rem;" @bind-Value="@_unlockCodeFormData.UnlockCode"/>
+                        <ValidationMessage For="@(() => _unlockCodeFormData.UnlockCode)"/>
 
                     </div>
                     <div class="card-footer">
-                        <button class="btn btn-primary" type="submit" onclick="@ClearError">Ok</button>
+                        <button class="btn btn-primary" type="submit">Ok</button>
 
                     </div>
                 </div>
@@ -73,9 +73,9 @@ else if (pickUpPackage)
         </div>
     }
 }
-else if (placePackage)
+else if (_placePackage)
 {
-    if (validPlaceUnlockCode)
+    if (_validPlaceUnlockCode)
     {
         <div class="col-md-8 mx-auto">
             <div class="card" style="margin: auto; max-width: 500px; min-height: 16rem;">
@@ -94,7 +94,7 @@ else if (placePackage)
     else
     {
         <div class="col-md-8 mx-auto">
-            <EditForm Model="@unlockCodeFormData" OnValidSubmit="@HandlePlaceSubmit">
+            <EditForm Model="@_unlockCodeFormData" OnValidSubmit="@HandlePlaceSubmit">
 
                 <div class="card" style="margin: auto; max-width: 500px; min-height: 16rem;">
                     <div class="card-header d-flex">
@@ -102,20 +102,20 @@ else if (placePackage)
                         <button class="btn btn-secondary align-self-end ms-auto" type="button" style="margin-left: .5rem;" onclick="@GoToMainScreen">Go back</button>
                     </div>
                     <div class="card-body">
-                        @if (!string.IsNullOrWhiteSpace(error))
+                        @if (!string.IsNullOrWhiteSpace(_error))
                         {
                             <div class="alert alert-danger">
-                                @error
+                                @_error
                             </div>
                         }
                         <DataAnnotationsValidator/>
                         <label class="form-label" for="placeUnlockCode">Enter the 6-digit unlock code:</label>
-                        <InputText id="placeUnlockCode" autocomplete="off" class="form-control" style="margin-bottom: 1rem;" @bind-Value="@unlockCodeFormData.unlockCode"/>
-                        <ValidationMessage For="@(() => unlockCodeFormData.unlockCode)"/>
+                        <InputText id="placeUnlockCode" autocomplete="off" class="form-control" style="margin-bottom: 1rem;" @bind-Value="@_unlockCodeFormData.UnlockCode"/>
+                        <ValidationMessage For="@(() => _unlockCodeFormData.UnlockCode)"/>
 
                     </div>
                     <div class="card-footer">
-                        <button class="btn btn-primary align-bottom" type="submit" onclick="@ClearError">Ok</button>
+                        <button class="btn btn-primary align-bottom" type="submit">Ok</button>
                     </div>
                 </div>
             </EditForm>
@@ -127,115 +127,166 @@ else if (placePackage)
 @code {
 
     [Parameter]
-    public long Id { get; set; }
+    public long PostMachineId { get; set; }
 
-    bool loaded;
-    bool placePackage;
-    bool pickUpPackage;
+    bool _placePackage;
+    bool _pickUpPackage;
 
-    bool validPlaceUnlockCode;
-    bool validPickUpUnlockCode;
+    bool _validPlaceUnlockCode;
+    bool _validPickUpUnlockCode;
 
-    string? error;
+    string? _error;
 
     [Inject]
     IPostMachineRepository PostMachineRepository { get; set; }
 
     [Inject]
-    IShipmentService shipmentService { get; set; }
+    IShipmentService ShipmentService { get; set; }
 
-    PostMachine thisPostMachine { get; set; }
-    IEnumerable<Shipment> shipmentsWithThisSource { get; set; }
-    IEnumerable<Shipment> shipmentsWithThisDestination { get; set; }
+    PostMachine? ThisPostMachine { get; set; }
 
-    readonly FormData unlockCodeFormData = new();
+    IEnumerable<ShipmentData>? _srcCourierUnlockCodes;
+
+    IEnumerable<ShipmentData> ShipmentsWithThisSrcCourierUnlockCodes
+    {
+        get
+        {
+            // There is a tradeoff here. If we first select all shipments,
+            // later we do not need another roundtrip to DB to select the
+            // correct one, but in exchange we transfer quite a lot of data.
+            // We choose the other option a dnd initially select only codes,
+            // but if the code is correct, we select the actual shipment later.
+            // Same logic applies to other code lists.
+            _srcCourierUnlockCodes ??= ShipmentService.Shipments
+                .Where(s => s.SourceMachineId == ThisPostMachine!.Id && s.SrcPmCourierUnlockCode != null)
+                .Select(s => new ShipmentData { Id = s.Id, UnlockCode = s.SrcPmCourierUnlockCode!.Value });
+            return _srcCourierUnlockCodes;
+        }
+    }
+
+    IEnumerable<ShipmentData>? _srcSenderUnlockCodes;
+
+    IEnumerable<ShipmentData> ShipmentsWithThisSrcSenderUnlockCodes
+    {
+        get
+        {
+            _srcSenderUnlockCodes ??= ShipmentService.Shipments
+                .Where(s => s.DestinationMachineId == ThisPostMachine!.Id && s.SrcPmSenderUnlockCode != null)
+                .Select(s => new ShipmentData { Id = s.Id, UnlockCode = s.SrcPmSenderUnlockCode!.Value });
+            return _srcSenderUnlockCodes;
+        }
+    }
+
+    IEnumerable<ShipmentData>? _destReceiverUnlockCodes;
+
+    IEnumerable<ShipmentData> ShipmentsWithThisDestReceiverUnlockCodes
+    {
+        get
+        {
+            _destReceiverUnlockCodes ??= ShipmentService.Shipments
+                .Where(s => s.DestinationMachineId == ThisPostMachine!.Id && s.DestPmReceiverUnlockCode != null)
+                .Select(s => new ShipmentData { Id = s.Id, UnlockCode = s.DestPmReceiverUnlockCode!.Value });
+            return _destReceiverUnlockCodes;
+        }
+    }
+
+    IEnumerable<ShipmentData>? _destCourierUnlockCodes;
+
+    IEnumerable<ShipmentData> ShipmentsWithThisDestCourierUnlockCodes
+    {
+        get
+        {
+            _destCourierUnlockCodes ??= ShipmentService.Shipments
+                .Where(s => s.DestinationMachineId == ThisPostMachine!.Id && s.DestPmCourierUnlockCode != null)
+                .Select(s => new ShipmentData { Id = s.Id, UnlockCode = s.DestPmCourierUnlockCode!.Value });
+            return _destCourierUnlockCodes;
+        }
+    }
+
+    readonly FormData _unlockCodeFormData = new();
 
     void PickUpPackage()
     {
-        pickUpPackage = true;
+        _pickUpPackage = true;
     }
 
     void PlacePackage()
     {
-        placePackage = true;
+        _placePackage = true;
     }
 
     void GoToMainScreen()
     {
-        placePackage = false;
-        pickUpPackage = false;
+        _placePackage = false;
+        _pickUpPackage = false;
 
-        validPlaceUnlockCode = false;
-        validPickUpUnlockCode = false;
-        error = null;
-    }
-
-    void ClearError()
-    {
-        error = null;
+        _validPlaceUnlockCode = false;
+        _validPickUpUnlockCode = false;
+        _error = null;
     }
 
     // If submit is not called on click, it's because the button
     // jumps when the input field loses focus and the button click
     // is not registered.
-    void HandlePlaceSubmit()
+    async Task HandlePlaceSubmit()
     {
-        error = null;
-        var code = int.Parse(unlockCodeFormData.unlockCode!);
-        var shipment = shipmentsWithThisSource.FirstOrDefault(s => s.SrcPmSenderUnlockCode == code);
-        if (shipment != null)
+        _error = null;
+        var code = int.Parse(_unlockCodeFormData.UnlockCode!);
+        var sh = ShipmentsWithThisSrcSenderUnlockCodes.FirstOrDefault(s => s.UnlockCode == code);
+        // ShipmentData is a struct, so default value will contain all zeroes.
+        if (sh.Id != 0)
         {
-            validPlaceUnlockCode = true;
-            shipmentService.ChangeShipmentStatusToSrc(shipment, thisPostMachine);
+            _validPlaceUnlockCode = true;
+            var shipment = await ShipmentService.GetById(sh.Id);
+            ShipmentService.ChangeShipmentStatusToSrc(shipment!, ThisPostMachine!);
         }
         else
         {
-            shipment = shipmentsWithThisDestination.FirstOrDefault(s => s.DestPmCourierUnlockCode == code);
-            if (shipment != null)
+            sh = ShipmentsWithThisDestCourierUnlockCodes.FirstOrDefault(s => s.UnlockCode == code);
+            if (sh.Id != 0)
             {
-                validPlaceUnlockCode = true;
-                shipmentService.ChangeShipmentStatusToDest(shipment, thisPostMachine);
+                _validPlaceUnlockCode = true;
+                var shipment = await ShipmentService.GetById(sh.Id);
+                ShipmentService.ChangeShipmentStatusToDest(shipment!, ThisPostMachine!);
             }
             else
             {
-                error = "Invalid unlock code";
+                _error = "Invalid unlock code";
             }
         }
     }
 
-    void HandlePickUpSubmit()
+    async Task HandlePickUpSubmit()
     {
-        error = null;
-        var code = int.Parse(unlockCodeFormData.unlockCode!);
-        var shipment = shipmentsWithThisSource.FirstOrDefault(s => s.SrcPmCourierUnlockCode == code);
-        if (shipment != null)
+        _error = null;
+        var code = int.Parse(_unlockCodeFormData.UnlockCode!);
+        var sh = ShipmentsWithThisSrcCourierUnlockCodes.FirstOrDefault(s => s.UnlockCode == code);
+        if (sh.Id != 0)
         {
-            validPlaceUnlockCode = true;
-            shipmentService.ChangeShipmentStatusToShipping(shipment, thisPostMachine);
+            _validPlaceUnlockCode = true;
+            var shipment = await ShipmentService.GetById(sh.Id);
+            ShipmentService.ChangeShipmentStatusToShipping(shipment!, ThisPostMachine!);
         }
         else
         {
-            shipment = shipmentsWithThisDestination.FirstOrDefault(s => s.DestPmReceiverUnlockCode == code);
-            if (shipment != null)
+            sh = ShipmentsWithThisDestReceiverUnlockCodes.FirstOrDefault(s => s.UnlockCode == code);
+            if (sh.Id != 0)
             {
-                validPlaceUnlockCode = true;
-                shipmentService.ChangeShipmentStatusToDelivered(shipment);
+                _validPlaceUnlockCode = true;
+                var shipment = await ShipmentService.GetById(sh.Id);
+                ShipmentService.ChangeShipmentStatusToDelivered(shipment!);
             }
             else
             {
-                error = "Invalid unlock code";
+                _error = "Invalid unlock code";
             }
         }
     }
 
     protected override async Task OnInitializedAsync()
     {
-        thisPostMachine = await PostMachineRepository.PostMachines.Include(p => p.ShipmentsWithThisSource)
-            .Include(p => p.ShipmentsWithThisDestination).FirstAsync(p => p.Id == Id); //.GetAsync(Id);
-        loaded = true;
-
-        shipmentsWithThisSource = thisPostMachine.ShipmentsWithThisSource;
-        shipmentsWithThisDestination = thisPostMachine.ShipmentsWithThisDestination;
+        ThisPostMachine = await PostMachineRepository.PostMachines
+            .FirstAsync(p => p.Id == PostMachineId);
     }
 
     // FormData must be a class, otherwise validation does not work properly.
@@ -243,7 +294,13 @@ else if (placePackage)
     {
         [Required(ErrorMessage = "Code is required")]
         [RegularExpression(@"^[0-9]{6}$", ErrorMessage = "Code must be a number")]
-        public string? unlockCode { get; set; }
+        public string? UnlockCode { get; set; }
+    }
+
+    record struct ShipmentData
+    {
+        public long Id;
+        public int UnlockCode;
     }
 
 }
