@@ -1,10 +1,11 @@
 @inject shipping_service.Models.TokenProvider _tokenProvider;
 <AuthorizeView>
     <Authorized>
-        <p>Hello, <a href="/account/manage">@context.User.Identity?.Name!</a></p>
+        @context.User.Identity?.Name
+        <a class="btn btn-outline-secondary" style="margin-right: 0.5rem;" href="/account/manage">Manage account</a>
         <form method="post" action="/logout">
            <input name="__RequestVerificationToken" type="hidden" value="@_tokenProvider.AntiForgeryToken" /> 
-            <button type="submit" class="nav-link btn btn-link">Log out</button>
+            <button type="submit" class="btn btn-outline-secondary">Log out</button>
         </form>
     </Authorized>
     <NotAuthorized>
