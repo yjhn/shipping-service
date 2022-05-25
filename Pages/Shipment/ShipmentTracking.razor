@@ -65,23 +65,21 @@ else
         {
             return;
         }
-
-        if(!Regex.IsMatch(trackingLink, @"^[0-9]*([A-Za-z0-9-_]{4})$"))
+        long shipmentId;
+        string[] trackingLinkParts = trackingLink.Split("-");
+        string trackingCode = string.Join("-", trackingLinkParts.Skip(1));
+        if (!Regex.IsMatch(trackingCode, @"^([A-Za-z0-9-_]{4})$") ||
+            !long.TryParse(trackingLinkParts[0], out shipmentId))
         {
             return;
         }
-
-        long shipmentId = trackingLink[0] - '0';
-        string trackingCode = trackingLink.Substring(1, trackingLink.Length-1);
-
         Shipment = ShipmentRepository.Shipments.
             Include(s => s.Sender).
             Include(s => s.Courier).
             Include(s => s.SourceMachine).
             Include(s => s.DestinationMachine).
             FirstOrDefault(s => s.Id == shipmentId);
-
-        if(Shipment == null || !Shipment.IsValidIdHash(trackingCode))
+        if(Shipment != null && !Shipment.IsValidIdHash(trackingCode))
         {
             Shipment = null;
         }
