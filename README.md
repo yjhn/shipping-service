@@ -39,16 +39,16 @@ places the shipment inside. Once Peter shuts the shipment compartment, he cannot
 again since the unlocking code becomes invalid. Shipment status changes.
 
 To send a shipment to the destination machine, the courier is needed. Courier can register
-himself just like the sender. Courier’s name is William. Once Peter places the shipment
-inside post machine, the system generates a new unlocking code for the courier [the codes
-are stored in shipment entity]. Shipments can have no couriers for some time, William is
+himself just like the sender. Courier’s name is William. Shipments can have no couriers for some time, William is
 shown a list of these shipments [the list consists of shipments with status:
 inSourcePostMachine and for which courier is null (not set)]. Peter's shipment is one of
 them. Source and destination machines’ addresses of shipments are shown. If William is
 willing to deliver the shipment to the endpoint, he can assign it to himself (press assign
-button). Once William does that, a source and destination machines’ unlocking codes are
-given. The shipment itself is given a courier and is no longer shown in shipment list for
-other couriers to consider delivering. William goes to the source machine [the page of
+button). Once William does that, a source and destination machines’ unlocking codes are generated
+given to him. The shipment itself is given a courier and is no longer shown in available shipments list for
+other couriers to consider delivering (if William changes his mind and does not want to deliver his shipment, he can cancel
+his assigment if he has not yet taken the shipment from source post machine. The courier will be unnasigned and shipment will once again appear in
+available shipment list for other couriers to consider delivering). William goes to the source machine [the page of
 post machines and selects the needed machine], enters the unlocking code [the machine
 checks if one of its packages has the unlocking code] and picks up the package. The
 status of the shipment changes.
