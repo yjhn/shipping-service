@@ -1,10 +1,14 @@
-﻿using shipping_service.Persistence.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+
+using shipping_service.Persistence.Entities;
 
 namespace shipping_service.Repositories
 {
     public interface IPostMachineRepository
     {
-        IQueryable<PostMachine> PostMachines { get; }
+        DbSet<PostMachine> PostMachines { get; }
+
+        Task<PostMachine?> GetAsync(long id);
 
         Task CreateAsync(PostMachine postMachine);
 

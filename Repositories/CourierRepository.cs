@@ -1,52 +1,43 @@
-﻿using shipping_service.Persistence.Database;
+﻿using Microsoft.EntityFrameworkCore;
+
+using shipping_service.Persistence.Database;
 using shipping_service.Persistence.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace shipping_service.Repositories
 {
     public class CourierRepository : ICourierRepository
     {
-        private readonly DatabaseContext context;
+        private readonly DatabaseContext _context;
 
         public CourierRepository(DatabaseContext ctx)
         {
-            context = ctx;
+            _context = ctx;
         }
 
-        public IQueryable<Courier> Couriers => context.Couriers;
+        public IQueryable<Courier> Couriers => _context.Couriers;
 
         public async Task CreateAsync(Courier courier)
         {
-            await context.AddAsync(courier);
-            await context.SaveChangesAsync();
-            context.Entry(courier).State = EntityState.Detached;
-
+            _context.Add(courier);
+            await _context.SaveChangesAsync();
+            _context.Entry(courier).State = EntityState.Detached;
         }
 
         public async Task UpdateAsync(Courier courier)
         {
-            context.Update(courier);
-            await context.SaveChangesAsync();
-//            context.Entry(courier).State = EntityState.Detached;
-
+            _context.Update(courier);
+            await _context.SaveChangesAsync();
         }
 
         public void Delete(Courier courier)
         {
-            context.Remove(courier);
-            context.SaveChanges();
+            _context.Remove(courier);
+            _context.SaveChanges();
         }
 
-public async Task<Courier> GetByUsername(string username)
-{
-            foreach (var courier in Couriers)
-            {
-                if (courier.Username == username)
-                {
-                    return courier;
-                }
-            }
-                    return null;
-            }
+        public async Task<Courier?> GetByUsername(string username)
+        {
+            return await _context.Couriers.FirstOrDefaultAsync(c => c.Username == username);
+        }
     }
 }

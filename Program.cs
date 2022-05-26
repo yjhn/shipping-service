@@ -13,31 +13,35 @@ builder.Configuration.AddJsonFile("appsettings.json");
 string dbConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 bool autoApplyMigrations = builder.Configuration.GetValue<bool>("AutomaticallyApplyMigrations");
 bool addSeedData = builder.Configuration.GetValue<bool>("AddSeedDataIfDBEmpty");
+bool detailedDbLogging = builder.Configuration.GetValue<bool>("DetailedDbLogging");
+double authenticationCookieLifetimeDays = builder.Configuration.GetValue<double>("AuthenticationCookieLifetimeDays");
 
 builder.Services.AddDbContext<DatabaseContext>(option =>
-    option.UseNpgsql(dbConnectionString)
+{
+    option.UseNpgsql(dbConnectionString);
+    if (detailedDbLogging)
+    {
         // enable logging for debugging
-        .EnableSensitiveDataLogging()
-        .EnableDetailedErrors()
-        .LogTo(Console.WriteLine));
+        option.EnableSensitiveDataLogging()
+            .EnableDetailedErrors()
+            .LogTo(Console.WriteLine);
+    }
+});
 builder.Services.AddScoped<ICourierRepository, CourierRepository>();
 builder.Services.AddScoped<IShipmentRepository, ShipmentRepository>();
+builder.Services.AddScoped<IShipmentService, ShipmentService>();
 builder.Services.AddScoped<IPostMachineRepository, PostMachineRepository>();
+builder.Services.AddScoped<IPostMachineService, PostMachineService>();
 builder.Services.AddScoped<ISenderRepository, SenderRepository>();
 builder.Services.AddScoped<IShipmentService, ShipmentService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 .AddCookie(options =>
 {
-    options.ExpireTimeSpan = TimeSpan.FromDays(20);
+    options.ExpireTimeSpan = TimeSpan.FromDays(authenticationCookieLifetimeDays);
     options.Cookie.Name = "auth";
-    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
-    options.EventsType = typeof(shipping_service.Controllers.CookieAuthenticationEvents);
-
+    options.Cookie.SameSite = SameSiteMode.Strict;
 });
-builder.Services.AddScoped<shipping_service.Controllers.CookieAuthenticationEvents>();
-//builder.Services.AddAntiforgery(
-//options => options.HeaderName = "__RequestVerificationToken");
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddServerSideBlazor();
