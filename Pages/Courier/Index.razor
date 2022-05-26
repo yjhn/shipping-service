@@ -54,7 +54,7 @@
                         <td>@shipment.SrcPmCourierUnlockCode</td>
                         <td>@shipment.DestPmCourierUnlockCode</td>
                         <td>
-                            @if (shipment.Status == ShipmentStatus.RegisteredForSending)
+                            @if (shipment.Status == ShipmentStatus.InSourcePostMachine)
                             {
                                 <button class="btn btn-primary" @onclick="(async () => await UnassignShipment(shipment))
 ">
