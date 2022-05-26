@@ -31,7 +31,6 @@
         @if (AssignedShipments?.Count() > 0)
         {
             <tr>
-                <th>Sender username</th>
                 <th>Source machine name</th>
                 <th>Source machine address</th>
                 <th>Destination machine name</th>
@@ -43,7 +42,6 @@
             foreach (var shipment in AssignedShipments)
             {
                 <tr>
-                    <td>@shipment.Sender.Username</td>
                     <td>@shipment.SourceMachine.Name</td>
                     <td>@shipment.SourceMachine.Address</td>
                     <td>@shipment.DestinationMachine.Name</td>
@@ -54,7 +52,7 @@
                         @if (shipment.Status == ShipmentStatus.InSourcePostMachine)
                         {
                             <button class="btn btn-primary" @onclick="async () => await UnassignShipment(shipment)">
-                                Cancel
+                                Unassign
                             </button>
                         }
                     </td>

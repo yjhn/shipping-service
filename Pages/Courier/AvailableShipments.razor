@@ -29,14 +29,18 @@
         @if (UnassignedShipments.Count() > 0)
         {
             <tr>
+                <th>Source machine name</th>
                 <th>Source machine address</th>
+                <th>Destination machine name</th>
                 <th>Destination machine address</th>
                 <th/>
             </tr>
             foreach (var shipment in UnassignedShipments)
             {
                 <tr>
+                    <td>@shipment.SourceMachine.Name</td>
                     <td>@shipment.SourceMachine.Address</td>
+                    <td>@shipment.DestinationMachine.Name</td>
                     <td>@shipment.DestinationMachine.Address</td>
                     <td>
                         <button class="btn btn-primary" @onclick="async () => await AssignShipmentToCourier(shipment.Id)">Assign</button>

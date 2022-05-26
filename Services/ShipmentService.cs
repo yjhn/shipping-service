@@ -23,8 +23,6 @@ namespace shipping_service.Services
         {
             return await _shipmentRepository.Shipments
                 .Where(s => s.CourierId == null && s.Status == ShipmentStatus.InSourcePostMachine)
-                .Include(s => s.Sender)
-                .Include(s => s.Courier)
                 .Include(s => s.SourceMachine)
                 .Include(s => s.DestinationMachine)
                 .ToListAsync();
@@ -32,10 +30,8 @@ namespace shipping_service.Services
 
         public async Task<IEnumerable<Shipment>> GetAssignedAsync(long courierId)
         {
-            return await _shipmentRepository.Shipments.
-                Where(s => s.CourierId == courierId)
-                .Include(s => s.Sender)
-                .Include(s => s.Courier)
+            return await _shipmentRepository.Shipments
+                .Where(s => s.CourierId == courierId)
                 .Include(s => s.SourceMachine)
                 .Include(s => s.DestinationMachine)
                 .ToListAsync();
