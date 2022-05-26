@@ -6,5 +6,6 @@ namespace shipping_service.Services
     {
         IQueryable<PostMachine> PostMachines { get; }
         int GeneratePostMachineUnlockCode(PostMachine p);
+        Task<int> GeneratePostMachineUnlockCode(long postMachineId);
     }
 }
