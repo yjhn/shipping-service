@@ -24,28 +24,6 @@ namespace shipping_service.Persistence.Entities
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
         public uint xmin { get; set; }
-
-        // TODO: move the below methods to use cases
-        public string GenerateIdHash()
-        {
-            return ComputeBase64(Id);
-        }
-
-        public bool IsValidIdHash(string hash)
-        {
-            return hash == GenerateIdHash();
-        }
-
-        private static string ComputeBase64(long rawData)
-        {
-            byte[] bytes = BitConverter.GetBytes(rawData + 1_000_000).Take(3).ToArray();
-            string s = Convert.ToBase64String(bytes);
-            // ToBase64String generates strings which are potentially unsafe for use in URLs
-            s = s.Split('=')[0]; // Remove any trailing '='s
-            s = s.Replace('+', '-'); // 62nd char of encoding
-            s = s.Replace('/', '_'); // 63rd char of encoding
-            return s;
-        }
     }
 
     public enum ShipmentStatus

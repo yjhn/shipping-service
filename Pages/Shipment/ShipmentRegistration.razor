@@ -1,8 +1,8 @@
 @page "/shipment/registration"
 @attribute [Authorize]
+@inject NavigationManager NavigationManager
 @using System.ComponentModel.DataAnnotations
 @inherits OwningComponentBase<IPostMachineRepository>
-@inject NavigationManager NavigationManager
 
 <h3>Shipment registration</h3>
 
@@ -14,10 +14,10 @@
                 Register a new shipment
             </h3>
             <div class="card-body">
-                @if (!string.IsNullOrWhiteSpace(error))
+                @if (!string.IsNullOrWhiteSpace(_error))
                 {
                     <div class="alert alert-danger">
-                        @error
+                        @_error
                     </div>
                 }
                 <DataAnnotationsValidator/>
@@ -62,44 +62,39 @@
 @code {
 
     [CascadingParameter]
-    private Task<AuthenticationState> authStateTask {get; set;}
+    Task<AuthenticationState> AuthStateTask { get; set; }
+
     [Inject]
-    public ISenderRepository SenderRepository { get; set; }
+    ISenderRepository SenderRepository { get; set; }
+
     [Inject]
-    public IShipmentRepository ShipmentRepository { get; set; }
+    IShipmentService ShipmentService { get; set; }
 
     IPostMachineRepository PostMachineRepository => Service;
     Sender sender;
     IEnumerable<PostMachine> PostMachines { get; set; }
     NewShipment shipment { get; set; }
 
-    public Shipment Shipment { get; set; }
-    public Sender Sender { get; set; }
-    public bool DisableRegisterButton { get; set; }
-    string? error;
+    string? _error;
 
     protected override async Task OnInitializedAsync()
     {
+        PostMachines = PostMachineRepository.PostMachines
+            .Select(m => new PostMachine { Address = m.Address, Id = m.Id, Name = m.Name });
         shipment = new NewShipment();
-        var authState = await authStateTask;
+        var authState = await AuthStateTask;
         var username = authState.User.Identities.First().Name;
-        sender = SenderRepository.Senders.First(s => s.Username == username);
-        RetrievePostMachines();
+        sender = (await SenderRepository.GetByUsername(username!))!;
     }
 
-    void RetrievePostMachines()
-    {
-        PostMachines = PostMachineRepository.PostMachines;
-    }
-
-    async void HandleSubmit()
+    async Task HandleSubmit()
     {
         if (shipment.SourceMachineId == shipment.DestinationMachineId)
         {
-            error = "Source and destination post machines cannot match";
+            _error = "Source and destination post machines cannot match";
             return;
         }
-        
+
         var newShipment = new Shipment
         {
             Title = shipment.Title!,
@@ -108,7 +103,7 @@
             SourceMachineId = (long)shipment.SourceMachineId!,
             DestinationMachineId = (long)shipment.DestinationMachineId!
         };
-        await ShipmentRepository.CreateAsync(newShipment);
+        await ShipmentService.CreateAsync(newShipment);
         NavigationManager.NavigateTo($"/shipment/{newShipment.Id}");
     }
 

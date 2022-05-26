@@ -1,6 +1,6 @@
 ﻿@using System.Text.RegularExpressions
 
-@page "/tracking/shipment/{trackingLink}"
+@page "/shipment/tracking/{trackingLink}"
 
 <h3>Shipment Tracking</h3>
 @if (Shipment != null)
@@ -55,9 +55,9 @@ else
     public string? trackingLink { get; set; }
 
     [Inject]
-    public IShipmentRepository ShipmentRepository { get; set; }
+    IShipmentService ShipmentService { get; set; }
 
-    public Shipment? Shipment{ get; set; }
+    Shipment? Shipment{ get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -73,13 +73,8 @@ else
         {
             return;
         }
-        Shipment = ShipmentRepository.Shipments.
-            Include(s => s.Sender).
-            Include(s => s.Courier).
-            Include(s => s.SourceMachine).
-            Include(s => s.DestinationMachine).
-            FirstOrDefault(s => s.Id == shipmentId);
-        if(Shipment != null && !Shipment.IsValidIdHash(trackingCode))
+        Shipment = await ShipmentService.SelectIncludeAll(shipmentId);
+        if(Shipment != null && ! ShipmentService.IsValidIdHash(shipmentId, trackingCode))
         {
             Shipment = null;
         }

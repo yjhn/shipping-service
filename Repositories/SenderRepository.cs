@@ -1,62 +1,58 @@
-﻿using shipping_service.Persistence.Database;
+﻿using Microsoft.EntityFrameworkCore;
+
+using shipping_service.Persistence.Database;
 using shipping_service.Persistence.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace shipping_service.Repositories
 {
     public class SenderRepository : ISenderRepository
     {
-        private readonly DatabaseContext context;
+        private readonly DatabaseContext _context;
 
         public SenderRepository(DatabaseContext ctx)
         {
-            context = ctx;
+            _context = ctx;
         }
 
-        public IQueryable<Sender> Senders => context.Senders;
+        public IQueryable<Sender> Senders => _context.Senders;
 
         public async Task CreateAsync(Sender sender)
         {
-            await context.AddAsync(sender);
+            // Use `Add` instead of `AddAsync`
+            // https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.dbcontext.addasync?view=efcore-6.0
+            _context.Add(sender);
             try
             {
-                await context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
             finally
             {
-                context.Entry(sender).State = EntityState.Detached;
+                _context.Entry(sender).State = EntityState.Detached;
             }
         }
 
         public async Task UpdateAsync(Sender sender)
         {
-            context.Update(sender);
-try
-{
-            await context.SaveChangesAsync();
-}
-finally
-{
-            context.Entry(sender).State = EntityState.Detached;
+            _context.Update(sender);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            finally
+            {
+                _context.Entry(sender).State = EntityState.Detached;
+            }
         }
-}
+
         public void Delete(Sender sender)
         {
-            context.Remove(sender);
-            context.SaveChanges();
+            _context.Remove(sender);
+            _context.SaveChanges();
         }
 
-        public async Task<Sender> GetByUsername(string username)
+        public async Task<Sender?> GetByUsername(string username)
         {
-            foreach (var sender in Senders)
-            {
-                if (sender.Username == username)
-                {
-                    return sender;
-                }
-            }
-            return null;
-            }
-
+            return await _context.Senders.FirstOrDefaultAsync(s => s.Username == username);
         }
     }
+}

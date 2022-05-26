@@ -33,8 +33,8 @@
 					                    <ValidationMessage For="@(() => user.ConfirmPassword)" />
 
 											                    <label class="form-label" for="role">Role</label>
-																                    <InputSelect @bind-Value="user.Role" class="form-control" id="role">
-                        <option value="">--SELECT</option>
+																                    <InputSelect @bind-Value="user.Role" class="form-select" id="role">
+                        <option value="">-- SELECT ONE --</option>
                         <option value="Sender">Sender</option>
                         <option value="Courier">Courier</option>
                     </InputSelect>

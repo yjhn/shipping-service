@@ -1,0 +1,68 @@
+@page "/post_machines"
+@using System.ComponentModel.DataAnnotations
+@inject NavigationManager NavigationManager
+@layout BasicLayout
+
+<PageTitle>Post machine UI</PageTitle>
+<h3 class="text-center">Select a post machine</h3>
+<EditForm Model="@_selected" OnValidSubmit="@HandleSubmit">
+    <div class="col-md-8 mx-auto">
+        <div class="card" style="margin: auto; max-width: 500px">
+            <h3 class="card-header">
+                Select a post machine
+            </h3>
+            <div class="card-body">
+                <InputSelect @bind-Value="_selected.Id" class="form-select">
+                    <option>-- SELECT --</option>
+                    @foreach (var m in _postMachines)
+                    {
+                        <option value="@m.Id">@m.Name</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="card-footer">
+                @if (_selected.Id == null)
+                {
+                    <button class="btn btn-primary disabled" type="submit" disabled>Select</button>
+                }
+                else
+                {
+                    <button class="btn btn-primary" type="submit">Select</button>
+                }
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+
+    [Inject]
+    IPostMachineService PostMachineService { get; set; }
+
+    IEnumerable<PostM> _postMachines;
+
+    readonly Selected _selected = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _postMachines = PostMachineService.PostMachines
+            .Select(p => new PostM { Id = p.Id, Name = p.Name });
+    }
+
+    void HandleSubmit()
+    {
+        NavigationManager.NavigateTo($"/post_machines/{_selected.Id}");
+    }
+
+    class Selected
+    {
+        [Required(ErrorMessage = "Select a post machine")] public long? Id;
+    }
+
+    record struct PostM
+    {
+        public long Id;
+        public string Name;
+    }
+
+}
