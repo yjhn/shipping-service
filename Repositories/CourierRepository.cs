@@ -27,7 +27,7 @@ namespace shipping_service.Repositories
         {
             context.Update(courier);
             await context.SaveChangesAsync();
-            context.Entry(courier).State = EntityState.Detached;
+//            context.Entry(courier).State = EntityState.Detached;
 
         }
 
