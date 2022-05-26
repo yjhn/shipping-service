@@ -17,7 +17,7 @@
             </h3>
             <div class="card-body">
                 <button class="btn btn-primary" type="button" style="margin-top: .5rem; margin-right: 1rem;" onclick="@PickUpPackage">Pick up package</button>
-                <button type="button" class="btn btn-secondary" style="margin-top: .5rem;" onclick="@PlacePackage">Place package</button>
+                <button type="button" class="btn btn-primary" style="margin-top: .5rem;" onclick="@PlacePackage">Place package</button>
             </div>
         </div>
     </div>
@@ -145,64 +145,6 @@ else if (_placePackage)
 
     PostMachine? ThisPostMachine { get; set; }
 
-    IEnumerable<ShipmentData>? _srcCourierUnlockCodes;
-
-    IEnumerable<ShipmentData> ShipmentsWithThisSrcCourierUnlockCodes
-    {
-        get
-        {
-            // There is a tradeoff here. If we first select all shipments,
-            // later we do not need another roundtrip to DB to select the
-            // correct one, but in exchange we transfer quite a lot of data.
-            // We choose the other option a dnd initially select only codes,
-            // but if the code is correct, we select the actual shipment later.
-            // Same logic applies to other code lists.
-            _srcCourierUnlockCodes ??= ShipmentService.Shipments
-                .Where(s => s.SourceMachineId == ThisPostMachine!.Id && s.SrcPmCourierUnlockCode != null)
-                .Select(s => new ShipmentData { Id = s.Id, UnlockCode = s.SrcPmCourierUnlockCode!.Value });
-            return _srcCourierUnlockCodes;
-        }
-    }
-
-    IEnumerable<ShipmentData>? _srcSenderUnlockCodes;
-
-    IEnumerable<ShipmentData> ShipmentsWithThisSrcSenderUnlockCodes
-    {
-        get
-        {
-            _srcSenderUnlockCodes ??= ShipmentService.Shipments
-                .Where(s => s.DestinationMachineId == ThisPostMachine!.Id && s.SrcPmSenderUnlockCode != null)
-                .Select(s => new ShipmentData { Id = s.Id, UnlockCode = s.SrcPmSenderUnlockCode!.Value });
-            return _srcSenderUnlockCodes;
-        }
-    }
-
-    IEnumerable<ShipmentData>? _destReceiverUnlockCodes;
-
-    IEnumerable<ShipmentData> ShipmentsWithThisDestReceiverUnlockCodes
-    {
-        get
-        {
-            _destReceiverUnlockCodes ??= ShipmentService.Shipments
-                .Where(s => s.DestinationMachineId == ThisPostMachine!.Id && s.DestPmReceiverUnlockCode != null)
-                .Select(s => new ShipmentData { Id = s.Id, UnlockCode = s.DestPmReceiverUnlockCode!.Value });
-            return _destReceiverUnlockCodes;
-        }
-    }
-
-    IEnumerable<ShipmentData>? _destCourierUnlockCodes;
-
-    IEnumerable<ShipmentData> ShipmentsWithThisDestCourierUnlockCodes
-    {
-        get
-        {
-            _destCourierUnlockCodes ??= ShipmentService.Shipments
-                .Where(s => s.DestinationMachineId == ThisPostMachine!.Id && s.DestPmCourierUnlockCode != null)
-                .Select(s => new ShipmentData { Id = s.Id, UnlockCode = s.DestPmCourierUnlockCode!.Value });
-            return _destCourierUnlockCodes;
-        }
-    }
-
     readonly FormData _unlockCodeFormData = new();
 
     void PickUpPackage()
@@ -232,22 +174,20 @@ else if (_placePackage)
     {
         _error = null;
         var code = int.Parse(_unlockCodeFormData.UnlockCode!);
-        var sh = ShipmentsWithThisSrcSenderUnlockCodes.FirstOrDefault(s => s.UnlockCode == code);
+        var shipment = await ShipmentService.GetShFromSrcSenderCode(PostMachineId, code);
         // ShipmentData is a struct, so default value will contain all zeroes.
-        if (sh.Id != 0)
+        if (shipment != null)
         {
             _validPlaceUnlockCode = true;
-            var shipment = await ShipmentService.GetById(sh.Id);
-            ShipmentService.ChangeShipmentStatusToSrc(shipment!, ThisPostMachine!);
+            await ShipmentService.ChangeShipmentStatusToSrc(shipment, ThisPostMachine!);
         }
         else
         {
-            sh = ShipmentsWithThisDestCourierUnlockCodes.FirstOrDefault(s => s.UnlockCode == code);
-            if (sh.Id != 0)
+            shipment = await ShipmentService.GetShFromDestCourierCode(PostMachineId, code);
+            if (shipment != null)
             {
                 _validPlaceUnlockCode = true;
-                var shipment = await ShipmentService.GetById(sh.Id);
-                ShipmentService.ChangeShipmentStatusToDest(shipment!, ThisPostMachine!);
+                await ShipmentService.ChangeShipmentStatusToDest(shipment, ThisPostMachine!);
             }
             else
             {
@@ -260,21 +200,19 @@ else if (_placePackage)
     {
         _error = null;
         var code = int.Parse(_unlockCodeFormData.UnlockCode!);
-        var sh = ShipmentsWithThisSrcCourierUnlockCodes.FirstOrDefault(s => s.UnlockCode == code);
-        if (sh.Id != 0)
+        var shipment = await ShipmentService.GetShFromSrcCourierCode(PostMachineId, code);
+        if (shipment != null)
         {
             _validPlaceUnlockCode = true;
-            var shipment = await ShipmentService.GetById(sh.Id);
-            ShipmentService.ChangeShipmentStatusToShipping(shipment!, ThisPostMachine!);
+            await ShipmentService.ChangeShipmentStatusToShipping(shipment, ThisPostMachine!);
         }
         else
         {
-            sh = ShipmentsWithThisDestReceiverUnlockCodes.FirstOrDefault(s => s.UnlockCode == code);
-            if (sh.Id != 0)
+            shipment = await ShipmentService.GetShFromDestReceiverCode(PostMachineId, code);
+            if (shipment != null)
             {
                 _validPlaceUnlockCode = true;
-                var shipment = await ShipmentService.GetById(sh.Id);
-                ShipmentService.ChangeShipmentStatusToDelivered(shipment!);
+                await ShipmentService.ChangeShipmentStatusToDelivered(shipment);
             }
             else
             {
@@ -285,8 +223,7 @@ else if (_placePackage)
 
     protected override async Task OnInitializedAsync()
     {
-        ThisPostMachine = await PostMachineRepository.PostMachines
-            .FirstAsync(p => p.Id == PostMachineId);
+        ThisPostMachine = await PostMachineRepository.GetAsync(PostMachineId);
     }
 
     // FormData must be a class, otherwise validation does not work properly.
@@ -295,12 +232,6 @@ else if (_placePackage)
         [Required(ErrorMessage = "Code is required")]
         [RegularExpression(@"^[0-9]{6}$", ErrorMessage = "Code must be a number")]
         public string? UnlockCode { get; set; }
-    }
-
-    record struct ShipmentData
-    {
-        public long Id;
-        public int UnlockCode;
     }
 
 }
