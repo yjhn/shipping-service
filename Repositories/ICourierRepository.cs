@@ -11,7 +11,6 @@ namespace shipping_service.Repositories
         Task UpdateAsync(Courier courier);
 
         void Delete(Courier courier);
-        Task<Courier> GetByUsername(string username);
-
+        Task<Courier?> GetByUsername(string username);
     }
 }
