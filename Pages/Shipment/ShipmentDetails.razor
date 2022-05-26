@@ -1,0 +1,82 @@
+﻿@page "/shipment/{id:long}"
+@attribute [Authorize]
+@inject NavigationManager NavigationManager
+
+<h3>Shipment details</h3>
+@if(Shipment != null) {
+    if (Role == "Sender")
+    {
+        <p>Title: @Shipment.Title</p>
+        <p>Description: @Shipment.Description</p>
+        <p>Status: @Shipment.Status</p>
+        if (Shipment.Courier != null)
+        {
+            <p>Courier's username: @Shipment.Courier.Username</p>
+        } 
+        // TODO: Place sender unlocking code and receiver unlocking code here.
+    }
+    else if (Role == "Courier")
+    {
+        <p>Sender's username: @Shipment.Sender.Username</p>
+        // TODO: Place courier source unlocking code and destination unlocking code here.
+    }
+    <p>Source post machine name: @Shipment.SourceMachine.Name</p>
+    <p>Source post machine address: @Shipment.SourceMachine.Address</p>
+    <p>Destination post machine name: @Shipment.DestinationMachine.Name</p>
+    <p>Destination post machine address: @Shipment.DestinationMachine.Address</p> 
+    // TODO: Place tracking link here.
+}
+
+<button class="btn btn-primary"
+        @onclick="@(e => NavigationManager.NavigateTo(ShipmentListUrl()))">
+    Go to shipment list
+</button>
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authStateTask {get; set;}
+    [Parameter]
+    public long Id { get; set; }
+    [Inject]
+    public IShipmentRepository ShipmentRepository { get; set; }
+    public Shipment Shipment { get; set; }
+    public long? viewerId { get; set; }
+    public string Role { get; set; }
+
+    public string ShipmentListUrl() => Role == "Sender" ? "/shipment" : "/courier";
+
+    protected override async Task OnInitializedAsync()
+    {
+        Shipment = ShipmentRepository.Shipments.
+            Include(s => s.Sender).
+            Include(s => s.Courier).
+            Include(s => s.SourceMachine).
+            Include(s => s.DestinationMachine).
+            FirstOrDefault(s => s.Id == Id);
+        if (Shipment == null)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+        var authState = await authStateTask;
+        var username = authState.User.Identities.First().Name;
+        Role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
+        if (Role == "Sender")
+        {
+            if (Shipment.Sender.Username != username)
+            {
+                NavigationManager.NavigateTo("/");
+            }
+        }
+        else if (Role == "Courier")
+        {
+            if (Shipment.Status == ShipmentStatus.InDestinationPostMachine ||
+                Shipment.Status == ShipmentStatus.Delivered || 
+                Shipment.Courier == null || Shipment.Courier.Username != username)
+            {
+                NavigationManager.NavigateTo("/");
+            }
+        }
+    }
+
+}

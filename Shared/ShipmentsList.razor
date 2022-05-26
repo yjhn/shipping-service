@@ -1,0 +1,33 @@
+﻿@inject NavigationManager NavigationManager
+
+@if (Shipments != null)
+{
+    if (Shipments.Any())
+    {
+        <h3>List of shipments:</h3>
+        foreach (var shipment in Shipments)
+        {
+            <button class="btn btn-primary"
+                    @onclick="@(e => navigateToShipment(shipment.Id))">
+                @shipment.Title
+            </button>
+            <br/>
+        }
+    }
+    else
+    {
+        <h3>No shipments to display</h3>
+    }
+}
+
+@code {
+
+    [Parameter]
+    public IEnumerable<Shipment> Shipments { get; set; }
+
+    public void navigateToShipment(long id)
+    {
+        NavigationManager.NavigateTo($"shipment/{id}");
+    }
+
+}
