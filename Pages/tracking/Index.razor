@@ -1,26 +1,25 @@
 ﻿@page "/tracking"
-@inject NavigationManager navigationManager
-@using System.ComponentModel.DataAnnotations
+@inject NavigationManager NavigationManager
 
-<h3>Tracking page</h3>
-<input @bind="trackingCode" placeholder="Enter tracking code"></input>
+<h3>Shipment tracking page</h3>
+<input @bind="_trackingCode" class="form-input" placeholder="Enter tracking code">
 <button class="btn btn-primary" @onclick="TrackShipment">Track Shipment</button>
 
 @code {
     const string ShipmentTrackingUrl = "/tracking/shipment/";
-    string trackingCode = "";
+    string _trackingCode = "";
 
     protected override async Task OnInitializedAsync()
     {
 
     }
 
-    private void TrackShipment()
+    void TrackShipment()
     {
-        if(string.IsNullOrEmpty(trackingCode)){
+        if(string.IsNullOrEmpty(_trackingCode)){
             return;
         }
 
-        navigationManager.NavigateTo(ShipmentTrackingUrl + trackingCode);
+        NavigationManager.NavigateTo(ShipmentTrackingUrl + _trackingCode);
     }
 }
