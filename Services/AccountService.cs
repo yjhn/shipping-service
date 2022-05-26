@@ -142,7 +142,7 @@ namespace shipping_service.Services
             byte[] salt = new byte[16];
             Array.Copy(dbPasswordHash, 0, salt, 0, 16);
 
-            Rfc2898DeriveBytes userPasswordBytes = new Rfc2898DeriveBytes(password, salt, 1000);
+            Rfc2898DeriveBytes userPasswordBytes = new(password, salt, 1000);
             byte[] userPasswordHash = userPasswordBytes.GetBytes(20);
 
             for (int i = 0; i < 20; i++)
@@ -185,7 +185,10 @@ namespace shipping_service.Services
         private async Task SetUser(string username)
         {
             _sender = await _senderRepository.GetByUsername(username);
-            _courier = await _courierRepository.GetByUsername(username);
+            if (_sender == null)
+            {
+                _courier = await _courierRepository.GetByUsername(username);
+            }
         }
     }
 }
