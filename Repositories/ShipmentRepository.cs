@@ -1,4 +1,6 @@
-﻿using shipping_service.Persistence.Database;
+﻿using Microsoft.EntityFrameworkCore;
+
+using shipping_service.Persistence.Database;
 using shipping_service.Persistence.Entities;
 
 namespace shipping_service.Repositories
@@ -21,10 +23,7 @@ namespace shipping_service.Repositories
 
         public async Task CreateAsync(Shipment shipment)
         {
-            // create sender unlock code
-
-
-            await _context.AddAsync(shipment);
+            _context.Add(shipment);
             await _context.SaveChangesAsync();
         }
 
