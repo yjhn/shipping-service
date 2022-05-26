@@ -34,8 +34,6 @@
             @if (AssignedShipments?.Count() > 0)
             {
                 <tr>
-                    <th>Title</th>
-                    <th>Description</th>
                     <th>Sender username</th>
                     <th>Source machine name</th>
                     <th>Source machine address</th>
@@ -43,22 +41,18 @@
                     <th>Destination machine address</th>
                     <th>Source machine courier unlocking code</th>
                     <th>Destination machine courier unlocking code</th>
-                    <th>Status</th>
                     <th />
                 </tr>
                 foreach (var shipment in AssignedShipments)
                 {
                     <tr>
-                        <td>@shipment.Title</td>
-                        <!--						<td>@(shipment.Description ?? "No description provided.")</td>-->
-                <td>@shipment.Sender.Username</td>
+                        <td>@shipment.Sender.Username</td>
                         <td>@shipment.SourceMachine.Name</td>
                         <td>@shipment.SourceMachine.Address</td>
                         <td>@shipment.DestinationMachine.Name</td>
                         <td>@shipment.DestinationMachine.Address</td>
                         <td>@shipment.SrcPmCourierUnlockCode</td>
                         <td>@shipment.DestPmCourierUnlockCode</td>
-                        <td>@shipment.Status</td>
                         <td>
                             @if (shipment.Status == ShipmentStatus.RegisteredForSending)
                             {

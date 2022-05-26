@@ -32,26 +32,17 @@
     @if (UnassignedShipments.Count()>0)
     {
         <tr>
-            <th>ID</th>
-			<th>Title</th>
-            <th>Description</th>
             <th>Source machine address</th>
             <th>Destination machine address</th>
 <th/>
 			</tr>
 			foreach (var shipment in UnassignedShipments)
 			{
-				<tr>
-<td>@shipment.Id</td>
-                <td>@shipment.Title</td>
-                <td>@(shipment.Description ?? "No description provided.")</td>
-                <td>@shipment.SourceMachine.Address</td>
+				<tr><td>@shipment.SourceMachine.Address</td>
                 <td>@shipment.DestinationMachine.Address</td>
-				<td>
-					                        <button class="btn btn-primary" @onclick="(async () => await AssignShipmentToCourier(shipment.Id))
-">Assign</button>
-
-															</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="(async () => await AssignShipmentToCourier(shipment.Id))">Assign</button>
+                    </td>
             </tr>
         }
     }
