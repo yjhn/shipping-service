@@ -19,10 +19,10 @@ namespace shipping_service.Services
 
         public IQueryable<Shipment> Shipments => _shipmentRepository.Shipments;
 
-        public async Task<IEnumerable<Shipment>> GetUnassignedAsync()
+        public async Task<IEnumerable<Shipment>> GetUnassignedInSourceMachineAsync()
         {
             return await _shipmentRepository.Shipments
-                .Where(s => s.CourierId == null)
+                .Where(s => s.CourierId == null && s.Status == ShipmentStatus.InSourcePostMachine)
                 .Include(s => s.Sender)
                 .Include(s => s.Courier)
                 .Include(s => s.SourceMachine)

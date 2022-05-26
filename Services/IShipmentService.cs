@@ -15,7 +15,7 @@ namespace shipping_service.Services
         Task<Shipment?> GetShFromSrcCourierCode(long postMachineId, int unlockCode);
         Task<Shipment?> GetShFromDestCourierCode(long postMachineId, int unlockCode);
         Task<Shipment?> GetShFromDestReceiverCode(long postMachineId, int unlockCode);
-        Task<IEnumerable<Shipment>> GetUnassignedAsync();
+        Task<IEnumerable<Shipment>> GetUnassignedInSourceMachineAsync();
         Task<IEnumerable<Shipment>> GetAssignedAsync(long courierId);
         string GenerateIdHash(long id);
         bool IsValidIdHash(long id, string hash);

@@ -89,7 +89,7 @@
 
 	public async Task GetUnassignedShipmentsAsync()
 	{
-		UnassignedShipments = await ShipmentService.GetUnassignedAsync();
+		UnassignedShipments = await ShipmentService.GetUnassignedInSourceMachineAsync();
 	}
 
 	public async Task AssignShipmentToCourier(long shipmentId)
