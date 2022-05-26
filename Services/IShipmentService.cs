@@ -20,5 +20,6 @@ namespace shipping_service.Services
         string GenerateIdHash(long id);
         bool IsValidIdHash(long id, string hash);
         Task<Shipment?> SelectIncludeAll(long id);
+        Task AssignShipmentToCourier(Shipment s, Courier c);
     }
 }

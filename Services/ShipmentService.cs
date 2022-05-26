@@ -66,7 +66,7 @@ namespace shipping_service.Services
 
             s.Status = ShipmentStatus.InSourcePostMachine;
             s.SrcPmSenderUnlockCode = null;
-            s.SrcPmCourierUnlockCode = _postMachineService.GeneratePostMachineUnlockCode(p);
+            // Courier code is generated when assigning shipment to courier.
             await _shipmentRepository.UpdateAsync(s);
         }
 
@@ -169,6 +169,14 @@ namespace shipping_service.Services
             s = s.Replace('+', '-'); // 62nd char of encoding
             s = s.Replace('/', '_'); // 63rd char of encoding
             return s;
+        }
+
+        public async Task AssignShipmentToCourier(Shipment s, Courier c)
+        {
+            s.Courier = c;
+            c.CurrentShipments.Add(s);
+            s.SrcPmCourierUnlockCode = await _postMachineService.GeneratePostMachineUnlockCode(s.SourceMachineId);
+            await _shipmentRepository.UpdateAsync(s);
         }
     }
 }

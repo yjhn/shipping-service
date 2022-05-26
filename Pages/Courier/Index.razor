@@ -5,7 +5,7 @@
 <AuthorizeView Roles="Courier">
     @if (!string.IsNullOrEmpty(assignMessage))
     {
-        <div class="modal-backdrop" style="opacity: .6" />
+        <div class="modal-backdrop" style="opacity: .6"/>
         <div class="modal show d-block" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -17,10 +17,7 @@
                     </div>
                     <div class="modal-footer">
                         <div class="row">
-                            <button class="btn btn-primary" @onclick="@(async () =>{
-							assignMessage = null;
-						await GetAssignedShipmentsAsync();
-						})">
+                            <button class="btn btn-primary" @onclick="@(async () =>{ assignMessage = null; await GetAssignedShipmentsAsync(); })">
                                 OK
                             </button>
                         </div>
@@ -31,46 +28,45 @@
     }
     <table class="table table-sm table-striped table-bordered">
         <tbody>
-            @if (AssignedShipments?.Count() > 0)
+        @if (AssignedShipments?.Count() > 0)
+        {
+            <tr>
+                <th>Sender username</th>
+                <th>Source machine name</th>
+                <th>Source machine address</th>
+                <th>Destination machine name</th>
+                <th>Destination machine address</th>
+                <th>Source machine courier unlocking code</th>
+                <th>Destination machine courier unlocking code</th>
+                <th/>
+            </tr>
+            foreach (var shipment in AssignedShipments)
             {
                 <tr>
-                    <th>Sender username</th>
-                    <th>Source machine name</th>
-                    <th>Source machine address</th>
-                    <th>Destination machine name</th>
-                    <th>Destination machine address</th>
-                    <th>Source machine courier unlocking code</th>
-                    <th>Destination machine courier unlocking code</th>
-                    <th />
-                </tr>
-                foreach (var shipment in AssignedShipments)
-                {
-                    <tr>
-                        <td>@shipment.Sender.Username</td>
-                        <td>@shipment.SourceMachine.Name</td>
-                        <td>@shipment.SourceMachine.Address</td>
-                        <td>@shipment.DestinationMachine.Name</td>
-                        <td>@shipment.DestinationMachine.Address</td>
-                        <td>@shipment.SrcPmCourierUnlockCode</td>
-                        <td>@shipment.DestPmCourierUnlockCode</td>
-                        <td>
-                            @if (shipment.Status == ShipmentStatus.InSourcePostMachine)
-                            {
-                                <button class="btn btn-primary" @onclick="(async () => await UnassignShipment(shipment))
-">
-                                    Cancel
-                                </button>
-                            }
-                        </td>
-                    </tr>
-                }
-            }
-            else
-            {
-                <tr>
-                    <td colspan="5" class="text-center">No assigned shipments yet</td>
+                    <td>@shipment.Sender.Username</td>
+                    <td>@shipment.SourceMachine.Name</td>
+                    <td>@shipment.SourceMachine.Address</td>
+                    <td>@shipment.DestinationMachine.Name</td>
+                    <td>@shipment.DestinationMachine.Address</td>
+                    <td>@shipment.SrcPmCourierUnlockCode</td>
+                    <td>@shipment.DestPmCourierUnlockCode</td>
+                    <td>
+                        @if (shipment.Status == ShipmentStatus.InSourcePostMachine)
+                        {
+                            <button class="btn btn-primary" @onclick="async () => await UnassignShipment(shipment)">
+                                Cancel
+                            </button>
+                        }
+                    </td>
                 </tr>
             }
+        }
+        else
+        {
+            <tr>
+                <td colspan="5" class="text-center">No assigned shipments yet</td>
+            </tr>
+        }
         </tbody>
     </table>
     <NavLink class="btn btn-primary" href="@SearchAvailableShipmentsUrl">
@@ -82,14 +78,17 @@
 
     [Inject]
     public IShipmentRepository ShipmentRepository { get; set; }
+
     [Inject]
     public ICourierRepository CourierRepository { get; set; }
+
     [Inject]
     public IShipmentService ShipmentService { get; set; }
 
     public IEnumerable<Shipment> AssignedShipments { get; set; }
     public Courier Courier { get; set; }
     private string assignMessage;
+
     [CascadingParameter]
     private Task<AuthenticationState> authStateTask { get; set; }
 
@@ -100,7 +99,7 @@
         if (!authState.User.Identity.IsAuthenticated)
             return;
         Courier = await CourierRepository.Couriers.Include(c => c.CurrentShipments).
-        FirstOrDefaultAsync(c => c.Username == authState.User.Identity.Name);
+            FirstOrDefaultAsync(c => c.Username == authState.User.Identity.Name);
         await GetAssignedShipmentsAsync();
     }
 
@@ -115,5 +114,6 @@
         await CourierRepository.UpdateAsync(Courier);
         assignMessage = "Shipment " + shipment.Id + " is unassigned.";
     }
+
     public string SearchAvailableShipmentsUrl = "/courier/available-shipments";
 }
