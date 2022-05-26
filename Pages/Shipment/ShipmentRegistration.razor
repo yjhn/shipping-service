@@ -1,8 +1,8 @@
 @page "/shipment/registration"
 @attribute [Authorize]
 @using System.ComponentModel.DataAnnotations
-@inject NavigationManager NavigationManager
 @inherits OwningComponentBase<IPostMachineRepository>
+@inject NavigationManager NavigationManager
 
 <h3>Shipment registration</h3>
 
@@ -62,19 +62,20 @@
 @code {
 
     [CascadingParameter]
-    Task<AuthenticationState> authStateTask { get; set; }
-
+    private Task<AuthenticationState> authStateTask {get; set;}
     [Inject]
-    ISenderRepository SenderRepository { get; set; }
-
+    public ISenderRepository SenderRepository { get; set; }
     [Inject]
-    IShipmentRepository shipmentRepository { get; set; }
+    public IShipmentRepository ShipmentRepository { get; set; }
 
     IPostMachineRepository PostMachineRepository => Service;
     Sender sender;
     IEnumerable<PostMachine> PostMachines { get; set; }
     NewShipment shipment { get; set; }
 
+    public Shipment Shipment { get; set; }
+    public Sender Sender { get; set; }
+    public bool DisableRegisterButton { get; set; }
     string? error;
 
     protected override async Task OnInitializedAsync()
@@ -107,8 +108,8 @@
             SourceMachineId = (long)shipment.SourceMachineId!,
             DestinationMachineId = (long)shipment.DestinationMachineId!
         };
-        await shipmentRepository.CreateAsync(newShipment);
-        NavigationManager.NavigateTo("/");
+        await ShipmentRepository.CreateAsync(newShipment);
+        NavigationManager.NavigateTo($"/shipment/{newShipment.Id}");
     }
 
     void HandleReset()
