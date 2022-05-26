@@ -104,7 +104,7 @@
             DestinationMachineId = (long)shipment.DestinationMachineId!
         };
         await ShipmentService.CreateAsync(newShipment);
-        NavigationManager.NavigateTo("/");
+        NavigationManager.NavigateTo($"/shipment/{newShipment.Id}");
     }
 
     void HandleReset()

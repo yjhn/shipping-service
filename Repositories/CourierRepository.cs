@@ -27,7 +27,6 @@ namespace shipping_service.Repositories
         {
             _context.Update(courier);
             await _context.SaveChangesAsync();
-            _context.Entry(courier).State = EntityState.Detached;
         }
 
         public void Delete(Courier courier)

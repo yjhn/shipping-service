@@ -5,7 +5,6 @@ namespace shipping_service.Services
     public interface IShipmentService
     {
         IQueryable<Shipment> Shipments { get; }
-        IEnumerable<Shipment> GetUnassigned();
         Task<Shipment?> GetById(long id);
         Task CreateAsync(Shipment s);
         Task ChangeShipmentStatusToSrc(Shipment s, PostMachine p);
@@ -16,5 +15,7 @@ namespace shipping_service.Services
         Task<Shipment?> GetShFromSrcCourierCode(long postMachineId, int unlockCode);
         Task<Shipment?> GetShFromDestCourierCode(long postMachineId, int unlockCode);
         Task<Shipment?> GetShFromDestReceiverCode(long postMachineId, int unlockCode);
+        Task<IEnumerable<Shipment>> GetUnassignedAsync();
+        Task<IEnumerable<Shipment>> GetAssignedAsync(long courierId);
     }
 }

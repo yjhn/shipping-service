@@ -1,0 +1,87 @@
+﻿@using System.Text.RegularExpressions
+
+@page "/shipment/tracking/{trackingLink}"
+@inject NavigationManager NavigationManager
+
+<h3>Shipment Tracking</h3>
+@if (Shipment != null)
+{
+    <div class="parcel-info">
+        <h2>Parcel information</h2>
+
+        <label class="title">Sender</label><br/>
+        <label>@Shipment.Sender.Username</label><br/>
+
+        <label class="title">Shipment title</label><br/>
+        <label>@Shipment.Title</label><br/>
+
+        <label class="title">Description</label><br/>
+        <label>@(Shipment.Description ?? "No description provided.")</label><br/>
+
+        <label class="title">Shipment registration date</label><br/>
+        <label>@Shipment.Created</label><br/>
+    </div>
+    <div class="shipment-info">
+        <div>
+            <h2>Shipment information</h2>
+
+            <label class="title">Assigned courier</label><br/>
+            <label>@(Shipment.Courier?.Username ?? "No courier has promised to deliver this shipment yet.")</label><br/>
+
+            <label class="title">Source post machine address</label><br/>
+            <label>@Shipment.SourceMachine.Address</label><br/>
+
+            <label class="title">Destination post machine address</label><br/>
+            <label>@Shipment.DestinationMachine.Address</label><br/>
+        </div>
+        <div class="shipment-status">
+            <h2>Shipment status</h2>
+
+            <label class="title">Shipment status</label><br/>
+            <label>@Shipment.Status</label><br/>
+
+            <label class="title">Shipment status update date</label><br/>
+            <label>@Shipment.Modified</label>
+        </div>
+    </div>
+}
+else
+{
+    <label>Shipment with provided tracking link does not exist</label>
+}
+
+@code {
+    [Parameter]
+    public string? trackingLink { get; set; }
+
+    [Inject]
+    public IShipmentRepository ShipmentRepository { get; set; }
+
+    public Shipment? Shipment{ get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrEmpty(trackingLink))
+        {
+            return;
+        }
+        long shipmentId;
+        string[] trackingLinkParts = trackingLink.Split("-");
+        string trackingCode = string.Join("-", trackingLinkParts.Skip(1));
+        if (!Regex.IsMatch(trackingCode, @"^([A-Za-z0-9-_]{4})$") ||
+            !long.TryParse(trackingLinkParts[0], out shipmentId))
+        {
+            return;
+        }
+        Shipment = ShipmentRepository.Shipments.
+            Include(s => s.Sender).
+            Include(s => s.Courier).
+            Include(s => s.SourceMachine).
+            Include(s => s.DestinationMachine).
+            FirstOrDefault(s => s.Id == shipmentId);
+        if(Shipment != null && !Shipment.IsValidIdHash(trackingCode))
+        {
+            Shipment = null;
+        }
+    }
+}
