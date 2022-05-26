@@ -7,9 +7,14 @@ namespace shipping_service.Services
         IQueryable<Shipment> Shipments { get; }
         IEnumerable<Shipment> GetUnassigned();
         Task<Shipment?> GetById(long id);
-        void ChangeShipmentStatusToSrc(Shipment s, PostMachine p);
-        void ChangeShipmentStatusToDest(Shipment s, PostMachine p);
-        void ChangeShipmentStatusToDelivered(Shipment s);
-        void ChangeShipmentStatusToShipping(Shipment s, PostMachine p);
+        Task CreateAsync(Shipment s);
+        Task ChangeShipmentStatusToSrc(Shipment s, PostMachine p);
+        Task ChangeShipmentStatusToDest(Shipment s, PostMachine p);
+        Task ChangeShipmentStatusToDelivered(Shipment s);
+        Task ChangeShipmentStatusToShipping(Shipment s, PostMachine p);
+        Task<Shipment?> GetShFromSrcSenderCode(long postMachineId, int unlockCode);
+        Task<Shipment?> GetShFromSrcCourierCode(long postMachineId, int unlockCode);
+        Task<Shipment?> GetShFromDestCourierCode(long postMachineId, int unlockCode);
+        Task<Shipment?> GetShFromDestReceiverCode(long postMachineId, int unlockCode);
     }
 }

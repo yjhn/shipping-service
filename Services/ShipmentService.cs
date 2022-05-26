@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 using shipping_service.Persistence.Entities;
 using shipping_service.Repositories;
 
@@ -27,7 +29,17 @@ namespace shipping_service.Services
             return await _shipmentRepository.GetAsync(id);
         }
 
-        public void ChangeShipmentStatusToSrc(Shipment s, PostMachine p)
+        public async Task CreateAsync(Shipment s)
+        {
+            // Generate sender unlock code.
+            s.SrcPmSenderUnlockCode = await _postMachineService.GeneratePostMachineUnlockCode(s.SourceMachineId);
+            // Generate receiver unlock code.
+            s.DestPmReceiverUnlockCode =
+                await _postMachineService.GeneratePostMachineUnlockCode(s.DestinationMachineId);
+            await _shipmentRepository.CreateAsync(s);
+        }
+
+        public async Task ChangeShipmentStatusToSrc(Shipment s, PostMachine p)
         {
             if (s.Status != ShipmentStatus.RegisteredForSending)
             {
@@ -38,9 +50,10 @@ namespace shipping_service.Services
             s.Status = ShipmentStatus.InSourcePostMachine;
             s.SrcPmSenderUnlockCode = null;
             s.SrcPmCourierUnlockCode = _postMachineService.GeneratePostMachineUnlockCode(p);
+            await _shipmentRepository.UpdateAsync(s);
         }
 
-        public void ChangeShipmentStatusToDest(Shipment s, PostMachine p)
+        public async Task ChangeShipmentStatusToDest(Shipment s, PostMachine p)
         {
             if (s.Status != ShipmentStatus.Shipping)
             {
@@ -48,12 +61,13 @@ namespace shipping_service.Services
                                                                              + " to ShipmentStatus.InDestinationPostMachine");
             }
 
+            // Receiver unlock code is generated when the shipment is created.
             s.Status = ShipmentStatus.InDestinationPostMachine;
             s.DestPmCourierUnlockCode = null;
-            // Receiver unlock code is generated when the shipment is created.
+            await _shipmentRepository.UpdateAsync(s);
         }
 
-        public void ChangeShipmentStatusToDelivered(Shipment s)
+        public async Task ChangeShipmentStatusToDelivered(Shipment s)
         {
             if (s.Status != ShipmentStatus.InDestinationPostMachine)
             {
@@ -63,9 +77,10 @@ namespace shipping_service.Services
 
             s.Status = ShipmentStatus.Delivered;
             s.DestPmReceiverUnlockCode = null;
+            await _shipmentRepository.UpdateAsync(s);
         }
 
-        public void ChangeShipmentStatusToShipping(Shipment s, PostMachine p)
+        public async Task ChangeShipmentStatusToShipping(Shipment s, PostMachine p)
         {
             if (s.Status != ShipmentStatus.InSourcePostMachine)
             {
@@ -76,6 +91,35 @@ namespace shipping_service.Services
             s.Status = ShipmentStatus.InSourcePostMachine;
             s.SrcPmSenderUnlockCode = null;
             s.SrcPmCourierUnlockCode = _postMachineService.GeneratePostMachineUnlockCode(p);
+            await _shipmentRepository.UpdateAsync(s);
+        }
+        
+        public async Task<Shipment?> GetShFromSrcSenderCode(long postMachineId, int unlockCode)
+        {
+            return await _shipmentRepository.Shipments
+                .Where(s => s.SourceMachineId == postMachineId && s.SrcPmSenderUnlockCode == unlockCode)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<Shipment?> GetShFromSrcCourierCode(long postMachineId, int unlockCode)
+        {
+            return await _shipmentRepository.Shipments
+                .Where(s => s.SourceMachineId == postMachineId && s.SrcPmCourierUnlockCode == unlockCode)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<Shipment?> GetShFromDestCourierCode(long postMachineId, int unlockCode)
+        {
+            return await _shipmentRepository.Shipments
+                .Where(s => s.DestinationMachineId == postMachineId && s.DestPmCourierUnlockCode == unlockCode)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<Shipment?> GetShFromDestReceiverCode(long postMachineId, int unlockCode)
+        {
+            return await _shipmentRepository.Shipments
+                .Where(s => s.DestinationMachineId == postMachineId && s.DestPmReceiverUnlockCode == unlockCode)
+                .FirstOrDefaultAsync();
         }
     }
 }
