@@ -1,25 +1,37 @@
 ﻿@page "/tracking"
 @inject NavigationManager NavigationManager
+@using System.ComponentModel.DataAnnotations
+
 
 <h3>Shipment tracking page</h3>
-<input @bind="_trackingCode" class="form-input" placeholder="Enter tracking code">
-<button class="btn btn-primary" @onclick="TrackShipment">Track Shipment</button>
+
+<EditForm Model="@trackingCode" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText id="trackingCode" @bind-Value="trackingCode.code" placeholder="Enter tracking code."/>
+    <ValidationMessage For="@(() => trackingCode.code)"/><br/>
+    <button type="submit">Track shipment</button>
+</EditForm>
 
 @code {
     const string ShipmentTrackingUrl = "/tracking/shipment/";
-    string _trackingCode = "";
+
+    TrackingCode trackingCode { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-
+        trackingCode = new TrackingCode();
     }
 
-    void TrackShipment()
-    {
-        if(string.IsNullOrEmpty(_trackingCode)){
-            return;
-        }
+    async void HandleValidSubmit(){
+        NavigationManager.NavigateTo(ShipmentTrackingUrl + trackingCode.code);   
+    }
 
-        NavigationManager.NavigateTo(ShipmentTrackingUrl + _trackingCode);
+    public class TrackingCode
+    {
+        [Required]
+        [RegularExpression (@"^([0-9]+)-([A-Za-z0-9-_]{4})$", ErrorMessage="Not a valid tracking code.")]
+        public string? code {get; set;}
     }
 }
