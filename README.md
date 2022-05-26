@@ -10,6 +10,10 @@
 - Post machine must have zero or more packages to hold.
 - Courier must have zero or more packages to deliver.
 
+## Post machine interface
+
+Post machine interface is available at `/post_machines`.
+
 ## System usage story
 
 Peter wants to send a package to Chloe. He signs up to our Shipping service, entering his
