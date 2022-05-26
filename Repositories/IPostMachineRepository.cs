@@ -8,7 +8,7 @@ namespace shipping_service.Repositories
     {
         DbSet<PostMachine> PostMachines { get; }
 
-        Task<PostMachine> GetAsync(long id);
+        Task<PostMachine?> GetAsync(long id);
 
         Task CreateAsync(PostMachine postMachine);
 
