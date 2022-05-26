@@ -19,5 +19,6 @@ namespace shipping_service.Services
         Task<IEnumerable<Shipment>> GetAssignedAsync(long courierId);
         string GenerateIdHash(long id);
         bool IsValidIdHash(long id, string hash);
+        Task<Shipment?> SelectIncludeAll(long id);
     }
 }

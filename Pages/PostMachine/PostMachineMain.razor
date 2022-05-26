@@ -1,5 +1,6 @@
 @page "/post_machines/{PostmachineId:long}"
 @using System.ComponentModel.DataAnnotations
+@using OfficeOpenXml.Export.ToDataTable
 @layout BasicLayout
 
 <PageTitle>Post machine UI</PageTitle>
@@ -29,10 +30,18 @@ else if (_pickUpPackage)
         <div class="col-md-8 mx-auto">
             <div class="card" style="margin: auto; max-width: 500px; min-height: 16rem;">
                 <div class="card-header d-flex">
-                    <h3>Place package</h3>
+                    <h3>Pick up package</h3>
                 </div>
                 <div class="card-body">
-                    <label class="form-label">Please pick up the package from the open compartment, then close the compartment.</label>
+                    @if (Shipment!.Status != ShipmentStatus.Delivered)
+                    {
+                        <label class="form-label">Please pick up the package from the open compartment, then close the compartment.</label>
+                    }
+                    else
+                    {
+                        <label class="form-label">Package title: @Shipment.Title<br/>
+                            Please pick up the package from the open compartment, then close the compartment.</label>
+                    }
                 </div>
                 <div class="card-footer">
                     <button class="btn btn-primary align-bottom" type="submit" onclick="@GoToMainScreen">Done</button>
@@ -144,6 +153,8 @@ else if (_placePackage)
     IShipmentService ShipmentService { get; set; }
 
     PostMachine? ThisPostMachine { get; set; }
+    
+    Shipment? Shipment { get; set; }
 
     readonly FormData _unlockCodeFormData = new();
 
@@ -174,20 +185,20 @@ else if (_placePackage)
     {
         _error = null;
         var code = int.Parse(_unlockCodeFormData.UnlockCode!);
-        var shipment = await ShipmentService.GetShFromSrcSenderCode(PostMachineId, code);
+        Shipment = await ShipmentService.GetShFromSrcSenderCode(PostMachineId, code);
         // ShipmentData is a struct, so default value will contain all zeroes.
-        if (shipment != null)
+        if (Shipment != null)
         {
             _validPlaceUnlockCode = true;
-            await ShipmentService.ChangeShipmentStatusToSrc(shipment, ThisPostMachine!);
+            await ShipmentService.ChangeShipmentStatusToSrc(Shipment, ThisPostMachine!);
         }
         else
         {
-            shipment = await ShipmentService.GetShFromDestCourierCode(PostMachineId, code);
-            if (shipment != null)
+            Shipment = await ShipmentService.GetShFromDestCourierCode(PostMachineId, code);
+            if (Shipment != null)
             {
                 _validPlaceUnlockCode = true;
-                await ShipmentService.ChangeShipmentStatusToDest(shipment, ThisPostMachine!);
+                await ShipmentService.ChangeShipmentStatusToDest(Shipment, ThisPostMachine!);
             }
             else
             {
@@ -200,19 +211,19 @@ else if (_placePackage)
     {
         _error = null;
         var code = int.Parse(_unlockCodeFormData.UnlockCode!);
-        var shipment = await ShipmentService.GetShFromSrcCourierCode(PostMachineId, code);
-        if (shipment != null)
+        Shipment = await ShipmentService.GetShFromSrcCourierCode(PostMachineId, code);
+        if (Shipment != null)
         {
-            _validPlaceUnlockCode = true;
-            await ShipmentService.ChangeShipmentStatusToShipping(shipment, ThisPostMachine!);
+            _validPickUpUnlockCode = true;
+            await ShipmentService.ChangeShipmentStatusToShipping(Shipment, ThisPostMachine!);
         }
         else
         {
-            shipment = await ShipmentService.GetShFromDestReceiverCode(PostMachineId, code);
-            if (shipment != null)
+            Shipment = await ShipmentService.GetShFromDestReceiverCode(PostMachineId, code);
+            if (Shipment != null)
             {
-                _validPlaceUnlockCode = true;
-                await ShipmentService.ChangeShipmentStatusToDelivered(shipment);
+                _validPickUpUnlockCode = true;
+                await ShipmentService.ChangeShipmentStatusToDelivered(Shipment);
             }
             else
             {

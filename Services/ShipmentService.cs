@@ -105,9 +105,9 @@ namespace shipping_service.Services
                                                                              + " to ShipmentStatus.Shipping");
             }
 
-            s.Status = ShipmentStatus.InSourcePostMachine;
-            s.SrcPmSenderUnlockCode = null;
-            s.SrcPmCourierUnlockCode = _postMachineService.GeneratePostMachineUnlockCode(p);
+            s.Status = ShipmentStatus.Shipping;
+            s.SrcPmCourierUnlockCode = null;
+            s.DestPmCourierUnlockCode = _postMachineService.GeneratePostMachineUnlockCode(p);
             await _shipmentRepository.UpdateAsync(s);
         }
 
@@ -134,9 +134,20 @@ namespace shipping_service.Services
 
         public async Task<Shipment?> GetShFromDestReceiverCode(long postMachineId, int unlockCode)
         {
-            return await _shipmentRepository.Shipments
+            Shipment? sh = await _shipmentRepository.Shipments
                 .Where(s => s.DestinationMachineId == postMachineId && s.DestPmReceiverUnlockCode == unlockCode)
                 .FirstOrDefaultAsync();
+            return sh is not { Status: ShipmentStatus.InDestinationPostMachine } ? null : sh;
+        }
+
+        public async Task<Shipment?> SelectIncludeAll(long id)
+        {
+            return await _shipmentRepository.Shipments
+                .Include(s => s.Sender)
+                .Include(s => s.Courier)
+                .Include(s => s.SourceMachine)
+                .Include(s => s.DestinationMachine)
+                .FirstOrDefaultAsync(s => s.Id == id);
         }
 
         public string GenerateIdHash(long id)
