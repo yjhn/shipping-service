@@ -1,0 +1,21 @@
+﻿.parcel-info, .shipment-info {
+    width: 50%;
+    float: left;
+    padding: 20px;
+    height: 600px;
+    border: 2px solid black;
+}
+
+.shipment-status {
+    border-top: 2px solid black;
+}
+
+label{
+    padding: 10px
+}
+
+.title {
+    font-weight: bold;
+}
+
+
