@@ -21,22 +21,24 @@ namespace shipping_service.Services
 
         public async Task<IEnumerable<Shipment>> GetUnassignedAsync()
         {
-            return await _shipmentRepository.Shipments.
-                Where(s => s.CourierId == null).
-                Include(s => s.Sender).
-                Include(s => s.Courier).
-                Include(s => s.SourceMachine).
-                Include(s => s.DestinationMachine).ToListAsync();
+            return await _shipmentRepository.Shipments
+                .Where(s => s.CourierId == null)
+                .Include(s => s.Sender)
+                .Include(s => s.Courier)
+                .Include(s => s.SourceMachine)
+                .Include(s => s.DestinationMachine)
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<Shipment>> GetAssignedAsync(long courierId)
         {
             return await _shipmentRepository.Shipments.
-                Where(s => s.CourierId == courierId).
-                Include(s => s.Sender).
-                Include(s => s.Courier).
-                Include(s => s.SourceMachine).
-                Include(s => s.DestinationMachine).ToListAsync();
+                Where(s => s.CourierId == courierId)
+                .Include(s => s.Sender)
+                .Include(s => s.Courier)
+                .Include(s => s.SourceMachine)
+                .Include(s => s.DestinationMachine)
+                .ToListAsync();
         }
 
         public async Task<Shipment?> GetById(long id)
@@ -108,7 +110,7 @@ namespace shipping_service.Services
             s.SrcPmCourierUnlockCode = _postMachineService.GeneratePostMachineUnlockCode(p);
             await _shipmentRepository.UpdateAsync(s);
         }
-        
+
         public async Task<Shipment?> GetShFromSrcSenderCode(long postMachineId, int unlockCode)
         {
             return await _shipmentRepository.Shipments
@@ -135,6 +137,27 @@ namespace shipping_service.Services
             return await _shipmentRepository.Shipments
                 .Where(s => s.DestinationMachineId == postMachineId && s.DestPmReceiverUnlockCode == unlockCode)
                 .FirstOrDefaultAsync();
+        }
+
+        public string GenerateIdHash(long id)
+        {
+            return ComputeBase64(id);
+        }
+
+        public bool IsValidIdHash(long id, string hash)
+        {
+            return hash == GenerateIdHash(id);
+        }
+
+        private static string ComputeBase64(long data)
+        {
+            byte[] bytes = BitConverter.GetBytes(data + 1_000_000).Take(3).ToArray();
+            string s = Convert.ToBase64String(bytes);
+            // ToBase64String generates strings which are potentially unsafe for use in URLs
+            s = s.Split('=')[0]; // Remove any trailing '='s
+            s = s.Replace('+', '-'); // 62nd char of encoding
+            s = s.Replace('/', '_'); // 63rd char of encoding
+            return s;
         }
     }
 }

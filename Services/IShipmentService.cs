@@ -17,5 +17,7 @@ namespace shipping_service.Services
         Task<Shipment?> GetShFromDestReceiverCode(long postMachineId, int unlockCode);
         Task<IEnumerable<Shipment>> GetUnassignedAsync();
         Task<IEnumerable<Shipment>> GetAssignedAsync(long courierId);
+        string GenerateIdHash(long id);
+        bool IsValidIdHash(long id, string hash);
     }
 }
