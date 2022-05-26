@@ -68,7 +68,7 @@
     ISenderRepository SenderRepository { get; set; }
 
     [Inject]
-    IShipmentRepository shipmentRepository { get; set; }
+    IShipmentService ShipmentService { get; set; }
 
     IPostMachineRepository PostMachineRepository => Service;
     Sender sender;
@@ -79,20 +79,15 @@
 
     protected override async Task OnInitializedAsync()
     {
+        PostMachines = PostMachineRepository.PostMachines
+            .Select(m => new PostMachine { Address = m.Address, Id = m.Id, Name = m.Name });
         shipment = new NewShipment();
         var authState = await AuthStateTask;
         var username = authState.User.Identities.First().Name;
-        sender = SenderRepository.Senders.First(s => s.Username == username);
-        RetrievePostMachines();
+        sender = (await SenderRepository.GetByUsername(username!))!;
     }
 
-    void RetrievePostMachines()
-    {
-        PostMachines = PostMachineRepository.PostMachines
-            .Select(m => new PostMachine { Address = m.Address, Id = m.Id, Name = m.Name });
-    }
-
-    async void HandleSubmit()
+    async Task HandleSubmit()
     {
         if (shipment.SourceMachineId == shipment.DestinationMachineId)
         {
@@ -108,7 +103,7 @@
             SourceMachineId = (long)shipment.SourceMachineId!,
             DestinationMachineId = (long)shipment.DestinationMachineId!
         };
-        await shipmentRepository.CreateAsync(newShipment);
+        await ShipmentService.CreateAsync(newShipment);
         NavigationManager.NavigateTo("/");
     }
 
