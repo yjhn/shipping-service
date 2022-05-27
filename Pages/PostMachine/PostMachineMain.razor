@@ -1,5 +1,6 @@
 @page "/post_machines/{PostmachineId:long}"
 @using System.ComponentModel.DataAnnotations
+@inject ILogger<PostMachineSelect> _logger
 @using OfficeOpenXml.Export.ToDataTable
 @layout BasicLayout
 
@@ -156,6 +157,9 @@ else if (_placePackage)
     
     Shipment? Shipment { get; set; }
 
+    [CascadingParameter]
+    private Task<AuthenticationState> authStateTask {get; set;}
+
     readonly FormData _unlockCodeFormData = new();
 
     void PickUpPackage()
@@ -183,58 +187,100 @@ else if (_placePackage)
     // is not registered.
     async Task HandlePlaceSubmit()
     {
-        _error = null;
-        var code = int.Parse(_unlockCodeFormData.UnlockCode!);
-        Shipment = await ShipmentService.GetShFromSrcSenderCode(PostMachineId, code);
-        // ShipmentData is a struct, so default value will contain all zeroes.
-        if (Shipment != null)
+        var authState = await authStateTask;
+        var username = authState.User.Identities.First().Name;
+        var role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
+        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(HandlePlaceSubmit));
+        try
         {
-            _validPlaceUnlockCode = true;
-            await ShipmentService.ChangeShipmentStatusToSrc(Shipment, ThisPostMachine!);
-        }
-        else
-        {
-            Shipment = await ShipmentService.GetShFromDestCourierCode(PostMachineId, code);
+            _error = null;
+            var code = int.Parse(_unlockCodeFormData.UnlockCode!);
+            Shipment = await ShipmentService.GetShFromSrcSenderCode(PostMachineId, code);
+    // ShipmentData is a struct, so default value will contain all zeroes.
             if (Shipment != null)
             {
                 _validPlaceUnlockCode = true;
-                await ShipmentService.ChangeShipmentStatusToDest(Shipment, ThisPostMachine!);
+                await ShipmentService.ChangeShipmentStatusToSrc(Shipment, ThisPostMachine!);
             }
             else
             {
-                _error = "Invalid unlock code";
+                Shipment = await ShipmentService.GetShFromDestCourierCode(PostMachineId, code);
+                if (Shipment != null)
+                {
+                    _validPlaceUnlockCode = true;
+                    await ShipmentService.ChangeShipmentStatusToDest(Shipment, ThisPostMachine!);
+                }
+                else
+                {
+                    _error = "Invalid unlock code";
+                }
             }
         }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username, role,DateTime.UtcNow, nameof(HandlePlaceSubmit));
+        }
+
+
     }
 
     async Task HandlePickUpSubmit()
     {
-        _error = null;
-        var code = int.Parse(_unlockCodeFormData.UnlockCode!);
-        Shipment = await ShipmentService.GetShFromSrcCourierCode(PostMachineId, code);
-        if (Shipment != null)
+
+        var authState = await authStateTask;
+        var username = authState.User.Identities.First().Name;
+        var role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
+        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(HandlePickUpSubmit));
+        try
         {
-            _validPickUpUnlockCode = true;
-            await ShipmentService.ChangeShipmentStatusToShipping(Shipment, ThisPostMachine!);
-        }
-        else
-        {
-            Shipment = await ShipmentService.GetShFromDestReceiverCode(PostMachineId, code);
+            _error = null;
+            var code = int.Parse(_unlockCodeFormData.UnlockCode!);
+            Shipment = await ShipmentService.GetShFromSrcCourierCode(PostMachineId, code);
             if (Shipment != null)
             {
                 _validPickUpUnlockCode = true;
-                await ShipmentService.ChangeShipmentStatusToDelivered(Shipment);
+                await ShipmentService.ChangeShipmentStatusToShipping(Shipment, ThisPostMachine!);
             }
             else
             {
-                _error = "Invalid unlock code";
+                Shipment = await ShipmentService.GetShFromDestReceiverCode(PostMachineId, code);
+                if (Shipment != null)
+                {
+                    _validPickUpUnlockCode = true;
+                    await ShipmentService.ChangeShipmentStatusToDelivered(Shipment);
+                }
+                else
+                {
+                    _error = "Invalid unlock code";
+                }
             }
         }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(HandlePickUpSubmit));
+        }
+
+
+
     }
 
     protected override async Task OnInitializedAsync()
     {
-        ThisPostMachine = await PostMachineRepository.GetAsync(PostMachineId);
+        
+        var authState = await authStateTask;
+        var username = authState.User.Identities.First().Name;
+        var role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
+        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role ,DateTime.UtcNow, nameof(OnInitializedAsync));
+        try
+        {
+            ThisPostMachine = await PostMachineRepository.GetAsync(PostMachineId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(OnInitializedAsync));
+        }
+
+        
     }
 
     // FormData must be a class, otherwise validation does not work properly.

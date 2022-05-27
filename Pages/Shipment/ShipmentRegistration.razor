@@ -1,7 +1,13 @@
 @page "/shipment/registration"
+
 @attribute [Authorize]
 @inject NavigationManager NavigationManager
 @using System.ComponentModel.DataAnnotations
+
+@inject ILogger<ShipmentRegistration> _logger
+
+@using Serilog.Core
+
 @inherits OwningComponentBase<IPostMachineRepository>
 
 <h3>Shipment registration</h3>
@@ -79,12 +85,22 @@
 
     protected override async Task OnInitializedAsync()
     {
+
         PostMachines = PostMachineRepository.PostMachines
             .Select(m => new PostMachine { Address = m.Address, Id = m.Id, Name = m.Name });
         shipment = new NewShipment();
         var authState = await AuthStateTask;
         var username = authState.User.Identities.First().Name;
-        sender = (await SenderRepository.GetByUsername(username!))!;
+        var role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
+        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(OnInitializedAsync));
+        try
+        {
+            sender = (await SenderRepository.GetByUsername(username!))!;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(OnInitializedAsync));
+        }
     }
 
     async Task HandleSubmit()
@@ -103,7 +119,18 @@
             SourceMachineId = (long)shipment.SourceMachineId!,
             DestinationMachineId = (long)shipment.DestinationMachineId!
         };
-        await ShipmentService.CreateAsync(newShipment);
+        var authState = await AuthStateTask;
+        var username = authState.User.Identities.First().Name;
+        var role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
+        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(HandleSubmit));
+        try
+        {
+            await ShipmentService.CreateAsync(newShipment);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(HandleSubmit));
+        }
         NavigationManager.NavigateTo($"/shipment/{newShipment.Id}");
     }
 

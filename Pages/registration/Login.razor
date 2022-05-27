@@ -1,6 +1,7 @@
 @page "/login"
 @using System.ComponentModel.DataAnnotations
 @using shipping_service.Models
+@inject ILogger<Login> _logger
 @using shipping_service.Services
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
@@ -44,26 +45,46 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		var authState = await authStateTask;
-		var authUser = authState.User;
-		if (authUser.Identity.IsAuthenticated)
-		{
-			NavigationManager.NavigateTo("/");
-		}
+
+	    _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "", "",DateTime.UtcNow, nameof(OnInitializedAsync));
+	    try
+	    {
+	        var authState = await authStateTask;
+	        var authUser = authState.User;
+	        if (authUser.Identity.IsAuthenticated)
+	        {
+	            NavigationManager.NavigateTo("/");
+	        }
+	    }
+	    catch (Exception ex)
+	    {
+	        _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "","" ,DateTime.UtcNow, nameof(OnInitializedAsync));
+	    }
+
 	}
 
 	protected async Task HandleSubmit()
 	{
-		var (loginError, role) = await accountService.LoginAsync(user);
-		if (loginError == null)
-		{
-			var authModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./scripts/auth.js");
-			await authModule.InvokeVoidAsync("SignIn", user.Username, role, user.Password, "/");
-		}
-		else{
-			error = loginError;
-		}
-}
+
+	    _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "","", DateTime.UtcNow, nameof(HandleSubmit));
+	    try
+	    {
+	        var (loginError, role) = await accountService.LoginAsync(user);
+	        if (loginError == null)
+	        {
+	            var authModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./scripts/auth.js");
+	            await authModule.InvokeVoidAsync("SignIn", user.Username, role, user.Password, "/");
+	        }
+	        else{
+	            error = loginError;
+	        }
+	    }
+	    catch (Exception ex)
+	    {
+	        _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "","", DateTime.UtcNow, nameof(HandleSubmit));
+	    }
+
+    }
 
 	protected async Task HandleReset()
 	{

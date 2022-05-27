@@ -1,7 +1,7 @@
 ﻿@page "/shipment/{id:long}"
 @attribute [Authorize]
 @inject NavigationManager NavigationManager
-
+@inject ILogger<ShipmentDetails> _logger
 <h3>Shipment details</h3>
 @if(Shipment != null) {
     if (Role == "Sender")
@@ -60,23 +60,34 @@
         }
         var authState = await authStateTask;
         var username = authState.User.Identities.First().Name;
-        Role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
-        if (Role == "Sender")
+        
+        _logger.LogInformation("User: {0} ;Rights: Sender; Time: {1}, Method: {2}", username, DateTime.UtcNow, nameof(OnInitializedAsync));
+        try
         {
-            if (Shipment.Sender.Username != username)
+            Role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
+            if (Role == "Sender")
             {
-                NavigationManager.NavigateTo("/");
+                if (Shipment.Sender.Username != username)
+                {
+                    NavigationManager.NavigateTo("/");
+                }
+            }
+            else if (Role == "Courier")
+            {
+                if (Shipment.Status == ShipmentStatus.InDestinationPostMachine ||
+                    Shipment.Status == ShipmentStatus.Delivered || 
+                    Shipment.Courier == null || Shipment.Courier.Username != username)
+                {
+                    NavigationManager.NavigateTo("/");
+                }
             }
         }
-        else if (Role == "Courier")
+        catch (Exception ex)
         {
-            if (Shipment.Status == ShipmentStatus.InDestinationPostMachine ||
-                Shipment.Status == ShipmentStatus.Delivered || 
-                Shipment.Courier == null || Shipment.Courier.Username != username)
-            {
-                NavigationManager.NavigateTo("/");
-            }
+            _logger.LogWarning("User: {0} ;Rights: Sender; Time: {1}, Method: {2}", username, DateTime.UtcNow, nameof(OnInitializedAsync));
         }
+        
+
     }
 
 }

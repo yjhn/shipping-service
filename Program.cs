@@ -7,6 +7,8 @@ using shipping_service.Models;
 using shipping_service.Controllers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
+using Serilog;
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 // Configure services
 builder.Configuration.AddJsonFile("appsettings.json");
@@ -48,6 +50,13 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<TokenProvider>();
 builder.Services.AddControllers();
 
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .WriteTo.File(@"C:logs\logs.txt")
+    .CreateLogger();
+builder.Host.UseSerilog((ctx, lc) => lc
+    .WriteTo.Console()
+    .WriteTo.File(@"C:\Logs\logs.txt", rollingInterval:RollingInterval.Day));
 //Build
 WebApplication app = builder.Build();
 

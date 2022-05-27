@@ -1,111 +1,143 @@
 ﻿@page "/courier/available-shipments"
+@inject ILogger<AvailableShipments> _logger
 <PageTitle>Assign shipments</PageTitle>
 
 <h3>Available shipments to deliver</h3>
 <AuthorizeView Roles="Courier">
-@if (!string.IsNullOrEmpty(assignMessage))
-											{
-    <div class="modal-backdrop" style="opacity: .6" />
-    <div class="modal show d-block" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Assign Shipment</h5>
-                </div>
-                <div class="modal-body">
-					@assignMessage
-                </div>
-                <div class="modal-footer">
-                    <div class="row">
-                        <button class="btn btn-primary" @onclick="@( async() =>{
+    @if (!string.IsNullOrEmpty(assignMessage))
+    {
+        <div class="modal-backdrop" style="opacity: .6" />
+        <div class="modal show d-block" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Assign Shipment</h5>
+                    </div>
+                    <div class="modal-body">
+                        @assignMessage
+                    </div>
+                    <div class="modal-footer">
+                        <div class="row">
+                            <button class="btn btn-primary" @onclick="@( async() =>{
 							assignMessage = null;
 						 await GetUnassignedShipmentsAsync();
-						})">OK</button>
+						})">
+                                OK
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-												}
-<table class="table table-sm table-striped table-bordered">
-    <tbody>
-    @if (UnassignedShipments.Count()>0)
-    {
-        <tr>
-            <th>Source machine address</th>
-            <th>Destination machine address</th>
-<th/>
-			</tr>
-			foreach (var shipment in UnassignedShipments)
-			{
-				<tr><td>@shipment.SourceMachine.Address</td>
-                <td>@shipment.DestinationMachine.Address</td>
-                    <td>
-                        <button class="btn btn-primary" @onclick="(async () => await AssignShipmentToCourier(shipment.Id))">Assign</button>
-                    </td>
-            </tr>
-        }
     }
-    else
-    {
-        <tr>
-            <td colspan="5" class="text-center">No unassigned shipments yet</td>
-        </tr>
-    }
-    </tbody>
-</table>
+    <table class="table table-sm table-striped table-bordered">
+        <tbody>
+            @if (UnassignedShipments.Count() > 0)
+            {
+                <tr>
+                    <th>Source machine address</th>
+                    <th>Destination machine address</th>
+                    <th />
+                </tr>
+                foreach (var shipment in UnassignedShipments)
+                {
+                    <tr>
+                        <td>@shipment.SourceMachine.Address</td>
+                        <td>@shipment.DestinationMachine.Address</td>
+                        <td>
+                            <button class="btn btn-primary" @onclick="(async () => await AssignShipmentToCourier(shipment.Id))">Assign</button>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5" class="text-center">No unassigned shipments yet</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
-<NavLink class="btn btn-primary" href="/courier">
-    Go Back
-</NavLink>
+    <NavLink class="btn btn-primary" href="/courier">
+        Go Back
+    </NavLink>
 </AuthorizeView>
 
 @code {
 
-	[Inject]
-	public IShipmentRepository ShipmentRepository { get; set; }
+    [Inject]
+    public IShipmentRepository ShipmentRepository { get; set; }
 
-	[Inject]
-	public ICourierRepository CourierRepository { get; set; }
+    [Inject]
+    public ICourierRepository CourierRepository { get; set; }
 
-	[Inject]
-	public IShipmentService ShipmentService { get; set; }
+    [Inject]
+    public IShipmentService ShipmentService { get; set; }
 
-	public IEnumerable<Shipment> UnassignedShipments { get; set; }
-	public Courier Courier { get; set; }
-	private string assignMessage;
-	[CascadingParameter]
-	private Task<AuthenticationState> authStateTask {get; set;}
-	protected override async Task OnInitializedAsync()
-	{
-		UnassignedShipments = new List<Shipment>();
-		var authState = await authStateTask;
-		if (!authState.User.Identity.IsAuthenticated)
-			return;
-		Courier = await CourierRepository.Couriers.Include(c => c.CurrentShipments).
-		FirstOrDefaultAsync(c => c.Username == authState.User.Identity.Name);
-		await GetUnassignedShipmentsAsync();
-	}
+    public IEnumerable<Shipment> UnassignedShipments { get; set; }
+    public Courier Courier { get; set; }
+    private string assignMessage;
+    [CascadingParameter]
+    private Task<AuthenticationState> authStateTask { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        UnassignedShipments = new List<Shipment>();
+        var authState = await authStateTask;
+        if (!authState.User.Identity.IsAuthenticated)
+            return;
+        Courier = await CourierRepository.Couriers.Include(c => c.CurrentShipments).
+        FirstOrDefaultAsync(c => c.Username == authState.User.Identity.Name);
+        await GetUnassignedShipmentsAsync();
+    }
 
-	public async Task GetUnassignedShipmentsAsync()
-	{
-		UnassignedShipments = await ShipmentService.GetUnassignedAsync();
-	}
+    public async Task GetUnassignedShipmentsAsync()
+    {
+        var authState = await authStateTask;
+        var username = authState.User.Identities.First().Name;
+        var role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
+        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role ,DateTime.UtcNow, nameof(GetUnassignedShipmentsAsync));
+        try
+        {
+            UnassignedShipments = await ShipmentService.GetUnassignedAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username, role,DateTime.UtcNow, nameof(GetUnassignedShipmentsAsync));
+        }
 
-	public async Task AssignShipmentToCourier(long shipmentId)
-	{
-		var shipment = await ShipmentRepository.Shipments.FirstOrDefaultAsync(s => s.Id == shipmentId);
-		if (shipment == null)
-		{
-			assignMessage = "The specified shipment does not exist.";
-		}
-		if (shipment.CourierId == null)
-		{
-			Courier.CurrentShipments.Add(shipment);
-			await CourierRepository.UpdateAsync(Courier);
-			assignMessage = "Shipment "+shipment.Id + " is assigned.";
-		}
-else{		assignMessage = "This shipment is already assigned";
-}
-	}
+
+
+    }
+
+    public async Task AssignShipmentToCourier(long shipmentId)
+    {
+
+        var authState = await authStateTask;
+        var username = authState.User.Identities.First().Name;
+        var role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
+        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(AssignShipmentToCourier));
+        try
+        {
+            var shipment = await ShipmentRepository.Shipments.FirstOrDefaultAsync(s => s.Id == shipmentId);
+            if (shipment == null)
+            {
+                assignMessage = "The specified shipment does not exist.";
+            }
+            if (shipment.CourierId == null)
+            {
+                Courier.CurrentShipments.Add(shipment);
+                await CourierRepository.UpdateAsync(Courier);
+                assignMessage = "Shipment " + shipment.Id + " is assigned.";
+            }
+            else { assignMessage = "This shipment is already assigned"; }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(AssignShipmentToCourier));
+        }
+
+
+
+    }
 }

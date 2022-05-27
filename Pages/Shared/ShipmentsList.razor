@@ -1,4 +1,5 @@
 ﻿@inject NavigationManager NavigationManager
+@inject ILogger<ShipmentsList> _logger
 
 @if (Shipments != null)
 {
@@ -25,9 +26,19 @@
     [Parameter]
     public IEnumerable<Shipment> Shipments { get; set; }
 
+
     public void navigateToShipment(long id)
     {
-        NavigationManager.NavigateTo($"shipment/{id}");
+
+        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "","", DateTime.UtcNow, nameof(navigateToShipment));
+        try
+        {
+            NavigationManager.NavigateTo($"shipment/{id}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "","", DateTime.UtcNow, nameof(navigateToShipment));
+        }
     }
 
 }

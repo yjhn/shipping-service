@@ -5,6 +5,7 @@
 @inject IAccountService accountService
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
+@inject ILogger<UpdateProfile> _logger
 @inject IHttpContextAccessor accessor
 @inject TokenProvider _tokenProvider
 <div class="col-md-8 mx-auto">
@@ -67,15 +68,25 @@
 
 	protected async Task HandleSubmit()
 	{
-		success = false;
-
-error = await accountService.UpdateAsync(user.Username, oldUsername);
-		if (error == null)
-		{
-			var authModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./scripts/auth.js");
-			await authModule.InvokeVoidAsync("Update", user.Username, oldUsername, user.Role, _tokenProvider.AntiForgeryToken);
-			success = true;
-		}
+	    var authState = await authStateTask;
+	    var username = authState.User.Identities.First().Name;
+	    var role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
+	    _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(HandleSubmit));
+	    try
+	    {
+	        success = false;
+	        error = await accountService.UpdateAsync(user.Username, oldUsername);
+	        if (error == null)
+	        {
+	            var authModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./scripts/auth.js");
+	            await authModule.InvokeVoidAsync("Update", user.Username, oldUsername, user.Role, _tokenProvider.AntiForgeryToken);
+	            success = true;
+	        }
+	    }
+	    catch (Exception ex)
+	    {
+	        _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(HandleSubmit));
+	    }
 
 	}
 
