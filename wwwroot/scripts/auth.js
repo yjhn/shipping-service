@@ -26,11 +26,7 @@ export function SignIn(username, role, password, redirect) {
     // Data to send
     const data = {
         username: username,
-        role: role,
-        password: password,
-        // confirmPassword is needed because we use the same user model
-        // for registration and login
-        confirmPassword: password
+        password: password
     };
 
     // Call API
