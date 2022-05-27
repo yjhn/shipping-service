@@ -1,37 +1,57 @@
 ﻿@page "/tracking"
-@inject NavigationManager NavigationManager
 @using System.ComponentModel.DataAnnotations
+@inject NavigationManager NavigationManager
 
+<PageTitle>Shipment tracking</PageTitle>
 
-<h3>Shipment tracking page</h3>
+<div class="col-md-8 mx-auto">
+    <div class="card" style="margin: auto; max-width: 500px">
+        <EditForm Model="@trackingCode" OnValidSubmit="@HandleValidSubmit">
+            <h3 class="card-header">
+                Track shipment
+            </h3>
+            <div class="card-body">
+                @if (!string.IsNullOrWhiteSpace(_error))
+                {
+                    <div class="alert alert-danger">
+                        @_error
+                    </div>
+                }
 
-<EditForm Model="@trackingCode" OnValidSubmit="@HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-
-    <InputText id="trackingCode" @bind-Value="trackingCode.code" placeholder="Enter tracking code."/>
-    <ValidationMessage For="@(() => trackingCode.code)"/><br/>
-    <button type="submit">Track shipment</button>
-</EditForm>
+                <DataAnnotationsValidator/>
+                <ValidationSummary/>
+                <label for="tracking-code" class="form-label">Tracking code</label>
+                <InputText id="tracking-code" class="form-control" @bind-Value="trackingCode.code" style="margin-bottom: 1rem;" placeholder="Enter tracking code."/>
+                <ValidationMessage For="@(() => trackingCode.code)"/><br/>
+            </div>
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary">Track shipment</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
 
 @code {
-    const string ShipmentTrackingUrl = "/tracking/shipment/";
+        const string ShipmentTrackingUrl = "/tracking/shipment/";
 
     TrackingCode trackingCode { get; set; }
+    string? _error;
 
     protected override async Task OnInitializedAsync()
     {
         trackingCode = new TrackingCode();
     }
 
-    async void HandleValidSubmit(){
-        NavigationManager.NavigateTo(ShipmentTrackingUrl + trackingCode.code);   
+    void HandleValidSubmit()
+    {
+        NavigationManager.NavigateTo(ShipmentTrackingUrl + trackingCode.code);
     }
 
     public class TrackingCode
     {
         [Required]
-        [RegularExpression (@"^([0-9]+)-([A-Za-z0-9-_]{4})$", ErrorMessage="Not a valid tracking code.")]
-        public string? code {get; set;}
+        [RegularExpression(@"^([0-9]+)-([A-Za-z0-9-_]{4})$", ErrorMessage = "Not a valid tracking code.")]
+        public string? code { get; set; }
     }
+
 }

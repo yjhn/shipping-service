@@ -1,6 +1,5 @@
-﻿@using System.Text.RegularExpressions
-
-@page "/tracking/shipment/{trackingLink}"
+﻿@page "/tracking/shipment/{trackingLink}"
+@using System.Text.RegularExpressions
 
 <h3>Shipment Tracking</h3>
 @if (Shipment != null)
@@ -51,13 +50,14 @@ else
 }
 
 @code {
+
     [Parameter]
     public string? trackingLink { get; set; }
 
     [Inject]
     IShipmentService ShipmentService { get; set; }
 
-    Shipment? Shipment{ get; set; }
+    Shipment? Shipment { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -66,17 +66,18 @@ else
             return;
         }
         long shipmentId;
-        string[] trackingLinkParts = trackingLink.Split("-");
-        string trackingCode = string.Join("-", trackingLinkParts.Skip(1));
+        var trackingLinkParts = trackingLink.Split("-");
+        var trackingCode = string.Join("-", trackingLinkParts.Skip(1));
         if (!Regex.IsMatch(trackingCode, @"^([A-Za-z0-9-_]{4})$") ||
             !long.TryParse(trackingLinkParts[0], out shipmentId))
         {
             return;
         }
         Shipment = await ShipmentService.SelectIncludeAll(shipmentId);
-        if(Shipment != null && ! ShipmentService.IsValidIdHash(shipmentId, trackingCode))
+        if (Shipment != null && !ShipmentService.IsValidIdHash(shipmentId, trackingCode))
         {
             Shipment = null;
         }
     }
+
 }
