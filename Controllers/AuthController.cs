@@ -61,7 +61,7 @@ namespace shipping_service.Controllers
             await _accountService.UpdateDatabaseAsync(username, user.OldUsername, role);
             List<Claim> claims = new()
             {
-                new Claim(ClaimTypes.Name, username), 
+                new Claim(ClaimTypes.Name, username),
                 new Claim(ClaimTypes.Role, role)
             };
             ClaimsIdentity claimsIdentity = new(

@@ -1,13 +1,12 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
+using Serilog;
+
+using shipping_service.Models;
 using shipping_service.Persistence.Database;
 using shipping_service.Repositories;
-        using shipping_service.Services;
-using shipping_service.Models;
-using shipping_service.Controllers;
-using Microsoft.AspNetCore.Authentication.Cookies;
-
-using Serilog;
+using shipping_service.Services;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 // Configure services
@@ -38,11 +37,11 @@ builder.Services.AddScoped<IPostMachineService, PostMachineService>();
 string generatorInterface = builder.Configuration.GetValue<string>("GeneratorInterface");
 if (generatorInterface == "CodeGenerator")
 {
-builder.Services.AddScoped<ICodeGenerator, CodeGenerator>();
+    builder.Services.AddScoped<ICodeGenerator, CodeGenerator>();
 }
 else
 {
-builder.Services.AddScoped<ICodeGenerator, CodeGeneratorByDigit>();
+    builder.Services.AddScoped<ICodeGenerator, CodeGeneratorByDigit>();
 }
 builder.Services.AddScoped<ISenderRepository, SenderRepository>();
 builder.Services.AddScoped<IShipmentService, ShipmentService>();
@@ -66,7 +65,7 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 builder.Host.UseSerilog((ctx, lc) => lc
     .WriteTo.Console()
-    .WriteTo.File(@"C:\Logs\logs.txt", rollingInterval:RollingInterval.Day));
+    .WriteTo.File(@"C:\Logs\logs.txt", rollingInterval: RollingInterval.Day));
 //Build
 WebApplication app = builder.Build();
 

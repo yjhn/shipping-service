@@ -8,11 +8,11 @@ namespace shipping_service.Services
     public class PostMachineService : IPostMachineService
     {
         private readonly IPostMachineRepository _postMachines;
-private ICodeGenerator _generator;
+        private ICodeGenerator _generator;
         public PostMachineService(IPostMachineRepository repo, ICodeGenerator generator)
         {
             _postMachines = repo;
-_generator = generator;
+            _generator = generator;
         }
 
         public IQueryable<PostMachine> PostMachines => _postMachines.PostMachines;
@@ -28,7 +28,7 @@ _generator = generator;
 
         public int GeneratePostMachineUnlockCode(PostMachine p)
         {
-return _generator.GeneratePostMachineUnlockCode(p);
-            }
+            return _generator.GeneratePostMachineUnlockCode(p);
         }
     }
+}

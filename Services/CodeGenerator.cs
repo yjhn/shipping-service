@@ -2,8 +2,8 @@ using shipping_service.Persistence.Entities;
 
 namespace shipping_service.Services
 {
-public class CodeGenerator : ICodeGenerator
-{
+    public class CodeGenerator : ICodeGenerator
+    {
         private const int MIN_CODE_VALUE_INCL = 100_000;
         private const int MAX_CODE_VALUE_EXCL = 1_000_000;
         private static readonly Random Rand = new();
@@ -11,7 +11,8 @@ public class CodeGenerator : ICodeGenerator
         // The supplied post machine must have its `ShipmentsWithThisSource`
         // and `ShipmentsWithThisDestination` properties populated
 
-        public int GeneratePostMachineUnlockCode(PostMachine p){
+        public int GeneratePostMachineUnlockCode(PostMachine p)
+        {
             List<int> codes = new();
             foreach (int?[] cs in p.ShipmentsWithThisSource.Concat(p.ShipmentsWithThisDestination)
                          .Select(s => new[]
@@ -38,6 +39,6 @@ public class CodeGenerator : ICodeGenerator
                 }
             }
 
-}
-}
+        }
+    }
 }

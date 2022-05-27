@@ -1,7 +1,4 @@
-﻿using System.Security.Cryptography;
-using System.Text;
-
-namespace shipping_service.Persistence.Entities
+﻿namespace shipping_service.Persistence.Entities
 {
     public class Shipment : IBaseEntity
     {
