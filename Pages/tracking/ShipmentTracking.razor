@@ -1,7 +1,11 @@
-﻿@page "/tracking/shipment/{trackingLink}"
+@page "/tracking/shipment/{trackingLink}"
 @using System.Text.RegularExpressions
 
 <h3>Shipment Tracking</h3>
+@page "/shipment/tracking/{trackingLink}"
+<PageTitle>Shipment tracking</PageTitle>
+
+<h3>Shipment tracking</h3>
 @if (Shipment != null)
 {
     <div class="parcel-info">
@@ -66,8 +70,8 @@ else
             return;
         }
         long shipmentId;
-        var trackingLinkParts = trackingLink.Split("-");
-        var trackingCode = string.Join("-", trackingLinkParts.Skip(1));
+        string[] trackingLinkParts = trackingLink.Split("-");
+        string trackingCode = string.Join("-", trackingLinkParts.Skip(1));
         if (!Regex.IsMatch(trackingCode, @"^([A-Za-z0-9-_]{4})$") ||
             !long.TryParse(trackingLinkParts[0], out shipmentId))
         {

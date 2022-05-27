@@ -7,10 +7,11 @@
 @inject IJSRuntime JSRuntime
 @inject IHttpContextAccessor accessor
 @inject TokenProvider _tokenProvider
+<PageTitle>User profile</PageTitle>
 <div class="col-md-8 mx-auto">
         <div class="card" style="margin: auto; max-width: 500px">
             <h3 class="card-header">
-                User Profile
+                User profile
             </h3>
             <div class="card-body">
                 @if (!string.IsNullOrWhiteSpace(error))
