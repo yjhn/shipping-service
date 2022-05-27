@@ -1,10 +1,13 @@
 ﻿/*
- * Call the Authentication controller
+ * Call the Authentication controller.
+ * This is a horrible hack in order to sign in the user.
+ * Since the correct HttpContext is only available in controllers,
+ * we need to call the controller from here to be able to sign in.
  */
 
 export function SignIn(username, role, password, redirect) {
-    var url = "login";
-    var xhr = new XMLHttpRequest();
+    const url = "login";
+    const xhr = new XMLHttpRequest();
 
     // Initialization
     xhr.open("POST", url);
@@ -21,11 +24,10 @@ export function SignIn(username, role, password, redirect) {
     };
 
     // Data to send
-    var data = {
+    const data = {
         username: username,
         role: role,
-        password: password,
-        confirmPassword: password
+        password: password
     };
 
     // Call API
@@ -33,16 +35,14 @@ export function SignIn(username, role, password, redirect) {
 }
 
 export function Update(newUsername, oldUsername, role, token) {
-    var url = "account/manage";
-    var xhr = new XMLHttpRequest();
+    const url = "account/manage";
+    const xhr = new XMLHttpRequest();
 
     // Initialization
     xhr.open("POST", url);
     xhr.setRequestHeader("Accept", "application/json");
     xhr.setRequestHeader("Content-Type", "application/json");
-//    xhr.setRequestHeader("__RequestVerificationToken",
-        //X - CSRF - TOKEN",
-//        token);
+
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) // 4=DONE 
         {
@@ -51,7 +51,7 @@ export function Update(newUsername, oldUsername, role, token) {
     };
 
     // Data to send
-    var data = {
+    const data = {
         newUsername: newUsername,
         oldUsername: oldUsername,
         role: role
