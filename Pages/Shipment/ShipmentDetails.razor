@@ -16,14 +16,12 @@
         } 
         <p>Sender source machine unlocking code: @(Shipment.SrcPmSenderUnlockCode?.ToString() ?? "Not available")</p>
         <p>Receiver destination machine unlocking code: @(Shipment.DestPmReceiverUnlockCode?.ToString() ?? "Not available")</p>
-        // TODO: Place sender unlocking code and receiver unlocking code here.
     }
     else if (Role == "Courier")
     {
         <p>Sender's username: @Shipment.Sender.Username</p>
         <p>Courier source machine unlocking code: @(Shipment.SrcPmCourierUnlockCode?.ToString() ?? "Not available")</p>
         <p>Courier destination machine unlocking code: @(Shipment.DestPmCourierUnlockCode?.ToString() ?? "Not available")</p>
-        // TODO: Place courier source unlocking code and destination unlocking code here.
     }
     <p>Source post machine name: @Shipment.SourceMachine.Name</p>
     <p>Source post machine address: @Shipment.SourceMachine.Address</p>
@@ -31,7 +29,6 @@
     <p>Destination post machine address: @Shipment.DestinationMachine.Address</p>
     <p>Tracking code: @_trackingCode</p>
     <p>Tracking link: <a href="@_trackingLink">@_trackingLink</a></p>
-    // TODO: Place tracking code here.
 }
 
 <button class="btn btn-primary"
@@ -42,19 +39,18 @@
 @code {
 
     [CascadingParameter]
-    private Task<AuthenticationState> authStateTask {get; set;}
+    Task<AuthenticationState> authStateTask {get; set;}
     [Parameter]
     public long Id { get; set; }
     [Inject]
-    public IShipmentService ShipmentService { get; set; }
-    public Shipment Shipment { get; set; }
-    public long? viewerId { get; set; }
-    public string Role { get; set; }
-    public string _trackingCode { get; set; }
+    IShipmentService ShipmentService { get; set; }
+    Shipment Shipment { get; set; }
+    string Role;
+    string _trackingCode;
     string _trackingLink;
 
 
-    public string ShipmentListUrl() => Role == "Sender" ? "/shipment" : "/courier";
+    string ShipmentListUrl() => Role == "Sender" ? "/shipment" : "/courier";
 
     protected override async Task OnInitializedAsync()
     {
