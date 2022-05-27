@@ -1,9 +1,8 @@
 ﻿@page "/shipment/{id:long}"
 @attribute [Authorize]
 @inject NavigationManager NavigationManager
-<PageTitle>Shipment details</PageTitle>
-
 @inject ILogger<ShipmentDetails> _logger
+<PageTitle>Shipment details</PageTitle>
 <h3>Shipment details</h3>
 @if(Shipment != null) {
     if (Role == "Sender")

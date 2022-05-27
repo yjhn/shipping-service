@@ -114,58 +114,118 @@ else if (_assignResult == AssignResult.Error)
 
     async Task GetUnassignedShipmentsAsync()
     {
-        UnassignedShipments = await ShipmentService.GetUnassignedInSourceMachineAsync();
+        var authState = await AuthStateTask;
+        var username = authState.User.Identities.First().Name;
+        var role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
+        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(AssignShipmentToCourier));
+        try
+        {
+            UnassignedShipments = await ShipmentService.GetUnassignedInSourceMachineAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(AssignShipmentToCourier));
+        }
     }
 
     async Task ResetPage()
     {
-        _assignResult = AssignResult.NotTriedYet;
-        _assignMessage = null;
-        await GetUnassignedShipmentsAsync();
+        var authState = await AuthStateTask;
+        var username = authState.User.Identities.First().Name;
+        var role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
+        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(OverwriteAssign));
+        try
+        {
+            _assignResult = AssignResult.NotTriedYet;
+            _assignMessage = null;
+            await GetUnassignedShipmentsAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(OverwriteAssign));
+        }
+
+
     }
 
     async Task AssignShipmentToCourier(long shipmentId)
     {
-        var shipment = UnassignedShipments.Single(s => s.Id == shipmentId);
-        var result = await ShipmentService.AssignShipmentToCourier(shipment, Courier);
-        if (result == DbUpdateResult.ConcurrentUpdateError)
+        var authState = await AuthStateTask;
+        var username = authState.User.Identities.First().Name;
+        var role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
+        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(AssignShipmentToCourier));
+        try
         {
-            _shipmentId = shipmentId;
-            _assignResult = AssignResult.Error;
-            _assignMessage = "The shipment entity has been changed in the DB. " +
-                             "Do you want to overwrite changes made to the shipment since you loaded the page?";
+        
+            var shipment = UnassignedShipments.Single(s => s.Id == shipmentId);
+            var result = await ShipmentService.AssignShipmentToCourier(shipment, Courier);
+            if (result == DbUpdateResult.ConcurrentUpdateError)
+            {
+                _shipmentId = shipmentId;
+                _assignResult = AssignResult.Error;
+                _assignMessage = "The shipment entity has been changed in the DB. " +
+                                 "Do you want to overwrite changes made to the shipment since you loaded the page?";
+            }
+            else
+            {
+                _assignResult = AssignResult.Success;
+                _assignMessage = "Shipment with ID " + shipment.Id + " is assigned to you.";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            _assignResult = AssignResult.Success;
-            _assignMessage = "Shipment with ID " + shipment.Id + " is assigned to you.";
+            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(AssignShipmentToCourier));
         }
+        
+
     }
 
     async Task OverwriteAssign()
     {
-        var id = _shipmentId!.Value;
-        var shipment = UnassignedShipments.Single(s => s.Id == id);
-        var shipmentFromDb = await ShipmentService.GetByIdBypassCache(id);
-        ShipmentService.AssignFrom(shipment, shipmentFromDb);
-
-        var result = await ShipmentService.AssignShipmentToCourier(shipmentFromDb, Courier);
-        if (result == DbUpdateResult.Success)
+        var authState = await AuthStateTask;
+        var username = authState.User.Identities.First().Name;
+        var role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
+        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(OverwriteAssign));
+        try
         {
-            _assignResult = AssignResult.Success;
-            _assignMessage = "Shipment with ID " + shipment.Id + " is assigned to you.";
+            var id = _shipmentId!.Value;
+            var shipment = UnassignedShipments.Single(s => s.Id == id);
+            var shipmentFromDb = await ShipmentService.GetByIdBypassCache(id);
+            ShipmentService.AssignFrom(shipment, shipmentFromDb);
+
+            var result = await ShipmentService.AssignShipmentToCourier(shipmentFromDb, Courier);
+            if (result == DbUpdateResult.Success)
+            {
+                _assignResult = AssignResult.Success;
+                _assignMessage = "Shipment with ID " + shipment.Id + " is assigned to you.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(OverwriteAssign));
         }
     }
 
     async Task FetchAssign()
     {
-        var id = _shipmentId!.Value;
-        var shipmentFromDb = await ShipmentService.GetByIdBypassCache(id);
-        var result = await ShipmentService.AssignShipmentToCourier(shipmentFromDb, Courier);
-        if (result == DbUpdateResult.Success)
+        var authState = await AuthStateTask;
+        var username = authState.User.Identities.First().Name;
+        var role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
+        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(OverwriteAssign));
+        try
         {
-            _assignResult = AssignResult.Success;
-            _assignMessage = "Shipment with ID " + shipmentFromDb.Id + " is assigned to you.";
+            var id = _shipmentId!.Value;
+            var shipmentFromDb = await ShipmentService.GetByIdBypassCache(id);
+            var result = await ShipmentService.AssignShipmentToCourier(shipmentFromDb, Courier);
+            if (result == DbUpdateResult.Success)
+            {
+                _assignResult = AssignResult.Success;
+                _assignMessage = "Shipment with ID " + shipmentFromDb.Id + " is assigned to you.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(OverwriteAssign));
         }
     }
 

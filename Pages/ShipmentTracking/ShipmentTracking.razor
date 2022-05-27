@@ -1,9 +1,8 @@
-@page "/tracking/shipment/{trackingLink}"
 @using System.Text.RegularExpressions
-
-<PageTitle>Shipment tracking</PageTitle>
 @inject ILogger<ShipmentTracking> _logger
-@page "/shipment/tracking/{trackingLink}"
+@page "/tracking/shipment/{trackingLink}"
+<PageTitle>Shipment tracking</PageTitle>
+
 
 <h3>Shipment tracking</h3>
 @if (Shipment != null)
