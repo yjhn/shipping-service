@@ -29,8 +29,9 @@
     <p>Source post machine address: @Shipment.SourceMachine.Address</p>
     <p>Destination post machine name: @Shipment.DestinationMachine.Name</p>
     <p>Destination post machine address: @Shipment.DestinationMachine.Address</p>
-    <p>Tracking link: @_trackingCode</p>
-    // TODO: Place tracking link here.
+    <p>Tracking code: @_trackingCode</p>
+    <p>Tracking link: <a href="@_trackingLink">@_trackingLink</a></p>
+    // TODO: Place tracking code here.
 }
 
 <button class="btn btn-primary"
@@ -50,6 +51,7 @@
     public long? viewerId { get; set; }
     public string Role { get; set; }
     public string _trackingCode { get; set; }
+    string _trackingLink;
 
 
     public string ShipmentListUrl() => Role == "Sender" ? "/shipment" : "/courier";
@@ -62,7 +64,8 @@
         {
             NavigationManager.NavigateTo("/");
         }
-        _trackingCode = Shipment.Id.ToString() + "-" + ShipmentService.GenerateIdHash(Id); 
+        _trackingCode = Shipment.Id.ToString() + "-" + ShipmentService.GenerateIdHash(Id);
+        _trackingLink = NavigationManager.BaseUri + "tracking/shipment/" + _trackingCode;
 
         var authState = await authStateTask;
         var username = authState.User.Identities.First().Name;

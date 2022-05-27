@@ -1,5 +1,5 @@
 ﻿@page "/shipment"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Sender")]
 <PageTitle>My shipments</PageTitle>
 
 <h4>Shipment main page</h4>
