@@ -16,6 +16,11 @@ namespace shipping_service.Repositories
 
         public IQueryable<Courier> Couriers => _context.Couriers;
 
+        public async Task<Courier?> FindAsync(long id)
+        {
+            return await _context.Couriers.FindAsync(id);
+        }
+
         public async Task CreateAsync(Courier courier)
         {
             _context.Add(courier);
