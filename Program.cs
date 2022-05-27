@@ -32,8 +32,18 @@ builder.Services.AddDbContext<DatabaseContext>(option =>
 builder.Services.AddScoped<ICourierRepository, CourierRepository>();
 builder.Services.AddScoped<IShipmentRepository, ShipmentRepository>();
 builder.Services.AddScoped<IShipmentService, ShipmentService>();
+builder.Services.AddScoped<ICourierService, CourierService>();
 builder.Services.AddScoped<IPostMachineRepository, PostMachineRepository>();
 builder.Services.AddScoped<IPostMachineService, PostMachineService>();
+string generatorInterface = builder.Configuration.GetValue<string>("GeneratorInterface");
+if (generatorInterface == "CodeGenerator")
+{
+builder.Services.AddScoped<ICodeGenerator, CodeGenerator>();
+}
+else
+{
+builder.Services.AddScoped<ICodeGenerator, CodeGeneratorByDigit>();
+}
 builder.Services.AddScoped<ISenderRepository, SenderRepository>();
 builder.Services.AddScoped<IShipmentService, ShipmentService>();
 builder.Services.AddScoped<IAccountService, AccountService>();

@@ -19,6 +19,7 @@ namespace shipping_service.Services
             _courierRepository = courierRepository;
         }
 
+        // Returns (error, role).
         public async Task<(string?, string?)> LoginAsync(UserLogin user)
         {
             string username = user.Username;

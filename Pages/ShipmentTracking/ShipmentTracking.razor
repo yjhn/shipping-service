@@ -1,8 +1,11 @@
-﻿@using System.Text.RegularExpressions
+@page "/tracking/shipment/{trackingLink}"
+@using System.Text.RegularExpressions
+
+<PageTitle>Shipment tracking</PageTitle>
 @inject ILogger<ShipmentTracking> _logger
 @page "/shipment/tracking/{trackingLink}"
 
-<h3>Shipment Tracking</h3>
+<h3>Shipment tracking</h3>
 @if (Shipment != null)
 {
     <div class="parcel-info">
@@ -43,6 +46,7 @@
             <label>@Shipment.Modified</label>
         </div>
     </div>
+    <NavLink class="btn btn-primary" href="/tracking">Back</NavLink>
 }
 else
 {
@@ -59,7 +63,7 @@ else
     [Inject]
     IShipmentService ShipmentService { get; set; }
 
-    Shipment? Shipment{ get; set; }
+    Shipment? Shipment { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -94,4 +98,5 @@ else
         }
 
     }
+
 }

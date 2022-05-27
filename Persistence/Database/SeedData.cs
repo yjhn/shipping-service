@@ -9,6 +9,11 @@ namespace shipping_service.Persistence.Database
     public class SeedData
     {
         private const string basePath = $"{nameof(Persistence)}/{nameof(Database)}/test_data";
+        private static int startingSrcPmSenderUnlockCode = 1_000_00;
+        private static int startingSrcPmCourierUnlockCode = 1_100_00;
+        private static int startingDestPmCourierUnlockCode = 1_200_00;
+        private static int startingDestPmReceiverUnlockCode = 1_300_00;
+
 
         public static void PopulateIfEmpty(IApplicationBuilder app)
         {
@@ -129,6 +134,18 @@ namespace shipping_service.Persistence.Database
                         sheet.Cells[i, statusColumnPosition].Value.ToString();
                     ShipmentStatus shipmentStatus =
                         (ShipmentStatus)Enum.Parse(typeof(ShipmentStatus), shipmentStatusString);
+                    int? srcPmSenderUnlockCode = startingSrcPmSenderUnlockCode++;
+                    int? srcPmCourierUnlockCode = startingSrcPmCourierUnlockCode++;
+                    int? destPmCourierUnlockCode = null;
+                    int? destPmReceiverUnlockCode = null;
+                    if (courierIdString != null)
+                    {
+                        srcPmCourierUnlockCode = startingSrcPmCourierUnlockCode++;
+                        if (shipmentStatus == ShipmentStatus.Shipping)
+                        {
+                            destPmCourierUnlockCode = startingDestPmCourierUnlockCode++;
+                        }
+                    }
                     Shipment shipment =
                         new()
                         {
@@ -138,7 +155,11 @@ namespace shipping_service.Persistence.Database
                             SenderId = senderId,
                             CourierId = courierIdString == null ? null : Convert.ToInt64(courierIdString),
                             SourceMachineId = sourceMachineId,
-                            DestinationMachineId = destinationMachineId
+                            DestinationMachineId = destinationMachineId,
+                            SrcPmSenderUnlockCode = srcPmSenderUnlockCode,
+                            SrcPmCourierUnlockCode = srcPmCourierUnlockCode,
+                            DestPmCourierUnlockCode = destPmCourierUnlockCode,
+                            DestPmReceiverUnlockCode = destPmReceiverUnlockCode
                         };
                     context.Shipments.Add(shipment);
                 }

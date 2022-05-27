@@ -1,143 +1,179 @@
 ﻿@page "/courier/available-shipments"
+@using shipping_service.Models
+@attribute [Authorize(Roles = "Courier")]	
 @inject ILogger<AvailableShipments> _logger
 <PageTitle>Assign shipments</PageTitle>
 
 <h3>Available shipments to deliver</h3>
-<AuthorizeView Roles="Courier">
-    @if (!string.IsNullOrEmpty(assignMessage))
-    {
-        <div class="modal-backdrop" style="opacity: .6" />
-        <div class="modal show d-block" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Assign Shipment</h5>
-                    </div>
-                    <div class="modal-body">
-                        @assignMessage
-                    </div>
-                    <div class="modal-footer">
-                        <div class="row">
-                            <button class="btn btn-primary" @onclick="@( async() =>{
-							assignMessage = null;
-						 await GetUnassignedShipmentsAsync();
-						})">
-                                OK
-                            </button>
-                        </div>
+@if (_assignResult == AssignResult.Success)
+{
+    <div class="modal-backdrop" style="opacity: .6"></div>
+    <div class="modal show d-block" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog alert-success" role="dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Assign Shipment</h5>
+                </div>
+                <div class="modal-body">
+                    @_assignMessage
+                </div>
+                <div class="modal-footer">
+                    <div class="row">
+                        <button class="btn btn-primary" @onclick="@ResetPage">Ok</button>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+}
+else if (_assignResult == AssignResult.Error)
+{
+    <div class="modal-backdrop" style="opacity: .6"></div>
+    <div class="modal show d-block" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="dialog-title">
+        <div class="modal-dialog" role="alertdialog">
+            <div class="modal-content alert-danger">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dialog-title">Error assigning shipment</h5>
+                </div>
+                <div class="modal-body">
+                    @_assignMessage
+                </div>
+                <div class="modal-footer">
+                    <div class="row">
+                        <button class="btn btn-danger" style="margin-bottom: .5rem;" @onclick="@FetchAssign">Fetch shipment from DB and assign myself</button>
+                        <button class="btn btn-danger" style="margin-bottom: .5rem;" @onclick="@OverwriteAssign">Overwrite other changes</button>
+                        <button class="btn btn-primary" style="margin-bottom: .5rem;" @onclick="@ResetPage">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<table class="table table-sm table-striped table-bordered">
+    <tbody>
+    @if (UnassignedShipments.Any())
+    {
+        <tr>
+            <th>Source machine name</th>
+            <th>Source machine address</th>
+            <th>Destination machine name</th>
+            <th>Destination machine address</th>
+            <th/>
+        </tr>
+        foreach (var shipment in UnassignedShipments)
+        {
+            <tr>
+                <td>@shipment.SourceMachine.Name</td>
+                <td>@shipment.SourceMachine.Address</td>
+                <td>@shipment.DestinationMachine.Name</td>
+                <td>@shipment.DestinationMachine.Address</td>
+                <td>
+                    <button class="btn btn-primary" @onclick="async () => await AssignShipmentToCourier(shipment.Id)">Assign</button>
+                </td>
+            </tr>
+        }
     }
-    <table class="table table-sm table-striped table-bordered">
-        <tbody>
-            @if (UnassignedShipments.Count() > 0)
-            {
-                <tr>
-                    <th>Source machine address</th>
-                    <th>Destination machine address</th>
-                    <th />
-                </tr>
-                foreach (var shipment in UnassignedShipments)
-                {
-                    <tr>
-                        <td>@shipment.SourceMachine.Address</td>
-                        <td>@shipment.DestinationMachine.Address</td>
-                        <td>
-                            <button class="btn btn-primary" @onclick="(async () => await AssignShipmentToCourier(shipment.Id))">Assign</button>
-                        </td>
-                    </tr>
-                }
-            }
-            else
-            {
-                <tr>
-                    <td colspan="5" class="text-center">No unassigned shipments yet</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    else
+    {
+        <tr>
+            <td colspan="5" class="text-center">No unassigned shipments yet</td>
+        </tr>
+    }
+    </tbody>
+</table>
 
-    <NavLink class="btn btn-primary" href="/courier">
-        Go Back
-    </NavLink>
-</AuthorizeView>
+<NavLink class="btn btn-primary" href="/courier">
+    Go Back
+</NavLink>
 
 @code {
 
     [Inject]
-    public IShipmentRepository ShipmentRepository { get; set; }
+    ICourierRepository CourierRepository { get; set; }
 
     [Inject]
-    public ICourierRepository CourierRepository { get; set; }
+    IShipmentService ShipmentService { get; set; }
 
-    [Inject]
-    public IShipmentService ShipmentService { get; set; }
+    IEnumerable<Shipment> UnassignedShipments { get; set; }
+    Courier Courier { get; set; }
+    AssignResult _assignResult = AssignResult.NotTriedYet;
+    string? _assignMessage;
+    long? _shipmentId;
 
-    public IEnumerable<Shipment> UnassignedShipments { get; set; }
-    public Courier Courier { get; set; }
-    private string assignMessage;
     [CascadingParameter]
-    private Task<AuthenticationState> authStateTask { get; set; }
+    Task<AuthenticationState> AuthStateTask { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         UnassignedShipments = new List<Shipment>();
-        var authState = await authStateTask;
-        if (!authState.User.Identity.IsAuthenticated)
-            return;
-        Courier = await CourierRepository.Couriers.Include(c => c.CurrentShipments).
-        FirstOrDefaultAsync(c => c.Username == authState.User.Identity.Name);
+        var authState = await AuthStateTask;
+        var username = authState.User.Identity!.Name!;
+        Courier = (await CourierRepository.GetByUsername(username))!;
         await GetUnassignedShipmentsAsync();
     }
 
-    public async Task GetUnassignedShipmentsAsync()
+    async Task GetUnassignedShipmentsAsync()
     {
-        var authState = await authStateTask;
-        var username = authState.User.Identities.First().Name;
-        var role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
-        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role ,DateTime.UtcNow, nameof(GetUnassignedShipmentsAsync));
-        try
-        {
-            UnassignedShipments = await ShipmentService.GetUnassignedAsync();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username, role,DateTime.UtcNow, nameof(GetUnassignedShipmentsAsync));
-        }
-
-
-
+        UnassignedShipments = await ShipmentService.GetUnassignedInSourceMachineAsync();
     }
 
-    public async Task AssignShipmentToCourier(long shipmentId)
+    async Task ResetPage()
     {
-
-        var authState = await authStateTask;
-        var username = authState.User.Identities.First().Name;
-        var role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
-        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(AssignShipmentToCourier));
-        try
-        {
-            var shipment = await ShipmentRepository.Shipments.FirstOrDefaultAsync(s => s.Id == shipmentId);
-            if (shipment == null)
-            {
-                assignMessage = "The specified shipment does not exist.";
-            }
-            if (shipment.CourierId == null)
-            {
-                Courier.CurrentShipments.Add(shipment);
-                await CourierRepository.UpdateAsync(Courier);
-                assignMessage = "Shipment " + shipment.Id + " is assigned.";
-            }
-            else { assignMessage = "This shipment is already assigned"; }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(AssignShipmentToCourier));
-        }
-
-
-
+        _assignResult = AssignResult.NotTriedYet;
+        _assignMessage = null;
+        await GetUnassignedShipmentsAsync();
     }
+
+    async Task AssignShipmentToCourier(long shipmentId)
+    {
+        var shipment = UnassignedShipments.Single(s => s.Id == shipmentId);
+        var result = await ShipmentService.AssignShipmentToCourier(shipment, Courier);
+        if (result == DbUpdateResult.ConcurrentUpdateError)
+        {
+            _shipmentId = shipmentId;
+            _assignResult = AssignResult.Error;
+            _assignMessage = "The shipment entity has been changed in the DB. " +
+                             "Do you want to overwrite changes made to the shipment since you loaded the page?";
+        }
+        else
+        {
+            _assignResult = AssignResult.Success;
+            _assignMessage = "Shipment with ID " + shipment.Id + " is assigned to you.";
+        }
+    }
+
+    async Task OverwriteAssign()
+    {
+        var id = _shipmentId!.Value;
+        var shipment = UnassignedShipments.Single(s => s.Id == id);
+        var shipmentFromDb = await ShipmentService.GetByIdBypassCache(id);
+        ShipmentService.AssignFrom(shipment, shipmentFromDb);
+
+        var result = await ShipmentService.AssignShipmentToCourier(shipmentFromDb, Courier);
+        if (result == DbUpdateResult.Success)
+        {
+            _assignResult = AssignResult.Success;
+            _assignMessage = "Shipment with ID " + shipment.Id + " is assigned to you.";
+        }
+    }
+
+    async Task FetchAssign()
+    {
+        var id = _shipmentId!.Value;
+        var shipmentFromDb = await ShipmentService.GetByIdBypassCache(id);
+        var result = await ShipmentService.AssignShipmentToCourier(shipmentFromDb, Courier);
+        if (result == DbUpdateResult.Success)
+        {
+            _assignResult = AssignResult.Success;
+            _assignMessage = "Shipment with ID " + shipmentFromDb.Id + " is assigned to you.";
+        }
+    }
+
+    enum AssignResult
+    {
+        NotTriedYet,
+        Success,
+        Error
+    }
+
 }

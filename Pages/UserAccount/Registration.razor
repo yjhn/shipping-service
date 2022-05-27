@@ -1,15 +1,15 @@
-@page "/login"
+﻿@page "/register"
 @using System.ComponentModel.DataAnnotations
 @using shipping_service.Models
-@inject ILogger<Login> _logger
 @using shipping_service.Services
-@inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
+@inject ILogger<Registration> _logger
 @inject IAccountService accountService
+<PageTitle>Registration</PageTitle>
 <div class="col-md-8 mx-auto">
         <div class="card" style="margin: auto; max-width: 500px">
             <h3 class="card-header">
-                Login
+                Register
             </h3>
             <div class="card-body">
                 @if (!string.IsNullOrWhiteSpace(error))
@@ -30,7 +30,19 @@
                     <InputText type="password" id="password" @bind-Value="@user.Password" class="form-control" style="margin-bottom: 1rem;" />
 					                    <ValidationMessage For="@(() => user.Password)" />
 
-                    <button class="btn btn-primary" type="submit" style="margin-top: .5rem;">Log in</button>
+                    <label class="form-label" for="confirmPassword">Confirm Password</label>
+                    <InputText type="password" id="confirmPassword" @bind-Value="@user.ConfirmPassword" class="form-control" style="margin-bottom: 1rem;" />
+					                    <ValidationMessage For="@(() => user.ConfirmPassword)" />
+
+											                    <label class="form-label" for="role">Role</label>
+																                    <InputSelect @bind-Value="user.Role" class="form-select" id="role">
+                        <option value="">-- SELECT ONE --</option>
+                        <option value="Sender">Sender</option>
+                        <option value="Courier">Courier</option>
+                    </InputSelect>
+					                    <ValidationMessage For="@(() => user.Role)" />
+
+                    <button class="btn btn-primary" type="submit" style="margin-top: .5rem;">Register</button>
                 <button type="reset" class="btn btn-secondary" style="margin-top: .5rem;">Reset</button>
                 </EditForm>
             </div>
@@ -38,57 +50,43 @@
     </div>
 
 @code {
-	private UserLogin user = new();
+	private User user = new();
 	private string error;
 	[CascadingParameter]
 	private Task<AuthenticationState> authStateTask {get; set;}
 
 	protected override async Task OnInitializedAsync()
 	{
-
-	    _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "", "",DateTime.UtcNow, nameof(OnInitializedAsync));
-	    try
-	    {
-	        var authState = await authStateTask;
-	        var authUser = authState.User;
-	        if (authUser.Identity.IsAuthenticated)
-	        {
-	            NavigationManager.NavigateTo("/");
-	        }
-	    }
-	    catch (Exception ex)
-	    {
-	        _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "","" ,DateTime.UtcNow, nameof(OnInitializedAsync));
-	    }
-
+		var authState = await authStateTask;
+		var authUser = authState.User;
+		if (authUser.Identity.IsAuthenticated)
+		{
+			NavigationManager.NavigateTo("/");
+		}
 	}
 
 	protected async Task HandleSubmit()
 	{
-
 	    _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "","", DateTime.UtcNow, nameof(HandleSubmit));
 	    try
 	    {
-	        var (loginError, role) = await accountService.LoginAsync(user);
-	        if (loginError == null)
+	        error = await accountService.RegisterAsync(user);
+	        if (error == null)
 	        {
-	            var authModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./scripts/auth.js");
-	            await authModule.InvokeVoidAsync("SignIn", user.Username, role, user.Password, "/");
-	        }
-	        else{
-	            error = loginError;
+	            NavigationManager.NavigateTo("/login");
+    //			await RedirectTo("/login");
 	        }
 	    }
 	    catch (Exception ex)
 	    {
-	        _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "","", DateTime.UtcNow, nameof(HandleSubmit));
+	        _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "", "",DateTime.UtcNow, nameof(HandleSubmit));
 	    }
 
-    }
+	}
 
 	protected async Task HandleReset()
 	{
-		        user = new UserLogin();
+	    user = new User();
 	}
 	
 }
