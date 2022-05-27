@@ -51,8 +51,8 @@
                         <td>@shipment.SourceMachine.Address</td>
                         <td>@shipment.DestinationMachine.Name</td>
                         <td>@shipment.DestinationMachine.Address</td>
-                        <td>@shipment.SrcPmCourierUnlockCode</td>
-                        <td>@shipment.DestPmCourierUnlockCode</td>
+                        <td>@(shipment.SrcPmCourierUnlockCode?.ToString() ?? "Not available")</td>
+                        <td>@(shipment.DestPmCourierUnlockCode?.ToString() ?? "Not available")</td>
                         <td>
                             @if (shipment.Status == ShipmentStatus.RegisteredForSending)
                             {
