@@ -1,7 +1,8 @@
-@page "/tracking/shipment/{trackingLink}"
 @using System.Text.RegularExpressions
-
+@inject ILogger<ShipmentTracking> _logger
+@page "/tracking/shipment/{trackingLink}"
 <PageTitle>Shipment tracking</PageTitle>
+
 
 <h3>Shipment tracking</h3>
 @if (Shipment != null)
@@ -52,6 +53,8 @@ else
 }
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authStateTask {get; set;}
 
     [Parameter]
     public string? trackingLink { get; set; }
@@ -75,11 +78,21 @@ else
         {
             return;
         }
-        Shipment = await ShipmentService.SelectIncludeAll(shipmentId);
-        if (Shipment != null && !ShipmentService.IsValidIdHash(shipmentId, trackingCode))
+
+        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "", "",DateTime.UtcNow, nameof(OnInitializedAsync));
+        try
         {
-            Shipment = null;
+            Shipment = await ShipmentService.SelectIncludeAll(shipmentId);
+            if(Shipment != null && ! ShipmentService.IsValidIdHash(shipmentId, trackingCode))
+            {
+                Shipment = null;
+            }
         }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}","", "", DateTime.UtcNow, nameof(OnInitializedAsync));
+        }
+
     }
 
 }

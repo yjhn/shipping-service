@@ -3,6 +3,7 @@
 @using shipping_service.Models
 @using shipping_service.Services
 @inject NavigationManager NavigationManager
+@inject ILogger<Registration> _logger
 @inject IAccountService accountService
 <PageTitle>Registration</PageTitle>
 <div class="col-md-8 mx-auto">
@@ -66,17 +67,26 @@
 
 	protected async Task HandleSubmit()
 	{
-		error = await accountService.RegisterAsync(user);
-		if (error == null)
-		{
-NavigationManager.NavigateTo("/login");
-//			await RedirectTo("/login");
-		}
+	    _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "","", DateTime.UtcNow, nameof(HandleSubmit));
+	    try
+	    {
+	        error = await accountService.RegisterAsync(user);
+	        if (error == null)
+	        {
+	            NavigationManager.NavigateTo("/login");
+    //			await RedirectTo("/login");
+	        }
+	    }
+	    catch (Exception ex)
+	    {
+	        _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "", "",DateTime.UtcNow, nameof(HandleSubmit));
+	    }
+
 	}
 
 	protected async Task HandleReset()
 	{
-		        user = new User();
+	    user = new User();
 	}
 	
 }
