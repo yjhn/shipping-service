@@ -35,8 +35,9 @@ namespace shipping_service.Repositories
 
         public async Task<DbUpdateResult> UpdateAsync(Shipment shipment)
         {
-            Shipment s = _context.Shipments.Find(shipment.Id)!;
-            Console.WriteLine("Entity with key: " + shipment.Id + " tracking status: " + _context.Entry(s).State);
+            Shipment s = (await _context.Shipments.FindAsync(shipment.Id))!;
+            // Existing entity has to be detached, because in some cases `shipment` is detached.
+            _context.Entry(s).State = EntityState.Detached;
             _context.Update(shipment);
             try
             {
