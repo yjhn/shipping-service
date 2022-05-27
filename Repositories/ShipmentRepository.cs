@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
+using shipping_service.Models;
 using shipping_service.Persistence.Database;
 using shipping_service.Persistence.Entities;
 
@@ -21,22 +22,46 @@ namespace shipping_service.Repositories
             return await _context.Shipments.FindAsync(id);
         }
 
+        public async Task<Shipment?> GetBypassCache(long id)
+        {
+            return await _context.Shipments.AsNoTracking().SingleOrDefaultAsync(s => s.Id == id);
+        }
+
         public async Task CreateAsync(Shipment shipment)
         {
             _context.Add(shipment);
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Shipment shipment)
+        public async Task<DbUpdateResult> UpdateAsync(Shipment shipment)
         {
+            Shipment s = _context.Shipments.Find(shipment.Id)!;
+            Console.WriteLine("Entity with key: " + shipment.Id + " tracking status: " + _context.Entry(s).State);
             _context.Update(shipment);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return DbUpdateResult.ConcurrentUpdateError;
+            }
+
+            return DbUpdateResult.Success;
         }
 
         public void Delete(Shipment shipment)
         {
             _context.Remove(shipment);
             _context.SaveChanges();
+        }
+
+        // Should only be called when it is known that the entity is cached
+        // by the DbContext.
+        public void Detach(long id)
+        {
+            Shipment s = _context.Shipments.Find(id)!;
+            _context.Entry(s).State = EntityState.Detached;
         }
     }
 }

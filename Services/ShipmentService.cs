@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
+using shipping_service.Models;
 using shipping_service.Persistence.Entities;
 using shipping_service.Repositories;
 
@@ -27,6 +28,14 @@ namespace shipping_service.Services
                 .Include(s => s.DestinationMachine)
                 .ToListAsync();
         }
+        
+        public IEnumerable<Shipment> GetUnassignedInSourceMachine()
+        {
+            return _shipmentRepository.Shipments
+                .Where(s => s.CourierId == null && s.Status == ShipmentStatus.InSourcePostMachine)
+                .Include(s => s.SourceMachine)
+                .Include(s => s.DestinationMachine);
+        }
 
         public async Task<IEnumerable<Shipment>> GetAssignedAsync(long courierId)
         {
@@ -40,6 +49,11 @@ namespace shipping_service.Services
         public async Task<Shipment?> GetById(long id)
         {
             return await _shipmentRepository.GetAsync(id);
+        }
+
+        public async Task<Shipment?> GetByIdBypassCache(long id)
+        {
+            return await _shipmentRepository.GetBypassCache(id);
         }
 
         public async Task CreateAsync(Shipment s)
@@ -111,28 +125,28 @@ namespace shipping_service.Services
         {
             return await _shipmentRepository.Shipments
                 .Where(s => s.SourceMachineId == postMachineId && s.SrcPmSenderUnlockCode == unlockCode)
-                .FirstOrDefaultAsync();
+                .SingleOrDefaultAsync();
         }
 
         public async Task<Shipment?> GetShFromSrcCourierCode(long postMachineId, int unlockCode)
         {
             return await _shipmentRepository.Shipments
                 .Where(s => s.SourceMachineId == postMachineId && s.SrcPmCourierUnlockCode == unlockCode)
-                .FirstOrDefaultAsync();
+                .SingleOrDefaultAsync();
         }
 
         public async Task<Shipment?> GetShFromDestCourierCode(long postMachineId, int unlockCode)
         {
             return await _shipmentRepository.Shipments
                 .Where(s => s.DestinationMachineId == postMachineId && s.DestPmCourierUnlockCode == unlockCode)
-                .FirstOrDefaultAsync();
+                .SingleOrDefaultAsync();
         }
 
         public async Task<Shipment?> GetShFromDestReceiverCode(long postMachineId, int unlockCode)
         {
             Shipment? sh = await _shipmentRepository.Shipments
                 .Where(s => s.DestinationMachineId == postMachineId && s.DestPmReceiverUnlockCode == unlockCode)
-                .FirstOrDefaultAsync();
+                .SingleOrDefaultAsync();
             return sh is not { Status: ShipmentStatus.InDestinationPostMachine } ? null : sh;
         }
 
@@ -143,7 +157,7 @@ namespace shipping_service.Services
                 .Include(s => s.Courier)
                 .Include(s => s.SourceMachine)
                 .Include(s => s.DestinationMachine)
-                .FirstOrDefaultAsync(s => s.Id == id);
+                .SingleOrDefaultAsync(s => s.Id == id);
         }
 
         public string GenerateIdHash(long id)
@@ -167,12 +181,16 @@ namespace shipping_service.Services
             return s;
         }
 
-        public async Task AssignShipmentToCourier(Shipment s, Courier c)
+        public async Task<DbUpdateResult> AssignShipmentToCourier(Shipment s, Courier c)
         {
-            s.Courier = c;
-            c.CurrentShipments.Add(s);
+            s.CourierId = c.Id;
             s.SrcPmCourierUnlockCode = await _postMachineService.GeneratePostMachineUnlockCode(s.SourceMachineId);
-            await _shipmentRepository.UpdateAsync(s);
+            return await _shipmentRepository.UpdateAsync(s);
+        }
+
+        public void Detach(long id)
+        {
+            _shipmentRepository.Detach(id);
         }
     }
 }

@@ -28,7 +28,7 @@
     }
     <table class="table table-sm table-striped table-bordered">
         <tbody>
-        @if (AssignedShipments?.Count() > 0)
+        @if (AssignedShipments.Any())
         {
             <tr>
                 <th>Source machine name</th>
@@ -108,6 +108,7 @@
 
     public async Task UnassignShipment(Shipment shipment)
     {
+        // TODO: use shipment service, make this actually work
         Courier.CurrentShipments.Remove(shipment);
         await CourierRepository.UpdateAsync(Courier);
         assignMessage = "Shipment " + shipment.Id + " is unassigned.";
