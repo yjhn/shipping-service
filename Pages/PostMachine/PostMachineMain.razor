@@ -187,10 +187,7 @@ else if (_placePackage)
     // is not registered.
     async Task HandlePlaceSubmit()
     {
-        var authState = await authStateTask;
-        var username = authState.User.Identities.First().Name;
-        var role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
-        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(HandlePlaceSubmit));
+        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "","", DateTime.UtcNow, nameof(HandlePlaceSubmit));
         try
         {
             _error = null;
@@ -218,7 +215,7 @@ else if (_placePackage)
         }
         catch (Exception ex)
         {
-            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username, role,DateTime.UtcNow, nameof(HandlePlaceSubmit));
+            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "", "",DateTime.UtcNow, nameof(HandlePlaceSubmit));
         }
 
 
@@ -227,10 +224,7 @@ else if (_placePackage)
     async Task HandlePickUpSubmit()
     {
 
-        var authState = await authStateTask;
-        var username = authState.User.Identities.First().Name;
-        var role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
-        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(HandlePickUpSubmit));
+        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "","", DateTime.UtcNow, nameof(HandlePickUpSubmit));
         try
         {
             _error = null;
@@ -257,7 +251,7 @@ else if (_placePackage)
         }
         catch (Exception ex)
         {
-            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(HandlePickUpSubmit));
+            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "","", DateTime.UtcNow, nameof(HandlePickUpSubmit));
         }
 
 
@@ -266,18 +260,15 @@ else if (_placePackage)
 
     protected override async Task OnInitializedAsync()
     {
-        
-        var authState = await authStateTask;
-        var username = authState.User.Identities.First().Name;
-        var role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
-        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role ,DateTime.UtcNow, nameof(OnInitializedAsync));
+
+        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "","" ,DateTime.UtcNow, nameof(OnInitializedAsync));
         try
         {
             ThisPostMachine = await PostMachineRepository.GetAsync(PostMachineId);
         }
         catch (Exception ex)
         {
-            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username,role, DateTime.UtcNow, nameof(OnInitializedAsync));
+            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "","", DateTime.UtcNow, nameof(OnInitializedAsync));
         }
 
         
