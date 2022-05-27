@@ -26,5 +26,6 @@ namespace shipping_service.Services
         Task<DbUpdateResult> AssignShipmentToCourier(Shipment s, Courier c);
         Task<DbUpdateResult> UnassignShipment(Courier c, Shipment s);
         void AssignFrom(Shipment from, Shipment to);
+        IEnumerable<Shipment> GetBySenderUsername(string username);
     }
 }

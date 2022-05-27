@@ -102,7 +102,7 @@
     async Task UnassignShipment(Shipment shipment)
     {
         await ShipmentService.UnassignShipment(Courier, shipment);
-        _assignMessage = "Shipment " + shipment.Id + " no longer assigned to you.";
+        _assignMessage = "Shipment with ID " + shipment.Id + " is no longer assigned to you.";
     }
 
     const string SearchAvailableShipmentsUrl = "/courier/available-shipments";

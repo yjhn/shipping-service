@@ -213,6 +213,11 @@ namespace shipping_service.Services
             to.DestPmReceiverUnlockCode = from.DestPmReceiverUnlockCode;
         }
 
+        public IEnumerable<Shipment> GetBySenderUsername(string username)
+        {
+            return Shipments.Where(s => s.Sender.Username == username);
+        }
+
         private static string ComputeBase64(long data)
         {
             byte[] bytes = BitConverter.GetBytes(data + 1_000_000).Take(3).ToArray();

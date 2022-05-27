@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @using System.ComponentModel.DataAnnotations
 @inherits OwningComponentBase<IPostMachineRepository>
+<PageTitle>Shipment registration</PageTitle>
 
 <h3>Shipment registration</h3>
 
@@ -32,7 +33,7 @@
 
                 <label class="form-label" for="source-machine">Source post machine</label>
                 <InputSelect @bind-Value="shipment.SourceMachineId" id="source-machine" class="form-select">
-                    <option>-- SELECT --</option>
+                    <option value="">-- SELECT --</option>
                     @foreach (var machine in PostMachines)
                     {
                         <option value="@machine.Id">@machine.Address</option>
@@ -42,7 +43,7 @@
 
                 <label class="form-label" for="destination-machine">Destination post machine</label>
                 <InputSelect @bind-Value="shipment.DestinationMachineId" id="destination-machine" class="form-select">
-                    <option>-- SELECT --</option>
+                    <option value="">-- SELECT --</option>
                     @foreach (var machine in PostMachines)
                     {
                         <option value="@machine.Id">@machine.Address</option>
