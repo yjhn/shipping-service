@@ -28,7 +28,7 @@ namespace shipping_service.Services
                 .Include(s => s.DestinationMachine)
                 .ToListAsync();
         }
-        
+
         public IEnumerable<Shipment> GetUnassignedInSourceMachine()
         {
             return _shipmentRepository.Shipments
@@ -170,6 +170,49 @@ namespace shipping_service.Services
             return hash == GenerateIdHash(id);
         }
 
+        public async Task<DbUpdateResult> AssignShipmentToCourier(Shipment s, Courier c)
+        {
+            s.CourierId = c.Id;
+            s.SrcPmCourierUnlockCode = await _postMachineService.GeneratePostMachineUnlockCode(s.SourceMachineId);
+            return await _shipmentRepository.UpdateAsync(s);
+        }
+
+        public async Task<DbUpdateResult> UnassignShipment(Courier c, Shipment s)
+        {
+            if (s.CourierId != c.Id)
+            {
+                throw new InvalidOperationException("Cannot unassign shipment as the courier IDs do not match");
+            }
+
+            if (s.Status != ShipmentStatus.InSourcePostMachine)
+            {
+                throw new InvalidOperationException(
+                    "Cannot unassign shipment that is already taken from source post machine");
+            }
+
+            s.CourierId = null;
+            s.SrcPmCourierUnlockCode = null;
+            return await _shipmentRepository.UpdateAsync(s);
+        }
+
+        public void AssignFrom(Shipment from, Shipment to)
+        {
+            // Don't overwrite `xmin` as it is used for last update tracking.
+            to.CourierId = from.CourierId;
+            to.Created = from.Created;
+            to.Modified = from.Modified;
+            to.Description = from.Description;
+            to.SenderId = from.SenderId;
+            to.DestinationMachineId = from.DestinationMachineId;
+            to.SourceMachineId = from.SourceMachineId;
+            to.Status = from.Status;
+            to.Title = from.Title;
+            to.SrcPmSenderUnlockCode = from.SrcPmSenderUnlockCode;
+            to.SrcPmCourierUnlockCode = from.SrcPmCourierUnlockCode;
+            to.DestPmCourierUnlockCode = from.DestPmCourierUnlockCode;
+            to.DestPmReceiverUnlockCode = from.DestPmReceiverUnlockCode;
+        }
+
         private static string ComputeBase64(long data)
         {
             byte[] bytes = BitConverter.GetBytes(data + 1_000_000).Take(3).ToArray();
@@ -179,13 +222,6 @@ namespace shipping_service.Services
             s = s.Replace('+', '-'); // 62nd char of encoding
             s = s.Replace('/', '_'); // 63rd char of encoding
             return s;
-        }
-
-        public async Task<DbUpdateResult> AssignShipmentToCourier(Shipment s, Courier c)
-        {
-            s.CourierId = c.Id;
-            s.SrcPmCourierUnlockCode = await _postMachineService.GeneratePostMachineUnlockCode(s.SourceMachineId);
-            return await _shipmentRepository.UpdateAsync(s);
         }
 
         public void Detach(long id)

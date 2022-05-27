@@ -24,6 +24,7 @@ namespace shipping_service.Services
         bool IsValidIdHash(long id, string hash);
         Task<Shipment?> SelectIncludeAll(long id);
         Task<DbUpdateResult> AssignShipmentToCourier(Shipment s, Courier c);
-        void Detach(long id);
+        Task<DbUpdateResult> UnassignShipment(Courier c, Shipment s);
+        void AssignFrom(Shipment from, Shipment to);
     }
 }
