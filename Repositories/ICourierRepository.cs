@@ -6,6 +6,8 @@ namespace shipping_service.Repositories
     {
         IQueryable<Courier> Couriers { get; }
 
+        Task<Courier?> FindAsync(long id);
+
         Task CreateAsync(Courier courier);
 
         Task UpdateAsync(Courier courier);
