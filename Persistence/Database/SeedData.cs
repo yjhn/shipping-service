@@ -140,8 +140,11 @@ namespace shipping_service.Persistence.Database
                     int? destPmReceiverUnlockCode = null;
                     if (courierIdString != null)
                     {
-                        destPmCourierUnlockCode = startingDestPmCourierUnlockCode++;
-                        destPmReceiverUnlockCode = startingDestPmReceiverUnlockCode++;
+                        srcPmCourierUnlockCode = startingSrcPmCourierUnlockCode++;
+                        if (shipmentStatus == ShipmentStatus.Shipping)
+                        {
+                            destPmCourierUnlockCode = startingDestPmCourierUnlockCode++;
+                        }
                     }
                     Shipment shipment =
                         new()
