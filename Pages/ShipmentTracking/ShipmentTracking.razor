@@ -79,10 +79,7 @@ else
             return;
         }
 
-        var authState = await authStateTask;
-        var username = authState.User.Identities.First().Name;
-        var role = authState.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
-        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", username, role,DateTime.UtcNow, nameof(OnInitializedAsync));
+        _logger.LogInformation("User: {0} ;Rights: {1}; Time: {2}, Method: {3}", "", "",DateTime.UtcNow, nameof(OnInitializedAsync));
         try
         {
             Shipment = await ShipmentService.SelectIncludeAll(shipmentId);
@@ -93,7 +90,7 @@ else
         }
         catch (Exception ex)
         {
-            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}",username, role, DateTime.UtcNow, nameof(OnInitializedAsync));
+            _logger.LogWarning("User: {0} ;Rights: {1}; Time: {2}, Method: {3}","", "", DateTime.UtcNow, nameof(OnInitializedAsync));
         }
 
     }
