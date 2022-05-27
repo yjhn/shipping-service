@@ -24,27 +24,29 @@
             </div>
         </div>
     </div>
-} else if(_assignResult == AssignResult.Error){
-        <div class="modal-backdrop" style="opacity: .6"></div>
-        <div class="modal show d-block" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
-            <div class="modal-dialog" role="alertdialog">
-                <div class="modal-content alert-danger">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Error assigning shipment</h5>
-                    </div>
-                    <div class="modal-body">
-                        @_assignMessage
-                    </div>
-                    <div class="modal-footer">
-                        <div class="row">
-                            <button class="btn btn-danger" @onclick="@FetchAssign">Fetch shipment from DB and assign myself</button>
-                            <button class="btn btn-danger" @onclick="@OverwriteAssign">Overwrite other changes</button>
-                            <button class="btn btn-primary" @onclick="@ResetPage">Cancel</button>
-                        </div>
+}
+else if (_assignResult == AssignResult.Error)
+{
+    <div class="modal-backdrop" style="opacity: .6"></div>
+    <div class="modal show d-block" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="dialog-title">
+        <div class="modal-dialog" role="alertdialog">
+            <div class="modal-content alert-danger">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dialog-title">Error assigning shipment</h5>
+                </div>
+                <div class="modal-body">
+                    @_assignMessage
+                </div>
+                <div class="modal-footer">
+                    <div class="row">
+                        <button class="btn btn-danger" style="margin-bottom: .5rem;" @onclick="@FetchAssign">Fetch shipment from DB and assign myself</button>
+                        <button class="btn btn-danger" style="margin-bottom: .5rem;" @onclick="@OverwriteAssign">Overwrite other changes</button>
+                        <button class="btn btn-primary" style="margin-bottom: .5rem;" @onclick="@ResetPage">Cancel</button>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 }
 <table class="table table-sm table-striped table-bordered">
     <tbody>
@@ -124,72 +126,45 @@
     async Task AssignShipmentToCourier(long shipmentId)
     {
         var shipment = UnassignedShipments.Single(s => s.Id == shipmentId);
-        // CourierId is only set if the user abuses the page and clicks
-        // "assign" under the popup again while the popup is open.
-        if (shipment.CourierId == null)
+        var result = await ShipmentService.AssignShipmentToCourier(shipment, Courier);
+        if (result == DbUpdateResult.ConcurrentUpdateError)
         {
-            DbUpdateResult result = await ShipmentService.AssignShipmentToCourier(shipment, Courier);
-            if (result == DbUpdateResult.ConcurrentUpdateError)
-            {
-                _shipmentId = shipmentId;
-                _assignResult = AssignResult.Error;
-                _assignMessage = "The shipment entity has been changed in the DB." +
-                                 "Do you want to overwrite changes made to the shipment since you loaded the page?";
-            }
-            else
-            {
-                _assignResult = AssignResult.Success;
-                _assignMessage = "Shipment " + shipment.Id + " is assigned.";
-            }
+            _shipmentId = shipmentId;
+            _assignResult = AssignResult.Error;
+            _assignMessage = "The shipment entity has been changed in the DB. " +
+                             "Do you want to overwrite changes made to the shipment since you loaded the page?";
         }
         else
         {
-            _assignMessage = "This shipment is already assigned";
+            _assignResult = AssignResult.Success;
+            _assignMessage = "Shipment with ID " + shipment.Id + " is assigned to you.";
         }
     }
 
     async Task OverwriteAssign()
     {
-        long id = _shipmentId!.Value;
+        var id = _shipmentId!.Value;
         var shipment = UnassignedShipments.Single(s => s.Id == id);
-        ShipmentService.Detach(id);
-        // There is no built-in way to overwrite changes, so just
-        // fetch the shipment form DB and overwrite all its fields
-        // except `xmin` which is used for concurrent update tracking.
         var shipmentFromDb = await ShipmentService.GetByIdBypassCache(id);
-        shipmentFromDb!.CourierId = shipment.CourierId;
-        shipmentFromDb.Created = shipment.Created;
-        shipmentFromDb.Modified = shipment.Modified;
-        shipmentFromDb.Description = shipment.Description;
-        shipmentFromDb.SenderId = shipment.SenderId;
-        shipmentFromDb.DestinationMachineId = shipment.DestinationMachineId;
-        shipmentFromDb.SourceMachineId = shipment.SourceMachineId;
-        shipmentFromDb.Status = shipment.Status;
-        shipmentFromDb.Title = shipment.Title;
-        shipmentFromDb.SrcPmSenderUnlockCode = shipment.SrcPmSenderUnlockCode;
-        shipmentFromDb.SrcPmCourierUnlockCode = shipment.SrcPmCourierUnlockCode;
-        shipmentFromDb.DestPmCourierUnlockCode = shipment.DestPmCourierUnlockCode;
-        shipmentFromDb.DestPmReceiverUnlockCode = shipment.DestPmReceiverUnlockCode;
-        
-        DbUpdateResult result = await ShipmentService.AssignShipmentToCourier(shipmentFromDb, Courier);
+        ShipmentService.AssignFrom(shipment, shipmentFromDb);
+
+        var result = await ShipmentService.AssignShipmentToCourier(shipmentFromDb, Courier);
         if (result == DbUpdateResult.Success)
         {
             _assignResult = AssignResult.Success;
-            _assignMessage = "Shipment " + shipment.Id + " is assigned.";
+            _assignMessage = "Shipment with ID " + shipment.Id + " is assigned to you.";
         }
     }
-    
+
     async Task FetchAssign()
     {
-        long id = _shipmentId!.Value;
-        ShipmentService.Detach(id);
+        var id = _shipmentId!.Value;
         var shipmentFromDb = await ShipmentService.GetByIdBypassCache(id);
-        // shipmentFromDb!.CourierId = Courier.Id;
-        DbUpdateResult result = await ShipmentService.AssignShipmentToCourier(shipmentFromDb, Courier);
+        var result = await ShipmentService.AssignShipmentToCourier(shipmentFromDb, Courier);
         if (result == DbUpdateResult.Success)
         {
             _assignResult = AssignResult.Success;
-            _assignMessage = "Shipment " + shipmentFromDb.Id + " is assigned.";
+            _assignMessage = "Shipment with ID " + shipmentFromDb.Id + " is assigned to you.";
         }
     }
 
@@ -199,4 +174,5 @@
         Success,
         Error
     }
+
 }
